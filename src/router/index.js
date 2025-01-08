@@ -1,32 +1,63 @@
-//该文件用于创建整个应用的路由器
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Home from "@/pages/Home.vue";
+// 其他页面组件的导入
+import Tasks from "@/pages/Tasks.vue";
+import Whitelist from "@/pages/Whitelist.vue";
+import Blacklist from "@/pages/Blacklist.vue";
+import Settings from "@/pages/Settings.vue";
+// import Analytics from "@/pages/Analytics.vue";
+// import Security from "@/pages/Security.vue";
+// import Logout from "@/pages/Logout.vue";
 
-Vue.use(VueRouter) //vue-router本身是一个插件，需要注册
-
-
+Vue.use(VueRouter)
 
 const router = new VueRouter({
+    mode: 'hash',
     routes: [
         {
             path: '/',
             redirect: '/home'
         },
-
+        {
+            path: '/home',
+            component: Home,
+        },
+        // 其他路由配置
+        {
+            path: '/tasks',
+            component: Tasks,
+        },
+        {
+            path: '/whitelist',
+            component: Whitelist,
+        },
+        {
+            path: '/blacklist',
+            component: Blacklist,
+        },
+        {
+            path: '/settings',
+            component: Settings,
+        },
+        // {
+        //     path: '/analytics',
+        //     component: Analytics,
+        // },
+        // {
+        //     path: '/security',
+        //     component: Security,
+        // },
+        // {
+        //     path: '/logout',
+        //     component: Logout,
+        // },
     ]
 })
-//初始化时调用一次
-//然后，在每一次切换路由之前，执行一次这个方法
-//全局前置路由守卫
+
 router.beforeEach((to, from, next) => {
-    //接收三个参数
-    //to 去哪，下一个路由的路径，名字，参数等等
-    //from 从哪来
-    //next 下一步
-
-
+    console.log("下一站：" + to.path)
     next()
 })
-
 
 export default router
