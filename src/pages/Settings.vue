@@ -21,22 +21,17 @@
         <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
         <div class="flex items-center justify-between">
           <span>{{ config.description }}</span>
-
           <div v-if="config.type === 'switch'" class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'sys-toggle-' + index" v-model="config.value"
-                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-            <label :for="'sys-toggle-' + index" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+            <input type="checkbox" :id="'toggle-' + index" v-model="config.value" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+            <label :for="'toggle-' + index" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
           </div>
-
           <div v-else-if="config.type === 'text'" class="flex items-center">
             <input :id="'input-' + index" v-model="config.value" :disabled="!config.editable" class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
             <button @click="toggleEdit(index)" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
           </div>
-
-          <select v-else-if="config.type === 'select'"
-                  v-model="config.value" class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select v-else-if="config.type === 'select'" v-model="config.value" class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option v-for="option in config.options" :key="option" :value="option">{{ option }}</option>
           </select>
         </div>
@@ -49,26 +44,46 @@
         <div class="flex items-center justify-between">
           <span class="text-lg">{{ config.name }}</span>
           <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'toggle-' + index" v-model="config.value"
-                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+            <input type="checkbox" :id="'toggle-' + index" v-model="config.value" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
             <label :for="'toggle-' + index" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
           </div>
         </div>
         <p class="text-sm text-gray-400 mt-2">{{ config.description }}</p>
       </div>
     </div>
+
+    <!-- 模态框 -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50">
+      <div class="fixed inset-0 bg-black opacity-50"></div>
+      <div class="bg-white p-8 rounded-lg shadow-lg z-10">
+        <h2 class="text-xl font-bold mb-4">请使用哔哩哔哩客户端扫码登陆</h2>
+        <img :src="qrCodeDataUrl" alt="QR Code" class="w-64 h-64 mb-4">
+        <button @click="checkScanResult" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-green-500 mr-2">
+          我已扫码
+        </button>
+        <button @click="showModal = false" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-red-500">
+          关闭
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import api from '@/api/index.js';
+import QRCode from 'qrcode';
+
 export default {
   name:"setting-view",
   data() {
     return {
-      userAvatar: 'https://i1.hdslb.com/bfs/face/13703d9b4b25e46a06f8928cd2cced5c315638a7.jpg',
-      userName: '张明',
-      userLevel: 6,
-      userCoins: 100,
+      userAvatar: '',
+      userName: '',
+      userLevel: 0,
+      userCoins: 0,
+      showModal: false,
+      qrCodeUrl: 'https://account.bilibili.com/h5/account-h5/auth/scan-web?navhide=1&callback=close&qrcode_key=c60e9ca645691ccd0e974d55d43092ac&from=', // 替换为实际的二维码URL
+      qrCodeDataUrl: '',
       systemConfigs: [
         { name: 'API Token', value: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', type: 'text', description: 'API访问令牌', editable: false },
         { name: 'Cookie', value: 'session=abcdef1234567890', type: 'text', description: '会话Cookie', editable: false },
@@ -88,9 +103,16 @@ export default {
     };
   },
   methods: {
-    relogin() {
+    async relogin() {
       // 实现重新登录的逻辑
       console.log('重新登录');
+      const response = await api.getWebQrCode()
+      if (response.success && response.code === 20000) {
+        this.qrCodeUrl = response.data;
+        console.log(this.qrCodeUrl);
+      }
+      this.showModal = true;
+
     },
     toggleEdit(index) {
       const config = this.systemConfigs[index];
@@ -101,7 +123,54 @@ export default {
       } else {
         config.editable = true;
       }
+    },
+    async fetchUserData() {
+      try {
+        const response = await api.checkAccessKey();
+        if (response.success && response.code === 20000) {
+          const data = response.data.data;
+          this.userName = data.name;
+          this.userLevel = data.level;
+          this.userCoins = data.coins;
+          this.userAvatar = process.env.VUE_APP_URL+"/config/getPic?url=" +data.face;
+        }
+      } catch (error) {
+        console.error('获取用户数据失败:', error);
+      }
+    },
+    async generateQRCode() {
+      try {
+        this.qrCodeDataUrl = await QRCode.toDataURL(this.qrCodeUrl);
+      } catch (error) {
+        console.error('生成二维码失败:', error);
+      }
+    },
+    async checkScanResult() {
+      try {
+        const response = await api.checkScanResult();
+        console.log(response);
+        if (response.success && response.code === 20000 && response.data.indexOf("登陆成功")!==-1) {
+          alert('登录成功');
+          this.showModal = false;
+          this.fetchUserData();
+        } else {
+          alert('登录失败，请重试');
+        }
+      } catch (error) {
+        console.error('检查扫码结果失败:', error);
+        alert('检查扫码结果失败，请重试');
+      }
     }
+  },
+  watch: {
+    showModal(newVal) {
+      if (newVal) {
+        this.generateQRCode();
+      }
+    }
+  },
+  mounted() {
+    this.fetchUserData();
   }
 };
 </script>
