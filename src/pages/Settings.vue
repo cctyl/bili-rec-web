@@ -11,20 +11,35 @@
         <span class="mr-4">硬币数: {{ userCoins }}</span>
       </div>
       <button @click="relogin"
-        class="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+              class="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
         重新登录
       </button>
+      <button @click="fetchUserData" :class="{ 'animate-spin': isFetching }"
+              class="absolute top-0 left-0 bg-gray-300 hover:bg-gray-400 text-black p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M4 20l16-16" />
+        </svg>
+      </button>
     </div>
-    <h2 class="text-2xl font-bold mb-8">配置模块</h2>
+
+    <div class="config-module flex justify-between items-center mb-8 p-4">
+      <!-- 标题 -->
+      <span class="text-2xl font-bold">配置模块</span>
+      <!-- 提交按钮 -->
+      <button @click="updateConfigData" :disabled="!sysConfigUpdate"
+        :class="{ 'bg-green-500 hover:bg-green-600': sysConfigUpdate, 'bg-gray-400 cursor-not-allowed': !sysConfigUpdate }"
+        class="text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-green-500">
+        提交配置修改
+      </button>
+    </div>
     <!-- 系统配置列表 -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div v-for="(config, index) in systemConfigs" :key="index" class="bg-gray-800 p-4 rounded-lg">
         <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
         <div class="flex items-center justify-between">
-          <span>{{ config.description }}</span>
           <div v-if="config.type === 'switch'"
             class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'toggle-' + index" v-model="config.value"
+            <input type="checkbox" :id="'toggle-' + index" v-model="config.value" @click="sysConfigUpdate = true"
               class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
             <label :for="'toggle-' + index"
               class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
@@ -48,7 +63,7 @@
             </button>
           </div>
 
-          <select v-else-if="config.type === 'select'" v-model="config.value"
+          <select v-else-if="config.type === 'select'" v-model="config.value" @change="sysConfigUpdate = true"
             class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option v-for="option in config.options" :key="option" :value="option">{{ option }}</option>
           </select>
@@ -56,22 +71,6 @@
       </div>
     </div>
 
-    <h2 class="text-2xl font-bold mb-8 ">配置开关列表</h2>
-    <!-- 配置开关列表 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div v-for="(config, index) in configSwitches" :key="index" class="bg-gray-800 p-4 rounded-lg">
-        <div class="flex items-center justify-between">
-          <span class="text-lg">{{ config.name }}</span>
-          <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'toggle-' + index" v-model="config.value"
-              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
-            <label :for="'toggle-' + index"
-              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 mt-2">{{ config.description }}</p>
-      </div>
-    </div>
 
     <!-- Cookie 列表 -->
 
@@ -232,8 +231,10 @@ export default {
       showModal: false,
       qrCodeUrl: 'https://account.bilibili.com/h5/account-h5/auth/scan-web?navhide=1&callback=close&qrcode_key=c60e9ca645691ccd0e974d55d43092ac&from=', // 替换为实际的二维码URL
       qrCodeDataUrl: '',
+      isFetching: false,
       systemConfigs: [
         {
+          id: null,
           name: '最短播放时长',
           key: 'minPlaySecond',
           value: '50',
@@ -242,6 +243,7 @@ export default {
           editable: false
         },
         {
+          id: null,
           name: '百度ack',
           key: 'baidu_accesskey',
           value: '',
@@ -250,6 +252,7 @@ export default {
           editable: false
         },
         {
+          id: null,
           name: '百度client_id',
           key: 'baidu_client_id',
           value: '',
@@ -258,6 +261,7 @@ export default {
           editable: false
         },
         {
+          id: null,
           name: '百度client_secret',
           key: 'baidu_client_secret',
           value: '',
@@ -266,12 +270,21 @@ export default {
           editable: false
         },
         {
+          id: null,
           name: '哔哩哔哩ack',
           key: 'bili:access_key',
           value: '',
           type: 'textpassword',
           description: '哔哩哔哩登陆后的认证，登陆成功后存在',
           editable: false
+        },
+        {
+          id: null,
+          name: '定时任务',
+          key: 'cron',
+          value: false,
+          type: 'switch',
+          description: '开启首页推荐任务，热门排行榜任务，关键词任务等三个定时任务'
         },
       ],
       showAddCookieModal: false,
@@ -282,14 +295,6 @@ export default {
         classify: '',
         mediaType: ''
       },
-      configSwitches: [
-        {
-          name: '定时任务',
-          key: 'cron',
-          value: true,
-          description: '开启首页推荐任务，热门排行榜任务，关键词任务等三个定时任务'
-        },
-      ],
       cookieList: [
         {
           id: '1',
@@ -324,13 +329,15 @@ export default {
       currentPage: 1,
       totalPages: 1,
       pageSize: 5,
+      sysConfigUpdate: false,
     };
   },
+
   methods: {
     async relogin() {
       // 实现重新登录的逻辑
       console.log('重新登录');
-      const response = await api.getWebQrCode()
+      const response = await api.getTvQrCode()
       if (response.success && response.code === 20000) {
         this.qrCodeUrl = response.data;
         console.log(this.qrCodeUrl);
@@ -339,6 +346,7 @@ export default {
       this.showModal = true;
     },
     toggleEdit(index) {
+      this.sysConfigUpdate = true;
       const config = this.systemConfigs[index];
       if (config.editable) {
         // 保存逻辑
@@ -403,6 +411,10 @@ export default {
       }
     },
     async fetchUserData() {
+      if (this.isFetching){
+        return;
+      }
+      this.isFetching = true;
       try {
         const response = await api.checkAccessKey();
         if (response.success && response.code === 20000) {
@@ -411,9 +423,19 @@ export default {
           this.userLevel = data.level;
           this.userCoins = data.coins;
           this.userAvatar = process.env.VUE_APP_URL + "/config/getPic?url=" + data.face;
+        }else if(response.message.indexOf("未登录/登录失效")!==-1){
+            console.log("登陆失效，请重新登陆");
+            this.relogin();
         }
+
+
       } catch (error) {
         console.error('获取用户数据失败:', error);
+      } finally {
+        setTimeout(()=>{
+          this.isFetching = false;
+        },300);
+
       }
     },
     async generateQRCode() {
@@ -425,14 +447,14 @@ export default {
     },
     async checkScanResult() {
       try {
-        const response = await api.checkScanResult();
+        const response = await api.checkTvScanResult();
         console.log(response);
         if (response.success && response.code === 20000 && response.data.indexOf("登陆成功") !== -1) {
           alert('登录成功');
           this.showModal = false;
           this.fetchUserData();
         } else {
-          alert('登录失败，请重试');
+          alert(response.data);
         }
       } catch (error) {
         console.error('检查扫码结果失败:', error);
@@ -455,6 +477,53 @@ export default {
         console.error('获取Cookie列表失败:', error);
       }
     },
+    async fetchConfigData() {
+      try {
+        const response = await api.getConfigList();
+        if (response.success && response.code === 20000) {
+          const data = response.data;
+          //遍历systemConfigs，取出key，根据这个key到data中查找name=该key的对象，然后取出data中对象的value，设置到systemConfigs对象中的value
+          this.systemConfigs.forEach(config => {
+            const key = config.key;
+            const target = data.find(item => item.name === key);
+            if (target) {
+
+              config.value = target.value;
+              config.id = target.id;
+
+            }
+
+            if (config.type === 'switch') {
+              config.value = config.value === 'true';
+            }
+
+          });
+
+        }
+      } catch (error) {
+        console.error('获取配置列表失败:', error);
+      }
+    },
+    async updateConfigData() {
+
+      try {
+
+        const data = this.systemConfigs.map(config => ({
+          id: config.id,
+          name: config.key,
+          value: config.value
+        }));
+        const response = await api.addOrUpdateConfig(data);
+        if (!(response.success && response.code === 20000)) {
+          alert('修改Cookie失败，请重试');
+        } else {
+          this.sysConfigUpdate = false;
+        }
+      } catch (error) {
+        console.error('修改Cookie失败:', error);
+        alert('修改Cookie失败，请重试');
+      }
+    },
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -472,6 +541,7 @@ export default {
   mounted() {
     this.fetchUserData();
     this.fetchCookieList(this.currentPage, this.pageSize);
+    this.fetchConfigData();
   }
 };
 </script>
@@ -520,5 +590,15 @@ input[type=number] {
 
 .toggle-checkbox:checked+.toggle-label {
   background-color: #68D391;
+}
+
+/* 添加转圈动画 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 2s linear infinite;
 }
 </style>
