@@ -11,7 +11,7 @@
         <span class="mr-4">硬币数: {{ userCoins }}</span>
       </div>
       <button @click="relogin"
-              class="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+        class="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
         重新登录
       </button>
     </div>
@@ -23,33 +23,33 @@
         <div class="flex items-center justify-between">
           <span>{{ config.description }}</span>
           <div v-if="config.type === 'switch'"
-               class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+            class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
             <input type="checkbox" :id="'toggle-' + index" v-model="config.value"
-                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
             <label :for="'toggle-' + index"
-                   class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
           </div>
 
           <div v-else-if="config.type === 'text'" class="flex items-center">
             <input :id="'input-' + index" v-model="config.value" :disabled="!config.editable"
-                   class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
             <button @click="toggleEdit(index)"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+              class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
           </div>
           <div v-else-if="config.type === 'textpassword'" class="flex items-center">
-            <input :id="'input-' + index" v-model="config.value" :type="config.editable?'text':'password'"
-                   :disabled="!config.editable"
-                   class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+            <input :id="'input-' + index" v-model="config.value" :type="config.editable ? 'text' : 'password'"
+              :disabled="!config.editable"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
             <button @click="toggleEdit(index)"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+              class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
           </div>
 
           <select v-else-if="config.type === 'select'" v-model="config.value"
-                  class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option v-for="option in config.options" :key="option" :value="option">{{ option }}</option>
           </select>
         </div>
@@ -64,79 +64,150 @@
           <span class="text-lg">{{ config.name }}</span>
           <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
             <input type="checkbox" :id="'toggle-' + index" v-model="config.value"
-                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
             <label :for="'toggle-' + index"
-                   class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
           </div>
         </div>
         <p class="text-sm text-gray-400 mt-2">{{ config.description }}</p>
       </div>
     </div>
 
-    <h2 class="text-2xl font-bold mb-8 ">Cookie 列表</h2>
+    <!-- Cookie 列表 -->
+
+    <!-- 新增按钮 -->
+    <div class="flex justify-between mb-4">
+      <span class="text-2xl font-bold ">Cookie 列表</span>
+
+      <button @click="showAddCookieModal = true"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        新增Cookie
+      </button>
+    </div>
+
     <!-- Cookie 列表 -->
     <table class="min-w-full bg-gray-800 rounded-lg">
       <thead>
-      <tr>
-        <th class="px-4 py-2">ID</th>
-        <th class="px-4 py-2">URL(空表示通用)</th>
-        <th class="px-4 py-2">Key</th>
-        <th class="px-4 py-2">Value</th>
-        <th class="px-4 py-2">分类</th>
-        <th class="px-4 py-2">用途</th>
-        <th class="px-4 py-2">操作</th>
-      </tr>
+        <tr>
+          <th class="px-2 py-2 w-1/6">URL(空表示通用)</th>
+          <th class="px-4 py-2">Key</th>
+          <th class="px-4 py-2">Value</th>
+          <th class="px-4 py-2">分类</th>
+          <th class="px-4 py-2">用途</th>
+          <th class="px-4 py-2">操作</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="(cookie, index) in cookieList" :key="cookie.id" class="border-t border-gray-700">
-        <td class="px-4 py-2">{{ cookie.id }}</td>
-        <td class="px-4 py-2">
-          <input v-model="cookie.url" :disabled="!cookie.editable"
-                 class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-        </td>
-        <td class="px-4 py-2">
-          <input v-model="cookie.ckey" :disabled="!cookie.editable"
-                 class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-        </td>
-        <td class="px-4 py-2">
-          <input v-model="cookie.cvalue" :disabled="!cookie.editable" :type="cookie.editable?'text':'password'"
-                 class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-        </td>
-        <td class="px-4 py-2">
-          <select v-model="cookie.classify" :disabled="!cookie.editable"
-                  class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-            <option v-for="option in classifyOptions" :key="option" :value="option">{{ option }}</option>
-          </select>
-        </td>
-        <td class="px-4 py-2">
-          <select v-model="cookie.mediaType" :disabled="!cookie.editable"
-                  class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-            <option v-for="option in mediaTypeOptions" :key="option" :value="option">{{ option }}</option>
-          </select>
-        </td>
-        <td class="px-4 py-2">
-          <button @click="toggleCookieEdit(index)"
-                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-            {{ cookie.editable ? '保存' : '编辑' }}
-          </button>
-        </td>
-      </tr>
+        <tr v-for="(cookie, index) in cookieList" :key="cookie.id" class="border-t border-gray-700">
+          <td class="px-2 py-2">
+            <input v-model="cookie.url" :disabled="!cookie.editable"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+          </td>
+          <td class="px-4 py-2">
+            <input v-model="cookie.ckey" :disabled="!cookie.editable"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+          </td>
+          <td class="px-4 py-2">
+            <input v-model="cookie.cvalue" :disabled="!cookie.editable" :type="cookie.editable ? 'text' : 'password'"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+          </td>
+          <td class="px-4 py-2">
+            <select v-model="cookie.classify" :disabled="!cookie.editable"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+              <option v-for="option in classifyOptions" :key="option" :value="option">{{ option }}</option>
+            </select>
+          </td>
+          <td class="px-4 py-2">
+            <select v-model="cookie.mediaType" :disabled="!cookie.editable"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+              <option v-for="option in mediaTypeOptions" :key="option" :value="option">{{ option }}</option>
+            </select>
+          </td>
+          <td class="px-4 py-2 flex space-x-2">
+            <button @click="toggleCookieEdit(index)"
+              class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+              {{ cookie.editable ? '保存' : '编辑' }}
+            </button>
+            <button @click="deleteCookie(index)"
+              class="text-xs bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-red-500">
+              删除
+            </button>
+          </td>
+        </tr>
       </tbody>
     </table>
 
+    <!-- 分页条 -->
+    <div class="flex justify-between items-center mt-4">
+      <button @click="prevPage" :disabled="currentPage === 1"
+        class="bg-gray-700 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        上一页
+      </button>
+      <span>第 {{ currentPage }} 页，共 {{ totalPages }} 页</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages"
+        class="bg-gray-700 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        下一页
+      </button>
+    </div>
+    <!-- 新增Cookie模态框 -->
+    <div v-if="showAddCookieModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 p-8 rounded-lg w-1/2">
+        <h3 class="text-xl font-bold mb-4">新增Cookie</h3>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" for="newCookieUrl">URL</label>
+          <input type="text" id="newCookieUrl" v-model="newCookie.url"
+            class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" for="newCookieKey">Key</label>
+          <input type="text" id="newCookieKey" v-model="newCookie.ckey"
+            class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" for="newCookieValue">Value</label>
+          <input type="text" id="newCookieValue" v-model="newCookie.cvalue"
+            class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" for="newCookieClassify">分类</label>
+          <select id="newCookieClassify" v-model="newCookie.classify"
+            class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option v-for="option in classifyOptions" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" for="newCookieMediaType">用途</label>
+          <select id="newCookieMediaType" v-model="newCookie.mediaType"
+            class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option v-for="option in mediaTypeOptions" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button @click="showAddCookieModal = false"
+            class="px-4 py-2 bg-gray-600 text-white rounded-md !rounded-button hover:bg-gray-500 whitespace-nowrap">
+            取消
+          </button>
+          <button @click="addCookie"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md !rounded-button hover:bg-blue-600 whitespace-nowrap">
+            添加
+          </button>
+        </div>
+      </div>
+    </div>
     <!-- 模态框 -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="fixed inset-0 bg-black opacity-50"></div>
-      <div class="bg-white p-8 rounded-lg shadow-lg z-10 " style="display:flex; flex-direction:column; align-items: center">
-        <h2 class="text-xl font-bold mb-4 text-center " style="color: #000;" >请使用哔哩哔哩客户端扫码登陆</h2>
+      <div class="bg-white p-8 rounded-lg shadow-lg z-10 "
+        style="display:flex; flex-direction:column; align-items: center">
+        <h2 class="text-xl font-bold mb-4 text-center " style="color: #000;">请使用哔哩哔哩客户端扫码登陆</h2>
         <img :src="qrCodeDataUrl" alt="QR Code" class="w-64 h-64 mb-4">
         <div style="width:100%; display:flex; flex-direction:row; align-items: stretch">
           <button @click="checkScanResult" style="flex: 1"
-                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-green-500 ">
+            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-green-500 ">
             我已扫码
           </button>
           <button @click="showModal = false" style="flex: 1;margin-left: 10px"
-                  class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-red-500">
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-red-500">
             关闭
           </button>
         </div>
@@ -203,6 +274,14 @@ export default {
           editable: false
         },
       ],
+      showAddCookieModal: false,
+      newCookie: {
+        url: null,
+        ckey: '',
+        cvalue: '',
+        classify: '',
+        mediaType: ''
+      },
       configSwitches: [
         {
           name: '定时任务',
@@ -241,7 +320,10 @@ export default {
         },
       ],
       classifyOptions: ['COOKIE', 'REQUEST_HEADER', 'RESPONSE_HEADER'],
-      mediaTypeOptions: ['GENERAL', 'URL_MATCHING', 'TIMELY_UPDATE']
+      mediaTypeOptions: ['GENERAL', 'URL_MATCHING', 'TIMELY_UPDATE'],
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 5,
     };
   },
   methods: {
@@ -266,12 +348,56 @@ export default {
         config.editable = true;
       }
     },
+    async addCookie() {
+      try {
+        if (this.newCookie.url) {
+          this.newCookie.url = null;
+        }
+        const response = await api.addCookie(this.newCookie);
+        if (response.success && response.code === 20000) {
+          this.cookieList.push({ ...this.newCookie, editable: false });
+          this.showAddCookieModal = false;
+          this.newCookie = { url: null, ckey: '', cvalue: '', classify: '', mediaType: '' };
+        } else {
+          alert('新增Cookie失败，请重试');
+        }
+      } catch (error) {
+        console.error('新增Cookie失败:', error);
+        alert('新增Cookie失败，请重试');
+      }
+    },
+    async updateCookie(index) {
+      const cookie = this.cookieList[index];
+      try {
+        const response = await api.updateCookie(cookie);
+        if (response.success && response.code === 20000) {
+          cookie.editable = false;
+        } else {
+          alert('修改Cookie失败，请重试');
+        }
+      } catch (error) {
+        console.error('修改Cookie失败:', error);
+        alert('修改Cookie失败，请重试');
+      }
+    },
+    async deleteCookie(index) {
+      const cookie = this.cookieList[index];
+      try {
+        const response = await api.deleteCookie({ id: cookie.id });
+        if (response.success && response.code === 20000) {
+          this.cookieList.splice(index, 1);
+        } else {
+          alert('删除Cookie失败，请重试');
+        }
+      } catch (error) {
+        console.error('删除Cookie失败:', error);
+        alert('删除Cookie失败，请重试');
+      }
+    },
     toggleCookieEdit(index) {
       const cookie = this.cookieList[index];
       if (cookie.editable) {
-        // 保存逻辑
-        console.log('保存Cookie:', cookie.id, cookie.url, cookie.ckey, cookie.cvalue, cookie.classify, cookie.mediaType);
-        cookie.editable = false;
+        this.updateCookie(index);
       } else {
         cookie.editable = true;
       }
@@ -312,11 +438,40 @@ export default {
         console.error('检查扫码结果失败:', error);
         alert('检查扫码结果失败，请重试');
       }
+    },
+    async fetchCookieList(page, limit) {
+      try {
+        const response = await api.getCookieList(page, limit);
+        if (response.success && response.code === 20000) {
+          const data = response.data.page;
+          this.cookieList = data.records.map(record => ({
+            ...record,
+            editable: false
+          }));
+          this.totalPages = data.pages;
+          this.currentPage = data.current;
+        }
+      } catch (error) {
+        console.error('获取Cookie列表失败:', error);
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.fetchCookieList(this.currentPage, this.pageSize);
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.fetchCookieList(this.currentPage, this.pageSize);
+      }
     }
   },
 
   mounted() {
     this.fetchUserData();
+    this.fetchCookieList(this.currentPage, this.pageSize);
   }
 };
 </script>
@@ -363,7 +518,7 @@ input[type=number] {
   border-color: #68D391;
 }
 
-.toggle-checkbox:checked + .toggle-label {
+.toggle-checkbox:checked+.toggle-label {
   background-color: #68D391;
 }
 </style>
