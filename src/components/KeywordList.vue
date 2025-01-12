@@ -16,9 +16,11 @@
     <div class="bg-gray-800 rounded-lg p-4">
       <div class="flex mb-4">
         <input v-model="newKeyword" :placeholder="hint+',   输入后可以搜索哦'"
-          class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <slot>
+        </slot>
         <button @click="addKeyword"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
           <i class="fas fa-plus mr-2"></i>添加
         </button>
       </div>
@@ -47,12 +49,12 @@ export default {
       keywordList: [],
     }
   },
-  computed:{
-    keywordListFilter(){
-      if (!this.newKeyword){
+  computed: {
+    keywordListFilter() {
+      if (!this.newKeyword) {
         return this.keywordList
-      }else {
-        return this.keywordList.filter(k => k.value.includes(this.newKeyword)  || (k.desc!=null && k.desc.includes(this.newKeyword)))
+      } else {
+        return this.keywordList.filter(k => k.value.includes(this.newKeyword) || (k.desc != null && k.desc.includes(this.newKeyword)))
       }
     }
   },
@@ -64,33 +66,38 @@ export default {
     title: String,
     hint: String,
     onSubmit: Function,
-    type:String,
-    desc:String,
-    add:Function,
-    remove:Function,
+    type: String,
+    desc: String,
+    add: Function,
+    remove: Function,
   },
   methods: {
+    getNewKeyWord() {
+      return this.newKeyword;
+    },
+    setNewKeyWord(value) {
+      this.newKeyword = value;
+    },
+
     addKeyword() {
       if (this.newKeyword && !this.keywordList.find(k => k.value === this.newKeyword)) {
         this.keywordList.push({value: this.newKeyword}); // 添加默认描述
-
-        this.add(this.type,this.newKeyword);
 
         this.newKeyword = '';
       }
     },
     removeKeyword(keywordItem) {
       this.keywordList = this.keywordList.filter(k => k !== keywordItem);
-      this.remove(this.type,keywordItem.id);
+      this.remove(this.type, keywordItem.id);
     },
-    submit(){
-      this.onSubmit(this.type,this.keywordList)
+    submit() {
+      this.onSubmit(this.type, this.keywordList)
     },
   },
   watch: {
     keywordListProp: {
       deep: true,
-      handler(){
+      handler() {
         this.keywordList = this.keywordListProp[this.type] || [];
       }
     }

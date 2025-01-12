@@ -19,7 +19,10 @@
         type="BLACK,KEYWORD"
         desc="当 视频标题 或 视频简介 中包含以下关键词时，将自动点踩"
 
-    ></KeywordListComponent>
+    >
+
+
+    </KeywordListComponent>
 
     <!-- 黑名单分区ID列表 -->
     <KeywordListComponent
@@ -39,7 +42,16 @@
         :on-submit="submitKeyword"
         type="BLACK,MID"
         desc="当 视频 UP 主 ID 为以下 ID 时，将自动点踩"
-    ></KeywordListComponent>
+        ref="BLACKMIDKeywordListComponent"
+    >
+
+      <button
+          @click="urlAddMid"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+        <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
+      </button>
+
+    </KeywordListComponent>
     <!-- 黑名单标签列表 -->
     <KeywordListComponent
         hint="添加新标签 "
@@ -76,7 +88,7 @@
             :submit-keyword-selection="submitKeywordSelection"
             title="关键词筛选"
             desc=
-            "
+                "
             以下是根据你之前点踩的视频生成的黑名单关键词，请选择保留或抛弃.
             如果你选择采纳,它会出现在上方的[黑名单关键词]中,
             如果你选择抛弃,它会出现在上方的[忽略的关键词]中
@@ -119,25 +131,20 @@ export default {
       newUploaderId: '',
       availableKeywords: ['关键词1', '关键词2', '关键词3'],
       availableTagwords: ['标签1', '标签2', '标签3'],
-      arrData:{
-        'BLACK,KEYWORD':[],
-        'BLACK,TAG':[],
-        'BLACK,TID':[],
-        'BLACK,MID':[],
-        'BLACK_CACHE,KEYWORD':[],
-        'BLACK_CACHE,TAG':[]
+      arrData: {
+        'BLACK,KEYWORD': [],
+        'BLACK,TAG': [],
+        'BLACK,TID': [],
+        'BLACK,MID': [],
+        'BLACK_CACHE,KEYWORD': [],
+        'BLACK_CACHE,TAG': []
       },
 
     };
   },
 
   mounted() {
-    // this.fetchBlackKeyWordList();
-    // this.fetchBlackTagList();
-    // this.fetchBlackTidList();
-    // this.fetchBlackUserIdList();
-    // this.fetchIgnoreKeyWordList();
-    // this.fetchIgnoreTagList();
+
 
     this.fetchData('BLACK,IGNORE_KEYWORD');
     this.fetchData('BLACK,IGNORE_TAG');
@@ -150,9 +157,25 @@ export default {
   },
   methods: {
 
+    urlAddMid() {
+      const prefix = "https://space.bilibili.com/";
+      let url = this.$refs.BLACKMIDKeywordListComponent.getNewKeyWord();
+      if (url.startsWith(prefix)) {
 
-    submitKeyword(type,keywordList){
-      console.log(type,keywordList)
+        // 创建一个新的URL对象
+        let urlObj = new URL(url);
+        // 从pathname中获取最后一部分，即用户id或'xxx'
+        let xxxPart = urlObj.pathname.split('/').pop();
+
+        this.$refs.BLACKMIDKeywordListComponent.setNewKeyWord(xxxPart);
+        this.$refs.BLACKMIDKeywordListComponent.addKeyword();
+
+      } else {
+        alert("请输入正确的url,如:https://space.bilibili.com/123456")
+      }
+    },
+    submitKeyword(type, keywordList) {
+      console.log(type, keywordList)
     },
     async fetchData(type) {
       try {
@@ -165,10 +188,7 @@ export default {
     },
 
 
-
-
-
-    async submitKeywordSelection(type,selectedKeywords, discardedKeywords) {
+    async submitKeywordSelection(type, selectedKeywords, discardedKeywords) {
       try {
         const dictType = type.split(',')[1];
         await api.submitSelectTrainResult(dictType, {
@@ -179,7 +199,6 @@ export default {
         console.error('Failed to fetch keywords:', error);
       }
     },
-
 
 
     async fetchKeywords() {
