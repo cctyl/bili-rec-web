@@ -149,5 +149,16 @@ export default {
   },
   getIgnoreTagList() {
     return ajax("/black-rule/ignoreTag")
+  },
+
+
+  /**
+   * 根据mid获取用户名
+   * @param mid
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  getUserNameByMid(mid)
+  {
+    return ajax(`/dict/getUserNameByMid/${mid}`);
   }
 };

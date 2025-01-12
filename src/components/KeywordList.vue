@@ -46,6 +46,7 @@ export default {
   data() {
     return {
       newKeyword: "",
+      newDesc: "",
       keywordList: [],
     }
   },
@@ -78,12 +79,19 @@ export default {
     setNewKeyWord(value) {
       this.newKeyword = value;
     },
+    setNewDesc(value) {
+      this.newDesc = value;
+    },
 
     addKeyword() {
       if (this.newKeyword && !this.keywordList.find(k => k.value === this.newKeyword)) {
-        this.keywordList.push({value: this.newKeyword}); // 添加默认描述
+        this.keywordList.push({value: this.newKeyword,desc:this.newDesc}); // 添加默认描述
 
         this.newKeyword = '';
+        this.newDesc = '';
+        this.$message('添加成功', 'success');
+      }else {
+        this.$message('关键词已存在', 'warning');
       }
     },
     removeKeyword(keywordItem) {

@@ -161,14 +161,21 @@ export default {
       const prefix = "https://space.bilibili.com/";
       let url = this.$refs.BLACKMIDKeywordListComponent.getNewKeyWord();
       if (url.startsWith(prefix)) {
-
         // 创建一个新的URL对象
-        let urlObj = new URL(url);
-        // 从pathname中获取最后一部分，即用户id或'xxx'
-        let xxxPart = urlObj.pathname.split('/').pop();
-
+        let xxxPart = new URL(url).pathname.split('/').pop();
         this.$refs.BLACKMIDKeywordListComponent.setNewKeyWord(xxxPart);
-        this.$refs.BLACKMIDKeywordListComponent.addKeyword();
+
+
+        api.getUserNameByMid(xxxPart).then((response) => {
+          this.$refs.BLACKMIDKeywordListComponent.setNewDesc(response.data);
+          this.$refs.BLACKMIDKeywordListComponent.addKeyword();
+
+
+        }).catch((error) => {
+          console.error('Failed to fetch user name:', error);
+        });
+
+
 
       } else {
         alert("请输入正确的url,如:https://space.bilibili.com/123456")
