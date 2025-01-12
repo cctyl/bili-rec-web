@@ -1,130 +1,256 @@
 <template>
 
-    <!-- 主内容区 -->
-    <div class="flex-1 p-8 overflow-y-auto">
-      <h2 class="text-2xl font-bold mb-8">黑名单管理</h2>
+  <!-- 主内容区 -->
+  <div class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-2xl font-bold mb-8">黑名单管理</h2>
 
-      <!-- 信息提示 -->
-      <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
-        <i class="fas fa-exclamation-triangle mr-2"></i>
-        黑名单规则用于自动拦截符合条件的内容。请谨慎设置以避免误判。
-      </div>
-
-      <!-- 黑名单关键词列表 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4">黑名单关键词</h3>
-        <div class="bg-gray-800 rounded-lg p-4">
-          <div class="flex mb-4">
-            <input v-model="newKeyword" type="text" placeholder="添加新关键词" class="flex-grow bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button @click="addKeyword" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-              <i class="fas fa-plus mr-2"></i>添加
-            </button>
-          </div>
-          <div class="flex flex-wrap">
-            <div v-for="keyword in blacklistKeywords" :key="keyword" class="bg-gray-700 text-white px-3 py-1 rounded-full !rounded-button mr-2 mb-2 flex items-center">
-              {{ keyword }}
-              <button @click="removeKeyword(keyword)" class="ml-2 text-red-400 hover:text-red-300 focus:outline-none">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 黑名单分区ID列表 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4">黑名单分区 ID</h3>
-        <div class="bg-gray-800 rounded-lg p-4">
-          <div class="flex mb-4">
-            <input v-model="newSectionId" type="number" placeholder="添加新分区 ID" class="flex-grow bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button @click="addSectionId" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-              <i class="fas fa-plus mr-2"></i>添加
-            </button>
-          </div>
-          <div class="flex flex-wrap">
-            <div v-for="id in blacklistSectionIds" :key="id" class="bg-gray-700 text-white px-3 py-1 rounded-full !rounded-button mr-2 mb-2 flex items-center">
-              {{ id }}
-              <button @click="removeSectionId(id)" class="ml-2 text-red-400 hover:text-red-300 focus:outline-none">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 黑名单UP主ID列表 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4">黑名单 UP 主 ID</h3>
-        <div class="bg-gray-800 rounded-lg p-4">
-          <div class="flex mb-4">
-            <input v-model="newUploaderId" type="number" placeholder="添加新 UP 主 ID" class="flex-grow bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button @click="addUploaderId" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-              <i class="fas fa-plus mr-2"></i>添加
-            </button>
-          </div>
-          <div class="flex flex-wrap">
-            <div v-for="id in blacklistUploaderIds" :key="id" class="bg-gray-700 text-white px-3 py-1 rounded-full !rounded-button mr-2 mb-2 flex items-center">
-              {{ id }}
-              <button @click="removeUploaderId(id)" class="ml-2 text-red-400 hover:text-red-300 focus:outline-none">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- 信息提示 -->
+    <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      黑名单规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
     </div>
 
+    <!-- 黑名单关键词列表 -->
+    <KeywordListComponent
+        hint="添加新关键词"
+        title="黑名单关键词"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,KEYWORD"
+        desc="当 视频标题 或 视频简介 中包含以下关键词时，将自动点踩"
+
+    ></KeywordListComponent>
+
+    <!-- 黑名单分区ID列表 -->
+    <KeywordListComponent
+        hint="添加新分区 ID"
+        title="黑名单分区 ID"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,TID"
+        desc="当 视频分区 ID 为以下 ID 时，将自动点踩"
+    ></KeywordListComponent>
+
+    <!-- 黑名单 UP 主 ID 列表 -->
+    <KeywordListComponent
+        hint="添加新 UP 主 ID"
+        title="黑名单 UP 主 ID"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,MID"
+        desc="当 视频 UP 主 ID 为以下 ID 时，将自动点踩"
+    ></KeywordListComponent>
+    <!-- 黑名单标签列表 -->
+    <KeywordListComponent
+        hint="添加新标签 "
+        title="黑名单标签"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,TAG"
+        desc="当 视频标签 中包含以下任意标签时，将自动点踩"
+    ></KeywordListComponent>
+
+    <!-- 忽略的黑名单关键词列表 -->
+    <KeywordListComponent
+        hint="添加关键词 "
+        title="忽略的黑名单关键词"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,IGNORE_KEYWORD"
+        desc="即你认为这些关键词是通用的,不应当作为黑名单判断的依据,以下关键词不会进入关键词筛选(不会自动加入黑名单)"
+    ></KeywordListComponent>
+
+    <!-- 忽略的黑名单关键词列表 -->
+    <KeywordListComponent
+        hint="添加新标签 "
+        title="忽略的黑名单标签"
+        :keyword-list-prop="arrData"
+        :on-submit="submitKeyword"
+        type="BLACK,IGNORE_TAG"
+        desc="即你认为这些标签是通用的,不应当作为黑名单判断的依据,以下标签不会进入标签筛选(不会自动加入黑名单)"
+    ></KeywordListComponent>
+
+    <!-- 关键词筛选界面 -->
+    <Select :available-keywords-prop="arrData"
+            type="BLACK_CACHE,KEYWORD"
+            :submit-keyword-selection="submitKeywordSelection"
+            title="关键词筛选"
+            desc=
+            "
+            以下是根据你之前点踩的视频生成的黑名单关键词，请选择保留或抛弃.
+            如果你选择采纳,它会出现在上方的[黑名单关键词]中,
+            如果你选择抛弃,它会出现在上方的[忽略的关键词]中
+            选择的结果会在下次任务中生效.
+            ">
+
+    </Select>
+
+    <!-- 标签筛选界面 -->
+    <Select :available-keywords-prop="arrData"
+            type="BLACK_CACHE,TAG"
+            :submit-keyword-selection="submitKeywordSelection"
+            title="标签筛选" desc="以下是根据你之前点踩的视频生成的黑名单标签，请选择保留或抛弃;
+            如果你选择采纳,它会出现在上方的[黑名单标签]中,
+            如果你选择抛弃,它会出现在上方的[忽略的黑名单标签]中
+            选择的结果会在下次任务中生效">
+
+    </Select>
+  </div>
 </template>
 
 <script>
+import api from '@/api/index.js';
+import Select from "@/components/Select.vue";
+import KeywordListComponent from "@/components/KeywordList.vue";
+
 export default {
-  name:"black-list-view",
+  name: "black-list-view",
+  components: {KeywordListComponent, Select},
   data() {
     return {
-      blacklistKeywords: ['暴力', '色情', '赌博', '诈骗', '违法'],
-      blacklistSectionIds: [1001, 1002, 1003],
-      blacklistUploaderIds: [12345, 67890, 24680],
+      BLACK_KEYWORD: ['暴力', '色情', '赌博', '诈骗', '违法'],
+      blackTidList: [1001, 1002, 1003],
+      blackUserIdList: [12345, 67890, 24680],
+      blackTagList: [12345, 67890, 24680],
+      ignoreKeyWordList: [12345, 67890, 24680],
+      ignoreTagList: [12345, 67890, 24680],
       newKeyword: '',
       newSectionId: '',
-      newUploaderId: ''
+      newUploaderId: '',
+      availableKeywords: ['关键词1', '关键词2', '关键词3'],
+      availableTagwords: ['标签1', '标签2', '标签3'],
+      arrData:{
+        'BLACK,KEYWORD':[],
+        'BLACK,TAG':[],
+        'BLACK,TID':[],
+        'BLACK,MID':[],
+        'BLACK_CACHE,KEYWORD':[],
+        'BLACK_CACHE,TAG':[]
+      },
+
     };
   },
+
+  mounted() {
+    // this.fetchBlackKeyWordList();
+    // this.fetchBlackTagList();
+    // this.fetchBlackTidList();
+    // this.fetchBlackUserIdList();
+    // this.fetchIgnoreKeyWordList();
+    // this.fetchIgnoreTagList();
+
+    this.fetchData('BLACK,IGNORE_KEYWORD');
+    this.fetchData('BLACK,IGNORE_TAG');
+    this.fetchData('BLACK,KEYWORD');
+    this.fetchData('BLACK,TAG');
+    this.fetchData('BLACK,TID');
+    this.fetchData('BLACK,MID');
+    this.fetchData('BLACK_CACHE,KEYWORD');
+    this.fetchData('BLACK_CACHE,TAG');
+  },
   methods: {
-    addKeyword() {
-      if (this.newKeyword && !this.blacklistKeywords.includes(this.newKeyword)) {
-        this.blacklistKeywords.push(this.newKeyword);
-        this.newKeyword = '';
+
+
+    submitKeyword(type,keywordList){
+      console.log(type,keywordList)
+    },
+    async fetchData(type) {
+      try {
+        const [accessType, dictType] = type.split(',');
+        const response = await api.getDictList(accessType, dictType);
+        this.arrData[type] = response.data.list;
+      } catch (error) {
+        console.error('Failed to fetch keywords:', error);
       }
     },
-    removeKeyword(keyword) {
-      this.blacklistKeywords = this.blacklistKeywords.filter(k => k !== keyword);
-    },
-    addSectionId() {
-      const id = parseInt(this.newSectionId);
-      if (id && !this.blacklistSectionIds.includes(id)) {
-        this.blacklistSectionIds.push(id);
-        this.newSectionId = '';
+
+
+
+
+
+    async submitKeywordSelection(type,selectedKeywords, discardedKeywords) {
+      try {
+        const dictType = type.split(',')[1];
+        await api.submitSelectTrainResult(dictType, {
+          selectedId: selectedKeywords.map(item => item.id),
+          discardedId: discardedKeywords.map(item => item.id)
+        });
+      } catch (error) {
+        console.error('Failed to fetch keywords:', error);
       }
     },
-    removeSectionId(id) {
-      this.blacklistSectionIds = this.blacklistSectionIds.filter(sectionId => sectionId !== id);
-    },
-    addUploaderId() {
-      const id = parseInt(this.newUploaderId);
-      if (id && !this.blacklistUploaderIds.includes(id)) {
-        this.blacklistUploaderIds.push(id);
-        this.newUploaderId = '';
+
+
+
+    async fetchKeywords() {
+      try {
+        const response = await api.getCacheTrainResult('KEYWORD');
+        this.availableKeywords = response.data;
+      } catch (error) {
+        console.error('Failed to fetch keywords:', error);
       }
     },
-    removeUploaderId(id) {
-      this.blacklistUploaderIds = this.blacklistUploaderIds.filter(uploaderId => uploaderId !== id);
-    }
+    async fetchTagwords() {
+      try {
+        const response = await api.getCacheTrainResult('TAG');
+        this.availableTagwords = response.data;
+      } catch (error) {
+        console.error('Failed to fetch tagwords:', error);
+      }
+    },
+    async fetchBlackKeyWordList() {
+      try {
+        const response = await api.getBlackKeyWordList();
+        this.blacklistKeywords = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
+    async fetchBlackTidList() {
+      try {
+        const response = await api.getBlackTidList();
+        this.blackTidList = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
+    async fetchBlackUserIdList() {
+      try {
+        const response = await api.getBlackUserIdList();
+        this.blackUserIdList = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
+    async fetchBlackTagList() {
+      try {
+        const response = await api.getBlackTagList();
+        this.blackTagList = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
+    async fetchIgnoreKeyWordList() {
+      try {
+        const response = await api.getIgnoreKeyWordList();
+        this.ignoreKeyWordList = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
+    async fetchIgnoreTagList() {
+      try {
+        const response = await api.getIgnoreTagList();
+        this.ignoreTagList = response.data;
+      } catch (error) {
+        console.error('Failed to fetch black key word list:', error);
+      }
+    },
   }
 };
 </script>
 
 <style scoped>
-
 body {
   font-family: 'Roboto', sans-serif;
 }
@@ -157,5 +283,6 @@ input[type=number] {
 ::-webkit-scrollbar-thumb:hover {
   background: #718096;
 }
-</style>
 
+
+</style>

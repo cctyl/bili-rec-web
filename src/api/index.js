@@ -97,4 +97,57 @@ export default {
   addOrUpdateConfig(configData) {
     return ajax('/config/standard', configData, 'POST');
   },
+
+  /**
+   * 获取字典列表
+   * @returns {Promise | Promise<unknown> | *}
+   * @param accessType String
+   * @param dictType String
+   */
+  getDictList(accessType,dictType) {
+    return ajax(`/dict/list?dictType=${dictType}&accessType=${accessType}`);
+  },
+
+
+  /**
+   * 获取训练好的结果
+   * @param type
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  getCacheTrainResult(type) {
+    return ajax('/black-rule/cache-train-result/'+type);
+  },
+
+  /**
+   * 获取训练好的结果
+   * @param type String
+   * @param arr Array
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  submitSelectTrainResult(type,arr) {
+    return ajax('/black-rule/cache-train-result/'+type,arr,'PUT');
+  },
+
+  /**
+   * 获得黑名单关键词列表
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  getBlackKeyWordList() {
+    return ajax("/black-rule/keyword");
+  },
+  getBlackTidList() {
+    return ajax("/black-rule/tid")
+  },
+  getBlackUserIdList() {
+    return ajax("/black-rule/user-id")
+  },
+  getBlackTagList() {
+    return ajax("/black-rule/tag")
+  },
+  getIgnoreKeyWordList() {
+    return ajax("/black-rule/ignore")
+  },
+  getIgnoreTagList() {
+    return ajax("/black-rule/ignoreTag")
+  }
 };

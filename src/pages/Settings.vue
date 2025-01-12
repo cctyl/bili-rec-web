@@ -363,6 +363,7 @@ export default {
         }
         const response = await api.addCookie(this.newCookie);
         if (response.success && response.code === 20000) {
+          this.newCookie.id = response.data.id;
           this.cookieList.push({ ...this.newCookie, editable: false });
           this.showAddCookieModal = false;
           this.newCookie = { url: null, ckey: '', cvalue: '', classify: '', mediaType: '' };
