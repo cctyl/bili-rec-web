@@ -2,10 +2,10 @@
   <div class="mb-8">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-xl font-bold">{{ title }}</h3>
-      <button @click="submit"
-              class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        提交
-      </button>
+      <!--      <button @click="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              提交
+            </button>-->
     </div>
     <div class="flex justify-between items-center mb-4" v-if="desc">
       <p class="text-gray-400">
@@ -48,6 +48,8 @@ export default {
       newKeyword: "",
       newDesc: "",
       keywordList: [],
+      accessType: "",
+      dictType: ""
     }
   },
   computed: {
@@ -57,9 +59,11 @@ export default {
       } else {
         return this.keywordList.filter(k => k.value.includes(this.newKeyword) || (k.desc != null && k.desc.includes(this.newKeyword)))
       }
-    }
+    },
   },
+
   mounted() {
+    this.splitType();
     this.keywordList = this.keywordListProp[this.type] || [];
   },
   props: {
@@ -85,21 +89,32 @@ export default {
 
     addKeyword() {
       if (this.newKeyword && !this.keywordList.find(k => k.value === this.newKeyword)) {
-        this.keywordList.push({value: this.newKeyword,desc:this.newDesc}); // 添加默认描述
+        let newItem = {value: this.newKeyword, desc: this.newDesc, dictType: this.dictType, accessType: this.accessType};
+        this.keywordList.push(newItem); // 添加默认描述
 
         this.newKeyword = '';
         this.newDesc = '';
         this.$message('添加成功', 'success');
-      }else {
+        this.add(this.accessType,this.dictType, newItem);
+      } else {
         this.$message('关键词已存在', 'warning');
       }
     },
     removeKeyword(keywordItem) {
       this.keywordList = this.keywordList.filter(k => k !== keywordItem);
-      this.remove(this.type, keywordItem.id);
+      this.remove(this.accessType,this.dictType, keywordItem);
     },
     submit() {
       this.onSubmit(this.type, this.keywordList)
+    },
+
+    splitType() {
+      let [accessType, dictType] = this.type.split(",")
+
+      this.accessType = accessType;
+      this.dictType = dictType;
+
+      console.log(accessType, dictType)
     },
   },
   watch: {
@@ -108,7 +123,12 @@ export default {
       handler() {
         this.keywordList = this.keywordListProp[this.type] || [];
       }
-    }
+    },
+
+    type() {
+      this.splitType();
+    },
+
   }
 }
 </script>

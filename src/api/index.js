@@ -160,5 +160,24 @@ export default {
   getUserNameByMid(mid)
   {
     return ajax(`/dict/getUserNameByMid/${mid}`);
+  },
+
+  /**
+   * 获取分区列表
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  getRegionList(){
+    return ajax(`/region/list`);
+  },
+  /**
+   * 添加关键词
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  addDict(keywordItem){
+    return ajax(`/dict`,keywordItem,'POST');
+  },
+
+  delDictById(id){
+    return ajax(`/dict/${id}`,null,'DELETE');
   }
 };
