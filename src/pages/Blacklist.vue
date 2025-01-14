@@ -205,14 +205,19 @@ export default {
   mounted() {
 
 
-    this.fetchData('BLACK,IGNORE_KEYWORD');
-    this.fetchData('BLACK,IGNORE_TAG');
-    this.fetchData('BLACK,KEYWORD');
-    this.fetchData('BLACK,TAG');
-    this.fetchData('BLACK,TID');
-    this.fetchData('BLACK,MID');
-    this.fetchData('BLACK_CACHE,KEYWORD');
-    this.fetchData('BLACK_CACHE,TAG');
+    // this.fetchData('BLACK,IGNORE_KEYWORD');
+    // this.fetchData('BLACK,IGNORE_TAG');
+    // this.fetchData('BLACK,KEYWORD');
+    // this.fetchData('BLACK,TAG');
+    // this.fetchData('BLACK,TID');
+    // this.fetchData('BLACK,MID');
+    // this.fetchData('BLACK_CACHE,KEYWORD');
+    // this.fetchData('BLACK_CACHE,TAG');
+
+
+    for (let key in this.arrData) {
+      this.fetchData(key);
+    }
   },
   computed: {
     filteredPartitions() {

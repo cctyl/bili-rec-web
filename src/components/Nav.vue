@@ -17,6 +17,13 @@
           <span class="ml-3">任务管理</span>
         </router-link>
       </li>
+
+      <li>
+        <router-link to="/other-setting" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
+          <i class="fas fa-wrench w-6"></i>
+          <span class="ml-3">其他配置</span>
+        </router-link>
+      </li>
       <li>
         <router-link to="/whitelist" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
           <i class="fas fa-check-circle w-6"></i>

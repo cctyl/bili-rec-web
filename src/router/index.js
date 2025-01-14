@@ -6,6 +6,7 @@ import Tasks from "@/pages/Tasks.vue";
 import Whitelist from "@/pages/Whitelist.vue";
 import Blacklist from "@/pages/Blacklist.vue";
 import Settings from "@/pages/Settings.vue";
+import OtherSetting from "@/pages/OtherSetting.vue";
 // import Analytics from "@/pages/Analytics.vue";
 // import Security from "@/pages/Security.vue";
 // import Logout from "@/pages/Logout.vue";
@@ -39,6 +40,10 @@ const router = new VueRouter({
         {
             path: '/settings',
             component: Settings,
+        },
+        {
+            path: '/other-setting',
+            component: OtherSetting,
         },
         // {
         //     path: '/analytics',

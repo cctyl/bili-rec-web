@@ -179,5 +179,17 @@ export default {
 
   delDictById(id){
     return ajax(`/dict/${id}`,null,'DELETE');
+  },
+  /**
+   * 查询白名单列表
+   * @param pageNo
+   * @param pageSize
+   */
+  getWhiteRuleList(pageNo, pageSize) {
+
+    return ajax(`/white-rule/list/${pageNo}/${pageSize}`);
+  },
+  addOrUpdateWhiteRule(newItem) {
+    return ajax(`/white-rule`,newItem,'POST')
   }
 };
