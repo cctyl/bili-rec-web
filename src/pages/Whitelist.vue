@@ -115,6 +115,8 @@ export default {
       searchQuery: '',
       showAddModal: false,
       showEditModal: false,
+      pageNo:1,
+      pageSize:10,
       currentItem: {
         info: '',
         tagNameList: [],
@@ -200,7 +202,7 @@ export default {
     async fetchWhitelist() {
 
       try {
-        const response = await api.getWhiteRuleList(1, 10);
+        const response = await api.getWhiteRuleList(this.pageNo, this.pageSize);
         this.whitelist = response.data.list;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
@@ -304,6 +306,7 @@ export default {
         const index = this.whitelist.findIndex(item => item.id === this.currentItem.id);
         if (index !== -1) {
           this.whitelist[index] = newItem;
+          this.$set(this.whitelist, index, newItem)
         }
       }
       this.closeModal();
