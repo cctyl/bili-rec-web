@@ -68,26 +68,37 @@
           <input type="text" id="ruleName" v-model="currentItem.info"
                  class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium mb-2" for="tagNameList">标签关键词（用逗号分隔）</label>
-          <input type="text" id="tagNameList" v-model="tagKeywordsInput"
-                 class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium mb-2" for="titleKeyWordList">标题关键词（用逗号分隔）</label>
-          <input type="text" id="titleKeyWordList" v-model="titleKeywordsInput"
-                 class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium mb-2" for="coverKeyword">封面关键词（用逗号分隔）</label>
-          <input type="text" id="coverKeyword" v-model="coverKeywordsInput"
-                 class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium mb-2" for="descKeyWordList">描述关键词（用逗号分隔）</label>
-          <input type="text" id="descKeyWordList" v-model="descriptionKeywordsInput"
-                 class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+        <TagInput
+            label="标签关键词"
+            :tags="currentItem"
+            type="tagNameList"
+            :on-add="addTag"
+            :on-remove="removeTag"
+        />
+
+        <TagInput
+            label="标题关键词"
+            :tags="currentItem"
+            type="titleKeyWordList"
+            :on-add="addTag"
+            :on-remove="removeTag"
+        />
+        <TagInput
+            label="视频描述关键词"
+            :tags="currentItem"
+            type="descKeyWordList"
+            :on-add="addTag"
+            :on-remove="removeTag"
+        />
+        <TagInput
+            label="封面关键词(开发中)"
+            :tags="currentItem"
+            type="coverKeyword"
+            :on-add="addTag"
+            :on-remove="removeTag"
+        />
+
+
         <div class="flex justify-end space-x-4">
           <button @click="closeModal"
                   class="px-4 py-2 bg-gray-600 text-white rounded-md !rounded-button hover:bg-gray-500 whitespace-nowrap">
@@ -107,16 +118,20 @@
 
 <script>
 import api from "@/api";
+import TagInput from "@/components/TagInput";
 
 export default {
   name: "white-list-view",
+  components: {
+    TagInput
+  },
   data() {
     return {
       searchQuery: '',
       showAddModal: false,
       showEditModal: false,
-      pageNo:1,
-      pageSize:10,
+      pageNo: 1,
+      pageSize: 10,
       currentItem: {
         info: '',
         tagNameList: [],
@@ -124,68 +139,22 @@ export default {
         coverKeyword: [],
         descKeyWordList: []
       },
-      tagKeywordsInput: '',
-      titleKeywordsInput: '',
-      coverKeywordsInput: '',
-      descriptionKeywordsInput: '',
-      whitelist: [
-        {
-          id: 1,
-          info: '教育内容',
-          tagNameList: ['教育', '学习', '知识'],
-          titleKeyWordList: ['课程', '教程', '学习方法'],
-          coverKeyword: ['书籍', '黑板', '学生'],
-          descKeyWordList: ['提高', '技能', '专业知识']
-        },
-        {
-          id: 2,
-          info: '科技新闻',
-          tagNameList: ['科技', 'IT', '创新'],
-          titleKeyWordList: ['发布', '更新', '革命性'],
-          coverKeyword: ['设备', '芯片', '数据'],
-          descKeyWordList: ['突破', '领先', '改变世界']
-        },
-        {
-          id: 3,
-          info: '健康生活',
-          tagNameList: ['健康', '养生', '运动'],
-          titleKeyWordList: ['健康饮食', '锻炼方法', '心理健康'],
-          coverKeyword: ['蔬菜', '运动器材', '瑜伽'],
-          descKeyWordList: ['营养', '体重管理', '压力缓解']
-        },
-        {
-          id: 4,
-          info: '旅游探索',
-          tagNameList: ['旅游', '探险', '文化'],
-          titleKeyWordList: ['景点推荐', '旅行攻略', '文化体验'],
-          coverKeyword: ['风景', '地标', '美食'],
-          descKeyWordList: ['独特体验', '当地风情', '历史遗迹']
-        },
-        {
-          id: 5,
-          info: '财经资讯',
-          tagNameList: ['财经', '投资', '经济'],
-          titleKeyWordList: ['市场分析', '投资策略', '经济政策'],
-          coverKeyword: ['股市', '货币', '图表'],
-          descKeyWordList: ['风险管理', '理财', '经济增长']
-        }
-      ]
+
+      whitelist: [],
     };
   },
   computed: {
+
     filteredWhitelist() {
       const query = this.searchQuery.toLowerCase();
       console.log(this.whitelist);
-      return this.whitelist.filter(item =>
-
-          {
-
+      return this.whitelist.filter(item => {
             try {
               return (item.info && item.info.toLowerCase().includes(query)) ||
-                (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
-                (item.titleKeyWordList && item.titleKeyWordList.some(keyword => keyword.toLowerCase().includes(query))) ||
-                (item.coverKeyword && item.coverKeyword.some(keyword => keyword.toLowerCase().includes(query))) ||
-                (item.descKeyWordList && item.descKeyWordList.some(keyword => keyword.toLowerCase().includes(query)));
+                  (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.titleKeyWordList && item.titleKeyWordList.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.coverKeyword && item.coverKeyword.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.descKeyWordList && item.descKeyWordList.some(keyword => keyword.toLowerCase().includes(query)));
             } catch (err) {
               console.log(err);
             }
@@ -229,10 +198,9 @@ export default {
       try {
         const response = await api.addDict(keywordItem);
         if (!response.success) {
-          this.$message({
-            message: response.message,
-            type: 'error'
-          });
+          this.$message(response.message,
+              'error'
+          );
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -250,10 +218,9 @@ export default {
       try {
         const response = await api.delDictById(keywordItem.id);
         if (!response.success) {
-          this.$message({
-            message: response.message,
-            type: 'error'
-          });
+          this.$message(response.message,
+              'error'
+          );
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -261,22 +228,36 @@ export default {
     },
     editWhitelistItem(item) {
       this.currentItem = {...item};
-      this.tagKeywordsInput = item.tagNameList.join(', ');
-      this.titleKeywordsInput = item.titleKeyWordList.join(', ');
-      this.coverKeywordsInput = item.coverKeyword.join(', ');
-      this.descriptionKeywordsInput = item.descKeyWordList.join(', ');
       this.showEditModal = true;
     },
-    deleteWhitelistItem(item) {
+    async deleteWhitelistItem(item) {
       if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
-        this.whitelist = this.whitelist.filter(i => i.id !== item.id);
+
+        const response = await api.delWhiteRuleById(item.id);
+        if (response.success) {
+          this.$message('删除成功',
+              'success'
+          );
+          this.whitelist = this.whitelist.filter(i => i.id !== item.id);
+        } else {
+          this.$message('删除失败',
+              'error'
+          );
+        }
+
       }
+    },
+    addTag(type, input) {
+      this.currentItem[type].push(input);
+    },
+    removeTag(type, index) {
+      this.currentItem[type].splice(index, 1);
     },
     closeModal() {
       this.showAddModal = false;
       this.showEditModal = false;
-      this.resetForm();
     },
+
     resetForm() {
       this.currentItem = {
         info: '',
@@ -285,31 +266,52 @@ export default {
         coverKeyword: [],
         descKeyWordList: []
       };
-      this.tagKeywordsInput = '';
-      this.titleKeywordsInput = '';
-      this.coverKeywordsInput = '';
-      this.descriptionKeywordsInput = '';
+
     },
-    saveWhitelistItem() {
+
+    /**
+     * 保存白名单
+     * @returns {Promise<void>}
+     */
+    async saveWhitelistItem() {
       const newItem = {
         ...this.currentItem,
-        tagNameList: this.tagKeywordsInput.split(',').map(k => k.trim()).filter(k => k),
-        titleKeyWordList: this.titleKeywordsInput.split(',').map(k => k.trim()).filter(k => k),
-        coverKeyword: this.coverKeywordsInput.split(',').map(k => k.trim()).filter(k => k),
-        descKeyWordList: this.descriptionKeywordsInput.split(',').map(k => k.trim()).filter(k => k)
       };
-
-      if (this.showAddModal) {
-        newItem.id = this.whitelist.length + 1;
-        this.whitelist.push(newItem);
-      } else {
-        const index = this.whitelist.findIndex(item => item.id === this.currentItem.id);
-        if (index !== -1) {
-          this.whitelist[index] = newItem;
-          this.$set(this.whitelist, index, newItem)
+      for (const [key, value] of Object.entries(newItem)) {
+        //如果newItem[key]是数组,那么过滤掉数组内的空字符串
+        if (Array.isArray(value)) {
+          newItem[key] = value.filter(item => item !== '');
         }
       }
-      this.closeModal();
+
+
+      const response = await api.addOrUpdateWhiteRule(newItem);
+      if (response.success) {
+        this.$message('保存成功',
+            'success'
+        );
+
+
+        if (this.showAddModal) {
+          newItem.id = this.whitelist.length + 1;
+          this.whitelist.push(newItem);
+        } else {
+          const index = this.whitelist.findIndex(item => item.id === this.currentItem.id);
+          if (index !== -1) {
+            this.whitelist[index] = newItem;
+            this.$set(this.whitelist, index, newItem)
+          }
+        }
+        this.closeModal();
+        this.fetchWhitelist();
+      } else {
+        this.$message('保存失败',
+            'error'
+        );
+
+      }
+
+
     }
   }
 };
@@ -349,4 +351,6 @@ input[type=number] {
 ::-webkit-scrollbar-thumb:hover {
   background: #718096;
 }
+
+
 </style>

@@ -358,10 +358,9 @@ export default {
       try {
         const response = await api.addDict(keywordItem);
         if (!response.success){
-          this.$message({
-            message: response.message,
-            type: 'error'
-          });
+          this.$message( response.message,
+            'error'
+          );
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -379,10 +378,9 @@ export default {
       try {
         const response = await api.delDictById(keywordItem.id);
         if (!response.success){
-          this.$message({
-            message: response.message,
-            type: 'error'
-          });
+          this.$message( response.message,
+             'error'
+          );
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);

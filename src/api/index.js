@@ -191,5 +191,14 @@ export default {
   },
   addOrUpdateWhiteRule(newItem) {
     return ajax(`/white-rule`,newItem,'POST')
+  },
+  // DELETE    /white-rule/{id}
+  /**
+   * 删除白名单
+   * @param id
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  delWhiteRuleById(id) {
+    return ajax(`/white-rule/${id}`,null,'DELETE')
   }
 };
