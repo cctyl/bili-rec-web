@@ -38,7 +38,7 @@
     >
 
       <button
-          @click="handleRegionSelect "
+          @click="showTidModal = true "
           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
         <i class="fas fa-plus mr-2"></i>从记录的分区中选择
       </button>
@@ -127,29 +127,15 @@
 
     </Select>
 
-    <Dialog :visible.sync="showTidModal" title="分区选择">
-      <div class="partition-dialog">
-        <input v-model="searchQuery" placeholder="搜索分区"
-               class="search-box bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-        <div class="partition-list">
-          <ul>
-            <li v-for="item in filteredPartitions" :key="item.id" class="partition-item">
-              <label>
-                <input type="checkbox" :value="item.tid" v-model="item.checked" class="custom-checkbox"
-                       @click="handlePartition(item)"/>
-                {{ item.name }}
-              </label>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <template v-slot:footer>
-        <button @click="handleRegionConfirm"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-          确认
-        </button>
-      </template>
-    </Dialog>
+    <partition-dialog
+        :showTidModalProp.sync="showTidModal"
+        :dict-arr="arrData['BLACK,TID']"
+        :add="addPartition"
+        :remove="removePartition"
+        :confirm="handleRegionConfirm"
+    >
+
+    </partition-dialog>
 
   </div>
 </template>
@@ -158,11 +144,15 @@
 import api from '@/api/index.js';
 import Select from "@/components/Select.vue";
 import KeywordListComponent from "@/components/KeywordList.vue";
-import Dialog from "@/components/Dialog.vue";
+import PartitionDialog from "@/components/PartitionDialog.vue";
 
 export default {
   name: "black-list-view",
-  components: {KeywordListComponent, Select, Dialog},
+  components: {
+    PartitionDialog,
+    KeywordListComponent,
+    Select,
+  },
   data() {
     return {
       // BLACK_KEYWORD: ['暴力', '色情', '赌博', '诈骗', '违法'],
@@ -185,74 +175,36 @@ export default {
         'BLACK_CACHE,TAG': []
       },
       showTidModal: false,
-      partitions: [
-        {
-          tid: 1,
-          code: 'douga',
-          name: '动画(主分区)',
-          desc: '',
-          router: '/v/douga',
-          pid: null,
-        },
-        // 其他分区数据...
-      ],
-      searchQuery: '',
-      selectedPartitions: [],
-
     };
   },
 
   mounted() {
-
-
-    // this.fetchData('BLACK,IGNORE_KEYWORD');
-    // this.fetchData('BLACK,IGNORE_TAG');
-    // this.fetchData('BLACK,KEYWORD');
-    // this.fetchData('BLACK,TAG');
-    // this.fetchData('BLACK,TID');
-    // this.fetchData('BLACK,MID');
-    // this.fetchData('BLACK_CACHE,KEYWORD');
-    // this.fetchData('BLACK_CACHE,TAG');
-
 
     for (let key in this.arrData) {
       this.fetchData(key);
     }
   },
   computed: {
-    filteredPartitions() {
-      return this.partitions.filter(partition =>
-          partition.name.includes(this.searchQuery)
-      );
-    },
+
   },
   methods: {
 
-
-    handlePartition(item) {
-      console.log(item)
-      //点击时如果是true,说明点击后变成了false, 实际就是false
-      if (!item.checked) {
-        //新增
-        this.arrData['BLACK,TID'].push({
-          value: item.tid,
-          desc: item.name,
-        });
-
-      } else {
-        //删除
-        this.arrData['BLACK,TID'] = this.arrData['BLACK,TID'].filter(dict => dict.value != item.tid);
-      }
-
-
+    addPartition(item){
+      console.log("addPartition")
+      this.arrData['BLACK,TID'].push(item);
+      //TODO 没有完成新增
     },
+    removePartition(item){
+      console.log("removePartition")
+      this.arrData['BLACK,TID'] = this.arrData['BLACK,TID'].filter(dict => dict.value != item.tid);
+      //TODO 没有完成删除
+    },
+
     /**
      * 确认添加分区
      */
     handleRegionConfirm() {
-
       this.showTidModal = false;
-      this.searchQuery = '';
 
     },
     urlAddMid() {
@@ -290,51 +242,9 @@ export default {
         console.error('Failed to fetch keywords:', error);
       }
     },
-    async fetchRegionList() {
-      try {
-        const response = await api.getRegionList();
-        this.partitions = response.data;
-      } catch (error) {
-        console.error('Failed to  fetchRegionList:', error);
-      }
-    },
 
-    /**
-     * 添加分区时的回调
-     */
-    async handleRegionSelect() {
-      this.showTidModal = true;
-      // this.arrData['BLACK,TID'].push({
-      //   value: 6699,
-      //   desc:'不存在的分区'
-      // })
 
-      await this.fetchRegionList();
-      const regionIdArr = this.partitions.map(item => item.tid);
-      const notExistsTid = this.arrData['BLACK,TID']
-          .filter(item => {
-                return !regionIdArr.includes(item.value)
-              }
-          );
-      if (notExistsTid.length > 0) {
-        notExistsTid.forEach(item => {
-          this.partitions.push({
-            tid: item.value,
-            name: item.desc
-          })
-        })
-      }
 
-      let existArr = this.arrData['BLACK,TID'].map(item => item.value);
-      this.partitions = this.partitions.map(item => {
-        item.checked = existArr.includes(item.tid + '');
-
-        // if (item.tid===6699){
-        //   item.checked=true;
-        // }
-        return item;
-      })
-    },
     async submitKeywordSelection(type, selectedKeywords, discardedKeywords) {
       try {
         const dictType = type.split(',')[1];
@@ -355,6 +265,8 @@ export default {
      * @returns {Promise<void>}
      */
     async addKeyword(accessType, dictType, keywordItem) {
+      keywordItem.accessType = accessType;
+      keywordItem.dictType = dictType;
       try {
         const response = await api.addDict(keywordItem);
         if (!response.success){

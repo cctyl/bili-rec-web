@@ -34,6 +34,14 @@
         default: ''
       }
     },
+    mounted() {
+      console.log("Dialog", this.visible)
+    },
+    watch: {
+      visible(val) {
+        console.log('DIALOG','visible change', val)
+      }
+    },
     methods: {
       close() {
         this.$emit('update:visible', false);

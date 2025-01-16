@@ -61,7 +61,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    console.log("下一站：" + to.path)
+    // console.log("下一站：" + to.path)
     next()
 })
 

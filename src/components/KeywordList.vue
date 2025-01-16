@@ -114,7 +114,7 @@ export default {
       this.accessType = accessType;
       this.dictType = dictType;
 
-      console.log(accessType, dictType)
+      // console.log(accessType, dictType)
     },
   },
   watch: {
