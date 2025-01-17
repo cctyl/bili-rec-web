@@ -83,7 +83,7 @@
     >
 
       <button
-          @click="handleRegionSelect "
+          @click="showTidModal = true  "
           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
         <i class="fas fa-plus mr-2"></i>从记录的分区中选择
       </button>
@@ -101,29 +101,13 @@
     >
     </KeywordListComponent>
 
-    <Dialog :visible.sync="showTidModal" title="分区选择">
-      <div class="partition-dialog">
-        <input v-model="searchQuery" placeholder="搜索分区"
-               class="search-box bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-        <div class="partition-list">
-          <ul>
-            <li v-for="item in filteredPartitions" :key="item.id" class="partition-item">
-              <label>
-                <input type="checkbox" :value="item.tid" v-model="item.checked" class="custom-checkbox"
-                       @click="handlePartition(item)"/>
-                {{ item.name }}
-              </label>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <template v-slot:footer>
-        <button @click="handleRegionConfirm"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-          确认
-        </button>
-      </template>
-    </Dialog>
+    <!--分区选择弹窗-->
+    <PartitionDialog
+        :showTidModalProp.sync="showTidModal"
+        :dict-arr="arrData['WHITE,TID']"
+        :confirm="handleRegionConfirm"
+    >
+    </PartitionDialog>
 
     <!-- 添加/编辑白名单项模态框 -->
     <div v-if="showAddModal || showEditModal"
@@ -187,12 +171,12 @@
 import api from "@/api";
 import TagInput from "@/components/TagInput";
 import KeywordListComponent from "@/components/KeywordList.vue";
-import Dialog from "@/components/Dialog.vue";
+import PartitionDialog from "@/components/PartitionDialog.vue";
 
 export default {
   name: "white-list-view",
   components: {
-    Dialog,
+    PartitionDialog,
     KeywordListComponent,
     TagInput
   },
@@ -217,26 +201,10 @@ export default {
       },
       whitelist: [],
       showTidModal: false,
-      partitions: [
-        {
-          tid: 1,
-          code: 'douga',
-          name: '动画(主分区)',
-          desc: '',
-          router: '/v/douga',
-          pid: null,
-        },
-        // 其他分区数据...
-      ],
-      selectedPartitions: [],
+
     };
   },
   computed: {
-    filteredPartitions() {
-      return this.partitions.filter(partition =>
-          partition.name.includes(this.searchQuery)
-      );
-    },
     filteredWhitelist() {
       const query = this.searchQuery.toLowerCase();
       console.log(this.whitelist);
@@ -262,56 +230,30 @@ export default {
     }
   },
   methods: {
+
     /**
      * 确认添加分区
      */
-    handleRegionConfirm() {
-
+    async handleRegionConfirm(dictArr) {
       this.showTidModal = false;
-      this.searchQuery = '';
-
-    },
-    async fetchRegionList() {
       try {
-        const response = await api.getRegionList();
-        this.partitions = response.data;
-      } catch (error) {
-        console.error('Failed to  fetchRegionList:', error);
-      }
-    },
-    /**
-     * 添加分区时的回调
-     */
-    async handleRegionSelect() {
-      this.showTidModal = true;
-
-
-      await this.fetchRegionList();
-      const regionIdArr = this.partitions.map(item => item.tid);
-      const notExistsTid = this.arrData['WHITE,TID']
-          .filter(item => {
-                return !regionIdArr.includes(item.value)
-              }
+        const response = await api.batchRemoveAndUpdate('WHITE', 'TID', dictArr);
+        if (!response.success) {
+          this.$message(response.message,
+              'error'
           );
-      if (notExistsTid.length > 0) {
-        notExistsTid.forEach(item => {
-          this.partitions.push({
-            tid: item.value,
-            name: item.desc
-          })
-        })
+        } else {
+          this.$message(response.message, 'success');
+          this.fetchData('WHITE,TID')
+        }
+      } catch (error) {
+        console.error('Failed to  addKeyword', error);
       }
 
-      let existArr = this.arrData['WHITE,TID'].map(item => item.value);
-      this.partitions = this.partitions.map(item => {
-        item.checked = existArr.includes(item.tid + '');
 
-        // if (item.tid===6699){
-        //   item.checked=true;
-        // }
-        return item;
-      })
     },
+
+
     async fetchWhitelist() {
 
       try {

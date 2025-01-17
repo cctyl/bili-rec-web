@@ -32,7 +32,9 @@
       title: {
         type: String,
         default: ''
-      }
+      },
+      onClose:Function,
+
     },
     mounted() {
       console.log("Dialog", this.visible)
@@ -45,6 +47,7 @@
     methods: {
       close() {
         this.$emit('update:visible', false);
+        this.onClose();
       }
     }
   };

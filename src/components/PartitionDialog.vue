@@ -1,5 +1,5 @@
 <template>
-  <Dialog :visible.sync="showTidModal" title="分区选择">
+  <Dialog :visible.sync="showTidModal" title="分区选择" :on-close="handleRegionConfirm">
     <div class="partition-dialog">
       <input v-model="searchQuery" placeholder="搜索分区"
              class="search-box bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
@@ -8,7 +8,8 @@
           <li v-for="item in filteredPartitions" :key="item.id" class="partition-item">
             <label>
               <input type="checkbox" :value="item.tid" v-model="item.checked" class="custom-checkbox"
-                     @click="handlePartition(item)"/>
+                     @click="handlePartition(item)"
+              />
               {{ item.name }}
             </label>
           </li>
@@ -45,6 +46,7 @@ export default {
       searchQuery: '',
       selectedPartitions: [],
       showTidModal: false,
+      change: false,
     }
 
   },
@@ -61,22 +63,21 @@ export default {
   props: {
     showTidModalProp: Boolean,
     dictArr: Array,
-    add: Function,
-    remove: Function,
-    confirm:Function,
+    confirm: Function,
+
   },
   watch: {
     showTidModalProp(newValue) {
-      console.log("showTidModalProp change",newValue)
+      console.log("showTidModalProp change", newValue)
       this.showTidModal = newValue;
 
-      if (this.showTidModal===true){
+      if (this.showTidModal === true) {
         this.handleRegionSelect();
       }
     },
 
     showTidModal(newValue) {
-      console.log('showTidModal change',newValue)
+      console.log('showTidModal change', newValue)
       this.$emit('update:showTidModalProp', newValue);
     }
 
@@ -85,26 +86,13 @@ export default {
     this.showTidModal = this.showTidModalProp;
     console.log('showTidModalProp', this.showTidModalProp)
 
-    if (this.showTidModal===true){
+    if (this.showTidModal === true) {
       this.handleRegionSelect();
     }
   },
   methods: {
-    handlePartition(item) {
-      console.log(item)
-      //点击时如果是true,说明点击后变成了false, 实际就是false
-      if (!item.checked) {
-        //新增
-        this.add({
-          value: item.tid,
-          desc: item.name,
-          dictType:'TID',
-        });
-      } else {
-        //删除
-        this.remove(item);
-      }
-
+    handlePartition() {
+      this.change = true;
     },
     /**
      * 确认添加分区
@@ -112,13 +100,26 @@ export default {
     handleRegionConfirm() {
       this.showTidModal = false;
       this.searchQuery = '';
-      this.confirm();
+      if (this.change) {
+        const dictArr = this.partitions.filter(item => item.checked)
+            .map(item => {
+              return {
+                value: item.tid,
+                desc: item.name
+              }
+            });
+
+        console.log("最终选择的分区列表", dictArr)
+        this.confirm(dictArr);
+      } else {
+        console.log("未发生改变")
+      }
+
     },
 
     async handleRegionSelect() {
-
       await this.fetchRegionList();
-      const regionIdArr = this.partitions.map(item => item.tid);
+      const regionIdArr = this.partitions.map(item => item.tid+'');
       const notExistsTid = this.dictArr
           .filter(item => {
                 return !regionIdArr.includes(item.value)
@@ -127,7 +128,7 @@ export default {
       if (notExistsTid.length > 0) {
         notExistsTid.forEach(item => {
           this.partitions.push({
-            tid: item.value,
+            tid: item.value+'',
             name: item.desc
           })
         })

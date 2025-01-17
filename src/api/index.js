@@ -192,7 +192,6 @@ export default {
   addOrUpdateWhiteRule(newItem) {
     return ajax(`/white-rule`,newItem,'POST')
   },
-  // DELETE    /white-rule/{id}
   /**
    * 删除白名单
    * @param id
@@ -200,5 +199,15 @@ export default {
    */
   delWhiteRuleById(id) {
     return ajax(`/white-rule/${id}`,null,'DELETE')
+  },
+  /**
+   * 批量删除再新增字典
+   * @param accessType
+   * @param dictType
+   * @param dictArr
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  batchRemoveAndUpdate(accessType, dictType, dictArr) {
+    return ajax(`/dict/batchRemoveAndUpdate?accessType=${accessType}&dictType=${dictType}`,dictArr,'POST')
   }
 };

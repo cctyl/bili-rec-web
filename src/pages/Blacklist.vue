@@ -127,15 +127,13 @@
 
     </Select>
 
-    <partition-dialog
+    <!--分区选择弹窗-->
+    <PartitionDialog
         :showTidModalProp.sync="showTidModal"
         :dict-arr="arrData['BLACK,TID']"
-        :add="addPartition"
-        :remove="removePartition"
         :confirm="handleRegionConfirm"
     >
-
-    </partition-dialog>
+    </PartitionDialog>
 
   </div>
 </template>
@@ -171,6 +169,8 @@ export default {
         'BLACK,TAG': [],
         'BLACK,TID': [],
         'BLACK,MID': [],
+        'BLACK,IGNORE_TAG': [],
+        'BLACK,IGNORE_KEYWORD': [],
         'BLACK_CACHE,KEYWORD': [],
         'BLACK_CACHE,TAG': []
       },
@@ -184,27 +184,29 @@ export default {
       this.fetchData(key);
     }
   },
-  computed: {
-
-  },
+  computed: {},
   methods: {
 
-    addPartition(item){
-      console.log("addPartition")
-      this.arrData['BLACK,TID'].push(item);
-      //TODO 没有完成新增
-    },
-    removePartition(item){
-      console.log("removePartition")
-      this.arrData['BLACK,TID'] = this.arrData['BLACK,TID'].filter(dict => dict.value != item.tid);
-      //TODO 没有完成删除
-    },
 
     /**
      * 确认添加分区
      */
-    handleRegionConfirm() {
+    async handleRegionConfirm(dictArr) {
       this.showTidModal = false;
+      try {
+        const response = await api.batchRemoveAndUpdate('BLACK', 'TID', dictArr);
+        if (!response.success) {
+          this.$message(response.message,
+              'error'
+          );
+        } else {
+          this.$message(response.message, 'success');
+          this.fetchData('BLACK,TID')
+        }
+      } catch (error) {
+        console.error('Failed to  addKeyword', error);
+      }
+
 
     },
     urlAddMid() {
@@ -244,7 +246,6 @@ export default {
     },
 
 
-
     async submitKeywordSelection(type, selectedKeywords, discardedKeywords) {
       try {
         const dictType = type.split(',')[1];
@@ -269,9 +270,9 @@ export default {
       keywordItem.dictType = dictType;
       try {
         const response = await api.addDict(keywordItem);
-        if (!response.success){
-          this.$message( response.message,
-            'error'
+        if (!response.success) {
+          this.$message(response.message,
+              'error'
           );
         }
       } catch (error) {
@@ -289,9 +290,9 @@ export default {
 
       try {
         const response = await api.delDictById(keywordItem.id);
-        if (!response.success){
-          this.$message( response.message,
-             'error'
+        if (!response.success) {
+          this.$message(response.message,
+              'error'
           );
         }
       } catch (error) {

@@ -1,12 +1,12 @@
 <template>
   <div class="mb-8">
-    <h3 class="text-xl font-bold mb-4">{{title}}</h3>
+    <h3 class="text-xl font-bold mb-4">{{ title }}</h3>
 
 
     <!-- 提示语和提交按钮 -->
     <div class="flex justify-between items-center mb-4">
       <p class="text-gray-400">
-        {{desc}}
+        {{ desc }}
       </p>
       <button @click="submit"
               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -86,13 +86,13 @@
 </template>
 <script>
 export default {
-  name:'select-component',
+  name: 'select-component',
   props: {
     availableKeywordsProp: Object,
     title: String,
     desc: String,
     submitKeywordSelection: Function,
-    type:String,
+    type: String,
   },
   data() {
     return {
@@ -105,18 +105,16 @@ export default {
   mounted() {
     this.availableKeywords = this.availableKeywordsProp[this.type];
   },
-  watch:{
+  watch: {
     availableKeywordsProp: {
-      deep:true,
+      deep: true,
       handler() {
         this.availableKeywords = this.availableKeywordsProp[this.type];
       }
     }
   },
-  computed:{
-
-  },
-  methods:{
+  computed: {},
+  methods: {
     moveToSelected(keyword) {
       this.availableKeywords = this.availableKeywords.filter(k => k !== keyword);
       this.discardedKeywords = this.discardedKeywords.filter(k => k !== keyword);
@@ -133,17 +131,18 @@ export default {
       this.discardedKeywords.push(keyword);
     },
     submit() {
-      this.submitKeywordSelection(this.type,this.selectedKeywords, this.discardedKeywords);
+      this.submitKeywordSelection(this.type, this.selectedKeywords, this.discardedKeywords);
       this.selectedKeywords = [];
       this.discardedKeywords = [];
     },
 
-    selectAll(){
-      this.selectedKeywords = this.availableKeywords;
+    selectAll() {
+      this.selectedKeywords = this.selectedKeywords.concat(this.availableKeywords);
       this.availableKeywords = [];
     },
-    discardAll(){
-      this.discardedKeywords = this.availableKeywords;
+    discardAll() {
+
+      this.discardedKeywords = this.discardedKeywords.concat(this.availableKeywords);
       this.availableKeywords = [];
     }
   }
