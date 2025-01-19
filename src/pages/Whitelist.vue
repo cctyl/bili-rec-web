@@ -61,16 +61,26 @@
 
     <!-- 白名单用户id -->
     <KeywordListComponent
-        hint="添加新关键词"
-        title="白名单用户id"
-        :keyword-list-prop="arrData"
-        type="WHITE,MID"
-        desc="当 视频 UP 主 ID 为以下 ID 时，将自动点赞"
-        :add="addKeyword"
-        :remove="removeKeyword"
+            hint="添加新关键词"
+            title="白名单用户id"
+            :keyword-list-prop="arrData"
+            type="WHITE,MID"
+            desc="当 视频 UP 主 ID 为以下 ID 时，将自动点赞"
+            :add="addKeyword"
+            :remove="removeKeyword"
+            ref="BLACKMIDKeywordListComponent"
     >
 
+      <button
+              @click="urlAddMid"
+              class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+        <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
+      </button>
+
     </KeywordListComponent>
+
+
+
     <!-- 白名单分区ID列表 -->
     <KeywordListComponent
         hint="添加新分区 ID"
@@ -230,7 +240,29 @@ export default {
     }
   },
   methods: {
+    urlAddMid() {
+      const prefix = "https://space.bilibili.com/";
+      let url = this.$refs.BLACKMIDKeywordListComponent.getNewKeyWord();
+      if (url.startsWith(prefix)) {
+        // 创建一个新的URL对象
+        let xxxPart = new URL(url).pathname.split('/').pop();
+        this.$refs.BLACKMIDKeywordListComponent.setNewKeyWord(xxxPart);
 
+
+        api.getUserNameByMid(xxxPart).then((response) => {
+          this.$refs.BLACKMIDKeywordListComponent.setNewDesc(response.data);
+          this.$refs.BLACKMIDKeywordListComponent.addKeyword();
+
+
+        }).catch((error) => {
+          console.error('Failed to fetch user name:', error);
+        });
+
+
+      } else {
+        alert("请输入正确的url,如:https://space.bilibili.com/123456")
+      }
+    },
     /**
      * 确认添加分区
      */
