@@ -5,21 +5,22 @@
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl font-bold">任务管理</h2>
       <div class="flex items-center space-x-4">
-        <div class="relative">
+<!--        <div class="relative">
           <input type="text" placeholder="搜索任务..."
                  class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
           <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>
+        </div>-->
 
       </div>
     </div>
     <!-- 任务瀑布流布局 -->
     <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
-      <div v-for="task in tasks" :key="task.id" class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1 active:translate-y-0 active:shadow-inner transition-all duration-200">
+      <div v-for="task in tasks" :key="task.id"
+           class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1  active:shadow-inner transition-all duration-200">
         <button @click="triggerTask(task)"
                 class="w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
           <div class="flex items-center justify-center mb-4">
-            <img :src="task.image" :alt="task.name" class="w-16 h-16 rounded-full">
+            <img :src="task.img" :alt="task.name" class="w-16 h-16 rounded-full">
           </div>
           <h3 class="text-lg font-semibold text-center mb-2">{{ task.name }}</h3>
           <p class="text-sm text-gray-400 text-center mb-4">{{ task.description }}</p>
@@ -28,7 +29,7 @@
         <div class="task-details">
           <div class="flex justify-center mb-2">
             <span :class="statusClass(task.status)" class="px-2 py-1 text-xs font-semibold rounded-full">
-              {{ task.status }}
+              {{ getStatus(task.currentRunStatus) }}
             </span>
           </div>
           <div class="task-info-grid">
@@ -44,21 +45,52 @@
                 <i class="fas fa-hourglass-half"></i>
                 <span>预计下次运行</span>
               </div>
-              <div class="task-info-value">{{ task.scheduledHour }}小时后</div>
+              <div class="task-info-value">{{ getNextRunTime(task.scheduledHour) }}小时后</div>
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
                 <i class="fas fa-toggle-on"></i>
                 <span>定时任务状态</span>
               </div>
-              <div class="task-info-value">{{ task.isEnabled ? '已开启' : '已关闭' }}</div>
+              <div class="task-info-value">
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                  <input type="checkbox" :id="'task-status-toggle'+task.id" v-model="task.isEnabled"
+                         @click="handleTaskStatusChange(task)"
+                         class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                  <label :for="'task-status-toggle'+task.id"
+                         class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+              </div>
             </div>
-            <div class="task-info-item" v-if="task.isEnabled">
+            <div class="task-info-item" v-if="task.isEnabled" >
               <div class="task-info-label">
                 <i class="fas fa-clock"></i>
-                <span>定时运行间隔</span>
+                <span >定时运行时间</span>
               </div>
-              <div class="task-info-value">{{ task.scheduledHour }}小时</div>
+
+              <template v-if="task.editScheduledHour">
+                <select
+                    v-model="task.scheduledHour"
+                    class="bg-gray-700 text-white rounded px-2 py-1 text-sm"
+                    @change="changeScheduledTime(task)"
+                    @blur="task.editScheduledHour=false"
+                >
+                  <option v-for="hour in 24" :key="hour-1" :value="hour-1">{{hour-1}}:00</option>
+                </select>
+                <button
+                    @click="task.editScheduledHour=false"
+                    class="ml-2 text-gray-400 hover:text-white"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </template>
+              <template v-else>
+                <span @click = "task.editScheduledHour=true" class="cursor-pointer hover:text-blue-400">
+                  {{ task.scheduledHour }}:00
+                </span>
+              </template>
+
+<!--              <div class="task-info-value">{{ task.scheduledHour }}:00</div>-->
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
@@ -91,6 +123,8 @@
 </template>
 
 <script>
+import api from "@/api";
+
 export default {
   name: "home-view",
   data() {
@@ -146,7 +180,26 @@ export default {
       ]
     };
   },
+  mounted() {
+
+    this.fetchTaskData();
+  },
   methods: {
+    changeScheduledTime(task){
+      api.updateTaskEnabled(task);
+      task.editScheduledHour=false
+    },
+    getNextRunTime(hour) {
+
+      return 24 + hour  - new Date().getHours();
+    },
+    handleTaskStatusChange(task) {
+      task.isEnabled = !task.isEnabled;
+      console.log('定时任务状态:', task.isEnabled);
+      console.log(task.id)
+      api.updateTaskEnabled(task);
+
+    },
     statusClass(status) {
       switch (status) {
         case '运行中':
@@ -168,6 +221,28 @@ export default {
       console.log('创建新任务', this.newTask);
       this.showNewTaskModal = false;
       this.newTask = {name: '', description: ''};
+    },
+    async fetchTaskData() {
+      try {
+        const response = await api.getTaskList();
+        response.data .forEach(task => {task.editScheduledHour = false})
+        this.tasks = response.data;
+
+      } catch (error) {
+        console.error('Failed to  fetchTaskData:', error);
+      }
+    },
+    getStatus(str) {
+      switch (str) {
+        case "RUNNING":
+          return '运行中';
+        case "STOPPED":
+          return '未启动';
+        case "WAITING":
+          return '排队中';
+        default:
+          return str;
+      }
     }
   }
 };
@@ -248,4 +323,13 @@ input[type=number] {
   color: #60A5FA;
 }
 
+/* 开关样式 */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #68D391;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #68D391;
+}
 </style>

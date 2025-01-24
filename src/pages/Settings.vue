@@ -278,7 +278,8 @@ export default {
           description: '哔哩哔哩登陆后的认证，登陆成功后存在',
           editable: false
         },
-        {
+/*
+      {
           id: null,
           name: '定时任务',
           key: 'cron',
@@ -286,6 +287,7 @@ export default {
           type: 'switch',
           description: '开启首页推荐任务，热门排行榜任务，关键词任务等三个定时任务'
         },
+*/
       ],
       showAddCookieModal: false,
       newCookie: {
@@ -488,12 +490,9 @@ export default {
             const key = config.key;
             const target = data.find(item => item.name === key);
             if (target) {
-
               config.value = target.value;
               config.id = target.id;
-
             }
-
             if (config.type === 'switch') {
               config.value = config.value === 'true';
             }

@@ -209,5 +209,20 @@ export default {
    */
   batchRemoveAndUpdate(accessType, dictType, dictArr) {
     return ajax(`/dict/batchRemoveAndUpdate?accessType=${accessType}&dictType=${dictType}`,dictArr,'POST')
+  },
+  /**
+   * 查询任务列表
+   * @returns {Promise<unknown> | *}
+   */
+  getTaskList() {
+    return ajax(`/task/task-list`);
+  },
+  /**
+   * 更新任务
+   * @param task
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  updateTaskEnabled(task) {
+    return ajax(`/task`,task,'PUT');
   }
 };
