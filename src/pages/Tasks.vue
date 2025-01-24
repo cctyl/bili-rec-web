@@ -5,11 +5,11 @@
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl font-bold">任务管理</h2>
       <div class="flex items-center space-x-4">
-<!--        <div class="relative">
-          <input type="text" placeholder="搜索任务..."
-                 class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-          <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>-->
+        <!--        <div class="relative">
+                  <input type="text" placeholder="搜索任务..."
+                         class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>-->
 
       </div>
     </div>
@@ -31,6 +31,7 @@
             <span :class="statusClass(task.status)" class="px-2 py-1 text-xs font-semibold rounded-full">
               {{ getStatus(task.currentRunStatus) }}
             </span>
+
           </div>
           <div class="task-info-grid">
             <div class="task-info-item">
@@ -62,10 +63,10 @@
                 </div>
               </div>
             </div>
-            <div class="task-info-item" v-if="task.isEnabled" >
+            <div class="task-info-item" v-if="task.isEnabled">
               <div class="task-info-label">
                 <i class="fas fa-clock"></i>
-                <span >定时运行时间</span>
+                <span>定时运行时间</span>
               </div>
 
               <template v-if="task.editScheduledHour">
@@ -75,7 +76,7 @@
                     @change="changeScheduledTime(task)"
                     @blur="task.editScheduledHour=false"
                 >
-                  <option v-for="hour in 24" :key="hour-1" :value="hour-1">{{hour-1}}:00</option>
+                  <option v-for="hour in 24" :key="hour-1" :value="hour-1">{{ hour - 1 }}:00</option>
                 </select>
                 <button
                     @click="task.editScheduledHour=false"
@@ -85,12 +86,12 @@
                 </button>
               </template>
               <template v-else>
-                <span @click = "task.editScheduledHour=true" class="cursor-pointer hover:text-blue-400">
+                <span @click="task.editScheduledHour=true" class="cursor-pointer hover:text-blue-400">
                   {{ task.scheduledHour }}:00
                 </span>
               </template>
 
-<!--              <div class="task-info-value">{{ task.scheduledHour }}:00</div>-->
+              <!--              <div class="task-info-value">{{ task.scheduledHour }}:00</div>-->
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
@@ -113,6 +114,17 @@
               </div>
               <div class="task-info-value">{{ task.taskName }}</div>
             </div>
+          </div>
+          <!-- 在 task-info-grid div 下方添加以下代码 -->
+          <div class="mt-4 flex justify-center">
+            <button
+                @click.stop="triggerTask(task)"
+                :disabled="! (task.currentRunStatus ==='STOPPED')"
+                class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-play mr-2"></i>
+              <span>{{ task.currentRunStatus === 'STOPPED' ? '手动触发' : '执行中...' }}</span>
+            </button>
           </div>
         </div>
 
@@ -185,13 +197,13 @@ export default {
     this.fetchTaskData();
   },
   methods: {
-    changeScheduledTime(task){
+    changeScheduledTime(task) {
       api.updateTaskEnabled(task);
-      task.editScheduledHour=false
+      task.editScheduledHour = false
     },
     getNextRunTime(hour) {
 
-      return 24 + hour  - new Date().getHours();
+      return 24 + hour - new Date().getHours();
     },
     handleTaskStatusChange(task) {
       task.isEnabled = !task.isEnabled;
@@ -212,9 +224,22 @@ export default {
           return 'bg-gray-500 text-white';
       }
     },
-    triggerTask(task) {
-      // 实现触发任务的逻辑
-      console.log('触发任务', task);
+   async triggerTask(task) {
+      try {
+        task.currentRunStatus = 'WAITING';
+        const response = await api.triggerTask(task.classMethodName);
+        if (!response.success) {
+          this.$message(response.message,'error');
+        } else {
+          this.$message(response.message, 'success');
+        }
+
+        await api.fetchTaskData();
+
+      } catch (error) {
+        console.error('Failed to  triggerTask', error);
+      }
+
     },
     createNewTask() {
       // 实现创建新任务的逻辑
@@ -225,7 +250,9 @@ export default {
     async fetchTaskData() {
       try {
         const response = await api.getTaskList();
-        response.data .forEach(task => {task.editScheduledHour = false})
+        response.data.forEach(task => {
+          task.editScheduledHour = false
+        })
         this.tasks = response.data;
 
       } catch (error) {

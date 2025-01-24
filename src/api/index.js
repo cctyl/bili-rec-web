@@ -224,5 +224,13 @@ export default {
    */
   updateTaskEnabled(task) {
     return ajax(`/task`,task,'PUT');
+  },
+  /**
+   * 触发任务
+   * @param classAndMethodName
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  triggerTask(classAndMethodName){
+    return ajax(`/task/common-trigger-task?classAndMethodName=${classAndMethodName}`);
   }
 };
