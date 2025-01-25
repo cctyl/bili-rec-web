@@ -126,20 +126,7 @@
     <!-- 任务瀑布流布局 -->
     <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
 
-      <SimpleCard
-          title="处理视频-就按你说的做"
-          :trigger="triggerTask"
-          img="fas fa-robot"
-          desc="按机器判断处理所有未人工审核的视频，程序初始判断的是白名单就按白名单处理，是黑名单就按黑名单处理"
-      ></SimpleCard>
 
-
-      <SimpleCard
-          title="处理视频-主动触发三次处理"
-          :trigger="triggerTask"
-          img="fas fa-play-circle"
-          desc="立即开始三次处理，而不是等定时任务处理"
-      ></SimpleCard>
 
       <SimpleCard
           title="保存某个视频下的所有评论"
@@ -237,6 +224,7 @@ export default {
     this.fetchTaskData();
   },
   methods: {
+
     /**
      * 保存视频下评论
      */
