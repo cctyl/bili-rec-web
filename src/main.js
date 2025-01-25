@@ -32,8 +32,11 @@ Vue.config.productionTip = false;
 })();
 
 
-new Vue({
+const vm = new Vue({
   render: h => h(App),
   router,
   store
 }).$mount('#app')
+
+
+export default vm;

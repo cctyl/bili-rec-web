@@ -1,7 +1,6 @@
 import axios from "axios";
-
 const BASE_URL=process.env.VUE_APP_URL;
-
+import vm from '@/main';
 export default function ajax(url, data = {}, type = "GET") {
     return new Promise(function (resolve, reject) {
 
@@ -13,9 +12,14 @@ export default function ajax(url, data = {}, type = "GET") {
             data:data,
             withCredentials:true
         }).then(response => {
-            resolve(response.data)
+            response = response.data;
+            if (!response.success) {
+                vm.$message(response.message,'error');
+            }
+            resolve(response)
         }).catch(reason => {
             reject(reason)
+            vm.$message(reason,'error');
         })
 
 

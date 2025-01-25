@@ -232,5 +232,14 @@ export default {
    */
   triggerTask(classAndMethodName){
     return ajax(`/task/common-trigger-task?classAndMethodName=${classAndMethodName}`);
-  }
+  },
+
+  /**
+   * 保存视频评论
+   * @param bvid
+   * @returns {Promise | Promise<unknown> | *}
+   */
+  saveVideoComment(bvid) {
+    return ajax(`/reply/save-reply?bvid=${bvid}`, null, 'POST');
+  },
 };

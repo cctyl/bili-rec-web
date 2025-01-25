@@ -2,29 +2,23 @@
 
   <!-- 主内容区 -->
   <div class="flex-1 p-8 overflow-y-auto">
+    <!-- 定时任务管理   -->
     <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl font-bold">任务管理</h2>
-      <div class="flex items-center space-x-4">
-        <!--        <div class="relative">
-                  <input type="text" placeholder="搜索任务..."
-                         class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                  <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>-->
-
-      </div>
+      <h2 class="text-2xl font-bold">定时任务管理</h2>
     </div>
     <!-- 任务瀑布流布局 -->
     <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
       <div v-for="task in tasks" :key="task.id"
            class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1  active:shadow-inner transition-all duration-200">
-        <button @click="triggerTask(task)"
-                class="w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div
+            class="w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
           <div class="flex items-center justify-center mb-4">
-            <img :src="task.img" :alt="task.name" class="w-16 h-16 rounded-full">
+            <!-- 将 img 标签替换为 FontAwesome 图标 -->
+            <i :class="task.img" class="w-16 h-16 rounded-full text-4xl"></i>
           </div>
-          <h3 class="text-lg font-semibold text-center mb-2">{{ task.name }}</h3>
+          <h3 class="text-lg font-semibold text-center mb-2">{{ task.taskName }}</h3>
           <p class="text-sm text-gray-400 text-center mb-4">{{ task.description }}</p>
-        </button>
+        </div>
 
         <div class="task-details">
           <div class="flex justify-center mb-2">
@@ -36,17 +30,24 @@
           <div class="task-info-grid">
             <div class="task-info-item">
               <div class="task-info-label">
+                <i class="fas fa-tasks"></i>
+                <span>总运行次数</span>
+              </div>
+              <div class="task-info-value">{{ task.totalRunCount }}</div>
+            </div>
+            <div class="task-info-item">
+              <div class="task-info-label">
+                <i class="fas fa-stopwatch"></i>
+                <span>上次运行耗时</span>
+              </div>
+              <div class="task-info-value">{{ task.lastRunDuration }}秒</div>
+            </div>
+            <div class="task-info-item">
+              <div class="task-info-label">
                 <i class="fas fa-clock"></i>
                 <span>上次运行时间</span>
               </div>
               <div class="task-info-value">{{ task.lastRunTime }}</div>
-            </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-hourglass-half"></i>
-                <span>预计下次运行</span>
-              </div>
-              <div class="task-info-value">{{ getNextRunTime(task.scheduledHour) }}小时后</div>
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
@@ -93,26 +94,12 @@
 
               <!--              <div class="task-info-value">{{ task.scheduledHour }}:00</div>-->
             </div>
-            <div class="task-info-item">
+            <div class="task-info-item" v-if="task.isEnabled">
               <div class="task-info-label">
-                <i class="fas fa-tasks"></i>
-                <span>总运行次数</span>
+                <i class="fas fa-hourglass-half"></i>
+                <span>预计下次运行</span>
               </div>
-              <div class="task-info-value">{{ task.totalRunCount }}</div>
-            </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-stopwatch"></i>
-                <span>上次运行耗时</span>
-              </div>
-              <div class="task-info-value">{{ task.lastRunDuration }}秒</div>
-            </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-file-alt"></i>
-                <span>任务名称</span>
-              </div>
-              <div class="task-info-value">{{ task.taskName }}</div>
+              <div class="task-info-value">{{ getNextRunTime(task.scheduledHour) }}小时后</div>
             </div>
           </div>
           <!-- 在 task-info-grid div 下方添加以下代码 -->
@@ -130,15 +117,110 @@
 
       </div>
     </div>
+
+
+    <!-- 其他可触发操作 -->
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold">其他可触发操作</h2>
+    </div>
+    <!-- 任务瀑布流布局 -->
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+
+      <SimpleCard
+          title="处理视频-就按你说的做"
+          :trigger="triggerTask"
+          img="fas fa-robot"
+          desc="按机器判断处理所有未人工审核的视频，程序初始判断的是白名单就按白名单处理，是黑名单就按黑名单处理"
+      ></SimpleCard>
+
+
+      <SimpleCard
+          title="处理视频-主动触发三次处理"
+          :trigger="triggerTask"
+          img="fas fa-play-circle"
+          desc="立即开始三次处理，而不是等定时任务处理"
+      ></SimpleCard>
+
+      <SimpleCard
+          title="保存某个视频下的所有评论"
+          :trigger="saveVideoComment"
+          img="fas fa-comments"
+          desc="保存某个视频下的所有评论，方便后续cha shui biao"
+      >
+        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
+               v-model="saveVideoCommentUrl"
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+      </SimpleCard>
+    </div>
+
+
+    <!-- 黑名单操作 -->
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold">黑名单操作</h2>
+    </div>
+    <!-- 任务瀑布流布局 -->
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+
+      <SimpleCard
+          title="对指定分区的 排行榜、热门视频进行点踩"
+          :trigger="triggerTask"
+          img="fas fa-ban"
+          desc="选择一个分区，对该分区的 排行榜、热门视频进行点踩"
+      ></SimpleCard>
+
+
+      <SimpleCard
+          title="判断指定视频是否符合黑名单"
+          :trigger="triggerTask"
+          img="fas fa-exclamation-triangle"
+          desc="输入视频链接，判断指定视频是否符合黑名单"
+      ></SimpleCard>
+
+      <SimpleCard
+          title="对指定用户的视频进行点踩"
+          :trigger="triggerTask"
+          img="fas fa-thumbs-down"
+          desc="输入对方的主页地址，对指定用户的视频进行点踩"
+      ></SimpleCard>
+    </div>
+
+
+    <!-- 白名单操作 -->
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold">白名单操作</h2>
+    </div>
+    <!-- 任务瀑布流布局 -->
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+
+      <SimpleCard
+          title="根据用户视频/视频列表训练白名单规则"
+          :trigger="triggerTask"
+          img="fas fa-list-check"
+          desc="输入用户主页地址，或者一批视频列表，根据这些视频提供的信息，补充白名单规则"
+      ></SimpleCard>
+
+
+
+      <SimpleCard
+          title="对指定用户的视频进行点赞"
+          :trigger="triggerTask"
+          img="fas fa-thumbs-up"
+          desc="输入对方的主页地址，对该用户的所有视频均进行点赞"
+      ></SimpleCard>
+    </div>
+
   </div>
 
 </template>
 
 <script>
 import api from "@/api";
+import SimpleCard from "@/components/SimpleCard.vue";
 
 export default {
   name: "home-view",
+  components: {SimpleCard},
   data() {
     return {
       showNewTaskModal: false,
@@ -146,50 +228,8 @@ export default {
         name: '',
         description: ''
       },
-      tasks: [
-        {
-          id: 1,
-          name: '关键词搜索任务',
-          description: '根据设定的关键词进行搜索，搜索的数据加入待处理列表',
-          status: '运行中',
-          lastRunTime: '2023-05-15 10:30',
-          isEnabled: true,
-          scheduledHour: '2',
-          totalRunCount: 10,
-          lastRunDuration: 120,
-          taskName: '关键词搜索任务',
-          image: 'https://ai-public.mastergo.com/ai/img_res/d9ea4e38b09cfbabf797ee5f1da2dbda.jpg',
-          classMethodName: 'io.github.cctyl.service.impl.BiliService.doSearchTask'
-        },
-        {
-          id: 2,
-          name: '热门排行榜任务',
-          description: '抓取热门排行榜的数据，加入待处理列表',
-          status: '已完成',
-          lastRunTime: '2023-05-14 18:45',
-          isEnabled: false,
-          scheduledHour: '4',
-          totalRunCount: 20,
-          lastRunDuration: 180,
-          taskName: '热门排行榜任务',
-          image: 'https://ai-public.mastergo.com/ai/img_res/eb80ba97bcf3718a5ca9d54c8ba017e4.jpg',
-          classMethodName: 'io.github.cctyl.service.impl.BiliService.doHotRankTask'
-        },
-        {
-          id: 3,
-          name: '首页排行榜任务',
-          description: '连续抓取首页排行榜的数据，加入待处理列表',
-          status: '已暂停',
-          lastRunTime: '2023-05-13 01:30',
-          isEnabled: true,
-          scheduledHour: '6',
-          totalRunCount: 15,
-          lastRunDuration: 150,
-          taskName: '首页排行榜任务',
-          image: 'https://ai-public.mastergo.com/ai/img_res/7782cf5be64ab7e6359ea032631b1d37.jpg',
-          classMethodName: "io.github.cctyl.service.impl.BiliService.doHomeRecommendTask"
-        }
-      ]
+      tasks: [],
+      saveVideoCommentUrl: '',
     };
   },
   mounted() {
@@ -197,6 +237,33 @@ export default {
     this.fetchTaskData();
   },
   methods: {
+    /**
+     * 保存视频下评论
+     */
+   async saveVideoComment(){
+
+
+      const bvPattern = /BV[a-zA-Z0-9]{10}/; // BV 号通常是 12 位字符（BV + 10 位字母数字）
+      const match = this.saveVideoCommentUrl  .match(bvPattern);
+
+      if (match) {
+        const bvId = match[0]; // 提取匹配的 BV 号
+        try {
+          const response = await api.saveVideoComment(bvId);
+          if (response.success) {
+            this.$message(response.message, '任务已开始');
+          }
+        } catch (error) {
+          console.error('Failed to  saveVideoComment', error);
+        }
+
+      } else {
+        this.$message('格式错误，未提取到BV号', 'error');
+        this.saveVideoCommentUrl ='';
+      }
+
+    },
+
     changeScheduledTime(task) {
       api.updateTaskEnabled(task);
       task.editScheduledHour = false
@@ -224,12 +291,12 @@ export default {
           return 'bg-gray-500 text-white';
       }
     },
-   async triggerTask(task) {
+    async triggerTask(task) {
       try {
         task.currentRunStatus = 'WAITING';
         const response = await api.triggerTask(task.classMethodName);
         if (!response.success) {
-          this.$message(response.message,'error');
+          this.$message(response.message, 'error');
         } else {
           this.$message(response.message, 'success');
         }
