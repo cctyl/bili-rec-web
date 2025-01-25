@@ -18,7 +18,6 @@
     },
     methods: {
       show(message, type = 'info',time=2000) {
-        console.log("message="+JSON.stringify(message))
         this.message = message;
         this.type = type;
         this.visible = true;

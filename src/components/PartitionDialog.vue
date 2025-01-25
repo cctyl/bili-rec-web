@@ -1,6 +1,6 @@
 <template>
   <Dialog :visible.sync="showTidModal" title="分区选择" :on-close="handleRegionConfirm">
-    <div class="partition-dialog">
+<!--    <div class="partition-dialog">
       <input v-model="searchQuery" placeholder="搜索分区"
              class="search-box bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
       <div class="partition-list">
@@ -15,7 +15,12 @@
           </li>
         </ul>
       </div>
-    </div>
+    </div>-->
+
+    <RegionComponent
+    :partitions="partitions"
+    :handle-partition="handlePartition"
+    ></RegionComponent>
     <template v-slot:footer>
       <button @click="handleRegionConfirm"
               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -28,6 +33,7 @@
 <script>
 import Dialog from "@/components/Dialog.vue";
 import api from "@/api";
+import RegionComponent from "@/components/Region.vue";
 
 export default {
   name: 'partition-dialog',
@@ -58,6 +64,7 @@ export default {
     },
   },
   components: {
+    RegionComponent,
     Dialog
   },
   props: {

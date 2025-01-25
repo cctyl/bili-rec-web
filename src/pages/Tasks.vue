@@ -120,12 +120,11 @@
 
 
     <!-- 其他可触发操作 -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-8 mt-8">
       <h2 class="text-2xl font-bold">其他可触发操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
     <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
-
 
 
       <SimpleCard
@@ -143,7 +142,7 @@
 
 
     <!-- 黑名单操作 -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-8 mt-8">
       <h2 class="text-2xl font-bold">黑名单操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
@@ -151,10 +150,18 @@
 
       <SimpleCard
           title="对指定分区的 排行榜、热门视频进行点踩"
-          :trigger="triggerTask"
+          :trigger="thumbDown"
           img="fas fa-ban"
           desc="选择一个分区，对该分区的 排行榜、热门视频进行点踩"
-      ></SimpleCard>
+      >
+
+        <RegionComponent
+            :partitions="partitions"
+            :handle-partition="handlePartitionCheck"
+        >
+        </RegionComponent>
+
+      </SimpleCard>
 
 
       <SimpleCard
@@ -174,7 +181,7 @@
 
 
     <!-- 白名单操作 -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-8 mt-8">
       <h2 class="text-2xl font-bold">白名单操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
@@ -186,7 +193,6 @@
           img="fas fa-list-check"
           desc="输入用户主页地址，或者一批视频列表，根据这些视频提供的信息，补充白名单规则"
       ></SimpleCard>
-
 
 
       <SimpleCard
@@ -204,10 +210,15 @@
 <script>
 import api from "@/api";
 import SimpleCard from "@/components/SimpleCard.vue";
+import RegionComponent from "@/components/Region.vue";
 
 export default {
   name: "home-view",
-  components: {SimpleCard},
+  components: {
+    RegionComponent,
+
+    SimpleCard
+  },
   data() {
     return {
       showNewTaskModal: false,
@@ -217,22 +228,81 @@ export default {
       },
       tasks: [],
       saveVideoCommentUrl: '',
+      showTidModal: true,
+      partitions: [
+        {
+          tid: 1,
+          code: 'douga',
+          name: '动画(主分区)',
+          desc: '',
+          router: '/v/douga',
+          pid: null,
+        },
+      ],
     };
   },
   mounted() {
 
     this.fetchTaskData();
+    this.fetchRegionList();
   },
   methods: {
+    async fetchRegionList() {
+      try {
+        const response = await api.getRegionList();
+        this.partitions = response.data;
+      } catch (error) {
+        console.error('Failed to  fetchRegionList:', error);
+      }
+    },
+    handlePartitionCheck() {
+    },
+    /**
+     * 对分区进行点踩
+     */
+    async thumbDown() {
+      const filterArr = this.partitions.filter((item) => {
+        return item.checked
+      });
+      if (filterArr.length < 1) {
+        this.$message('请先选择分区', 'warning');
+        return;
+      }
+
+      const nameStr = filterArr.map((item) => {return item.name; })
+          .join(",");
+      if (confirm("确定对 " + nameStr + " 等分区进行点踩吗")) {
+
+        const tidArr = filterArr
+            .map((item) => {
+              return item.tid
+            });
+
+        try {
+          const response = await api.disklikeByTid(tidArr);
+          if (response.success) {
+            this.$message(response.message, '任务已开始');
+
+          }
+
+          this.fetchRegionList()
+
+        } catch (error) {
+          console.error('Failed to  thumbDown', error);
+        }
+      }
+
+
+    },
 
     /**
      * 保存视频下评论
      */
-   async saveVideoComment(){
+    async saveVideoComment() {
 
 
       const bvPattern = /BV[a-zA-Z0-9]{10}/; // BV 号通常是 12 位字符（BV + 10 位字母数字）
-      const match = this.saveVideoCommentUrl  .match(bvPattern);
+      const match = this.saveVideoCommentUrl.match(bvPattern);
 
       if (match) {
         const bvId = match[0]; // 提取匹配的 BV 号
@@ -247,7 +317,7 @@ export default {
 
       } else {
         this.$message('格式错误，未提取到BV号', 'error');
-        this.saveVideoCommentUrl ='';
+        this.saveVideoCommentUrl = '';
       }
 
     },

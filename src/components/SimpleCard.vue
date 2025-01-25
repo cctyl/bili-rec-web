@@ -13,14 +13,17 @@
     </div>
     <div class="mt-4 flex justify-center">
 
-      <slot>
-      </slot>
+
       <button
           @click="trigger"
           class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
         <i class="fas fa-play mr-2"></i>
         <span>执行</span>
       </button>
+    </div>
+    <div class="mt-4 flex justify-center">
+      <slot>
+      </slot>
     </div>
 
 

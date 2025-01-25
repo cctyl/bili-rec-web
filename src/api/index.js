@@ -244,5 +244,11 @@ export default {
     saveVideoComment(bvid) {
         return ajax(`/reply/save-reply?bvid=${bvid}`, null, 'POST');
     },
-
+    /**
+     * 对指定分区的 排行榜、热门视频进行点踩
+     * @param tidArr
+     */
+    disklikeByTid(tidArr) {
+        return ajax(`/black-rule/disklike-by-tid`, tidArr, 'POST');
+    }
 };
