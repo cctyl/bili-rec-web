@@ -210,11 +210,10 @@ export default {
 
     },
     urlAddMid() {
-      const prefix = "https://space.bilibili.com/";
       let url = this.$refs.BLACKMIDKeywordListComponent.getNewKeyWord();
-      if (url.startsWith(prefix)) {
+      let xxxPart = this.$getMid(url);
+      if (xxxPart) {
         // 创建一个新的URL对象
-        let xxxPart = new URL(url).pathname.split('/').pop();
         this.$refs.BLACKMIDKeywordListComponent.setNewKeyWord(xxxPart);
 
 

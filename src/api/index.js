@@ -268,4 +268,22 @@ export default {
     isWhite(bvid) {
         return ajax(`/white-rule/check-video?bvid=${bvid}`);
     },
+
+    /**
+     * 对用户的投稿视频进行点赞
+     * @param mid
+     */
+    thumbUpUserVideo(mid){
+        return ajax(`/white-rule/thumb-up-all/${mid}`,null, 'POST');
+    },
+
+
+    /**
+     * 对用户的投稿视频进行点踩
+     * @param mid
+     * @param train Boolean
+     */
+    dislikeUserVideo(mid,train){
+        return ajax(`/black-rule/disklike-by-uid?train=${train}`,[mid], 'POST');
+    },
 };

@@ -175,7 +175,7 @@
                v-model="isBlackUrl"
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-        <div slot="other"  v-if="blackRes">
+        <div slot="other" v-if="blackRes">
 
 
           <div class="task-info-item ">
@@ -190,9 +190,10 @@
               <i class="fas fa-tasks"></i>
               <span>结论</span>
             </div>
-            <div class="task-info-value">{{ blackRes.total===true?'黑名单':'不属于黑名单' }}</div>
+            <div class="task-info-value">{{ blackRes.total === true ? '黑名单' : '不属于黑名单' }}</div>
           </div>
-          <div class="task-info-item " v-if="blackRes.total===true" :style="blackRes.total ?'background-color: #3864ed;':''">
+          <div class="task-info-item " v-if="blackRes.total===true"
+               :style="blackRes.total ?'background-color: #3864ed;':''">
             <div class="task-info-label">
               <i class="fas fa-tasks"></i>
               <span>黑名单原因</span>
@@ -241,10 +242,33 @@
 
       <SimpleCard
           title="对指定用户的视频进行点踩"
-          :trigger="triggerTask"
+          :trigger="dislikeUserVideo"
           img="fas fa-thumbs-down"
           desc="输入对方的主页地址，对指定用户的视频进行点踩"
-      ></SimpleCard>
+      >
+
+        <input placeholder="https://space.bilibili.com/123456"
+               v-model="blackSpaceUrl"
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+        <div slot="other" class="task-info-item" style="display: flex; flex-direction: row;justify-content: space-between;">
+          <div class="task-info-label">
+            <span>将这些视频加入黑名单规则训练</span>
+
+          </div>
+
+          <div class=" relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+            <input type="checkbox" :id="'task-status-toggleblackSpaceUrl'" v-model="blackSpaceTrain"
+                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+            <label :for="'task-status-toggleblackSpaceUrl'"
+                   class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+          </div>
+
+        </div>
+
+
+
+      </SimpleCard>
     </div>
 
 
@@ -266,7 +290,7 @@
                v-model="isWhiteUrl"
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-        <div slot="other"  v-if="whiteRes">
+        <div slot="other" v-if="whiteRes">
 
 
           <div class="task-info-item ">
@@ -281,9 +305,10 @@
               <i class="fas fa-tasks"></i>
               <span>结论</span>
             </div>
-            <div class="task-info-value">{{ whiteRes.total===true?'白名单':'不属于白名单' }}</div>
+            <div class="task-info-value">{{ whiteRes.total === true ? '白名单' : '不属于白名单' }}</div>
           </div>
-          <div class="task-info-item " v-if="whiteRes.total===true" :style="whiteRes.total ?'background-color: #3864ed;':''">
+          <div class="task-info-item " v-if="whiteRes.total===true"
+               :style="whiteRes.total ?'background-color: #3864ed;':''">
             <div class="task-info-label">
               <i class="fas fa-tasks"></i>
               <span>白名单原因</span>
@@ -304,7 +329,6 @@
           </div>
 
 
-
         </div>
 
       </SimpleCard>
@@ -318,11 +342,15 @@
 
       <SimpleCard
           title="对指定用户的视频进行点赞"
-          :trigger="triggerTask"
+          :trigger="thumbUpUserVideo"
           img="fas fa-thumbs-up"
           desc="输入对方的主页地址，对该用户的所有视频均进行点赞"
-      ></SimpleCard>
+      >
+        <input placeholder="https://space.bilibili.com/123456"
+               v-model="whiteSpaceUrl"
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
 
+      </SimpleCard>
 
 
     </div>
@@ -363,10 +391,13 @@ export default {
           pid: null,
         },
       ],
-      isBlackUrl:'',
-      isWhiteUrl:'',
-      blackRes:null,
+      isBlackUrl: '',
+      isWhiteUrl: '',
+      blackRes: null,
       whiteRes: null,
+      whiteSpaceUrl: '',
+      blackSpaceUrl: 'https://space.bilibili.com/298718054',
+      blackSpaceTrain: false,
     };
   },
   mounted() {
@@ -375,29 +406,75 @@ export default {
     this.fetchRegionList();
   },
   methods: {
-    async isWhite(){
+    /**
+     * 点踩用户视频
+     * @returns {Promise<void>}
+     */
+    async dislikeUserVideo() {
+      const mid = this.$getMid(this.blackSpaceUrl);
+      if (mid) {
+        try {
+          const response = await api.dislikeUserVideo(mid, this.blackSpaceTrain);
+          if (response.success) {
+            this.$message(response.message, 'success');
+          }
+        } catch (error) {
+          console.error('Failed to  saveVideoComment', error);
+        }
+      } else {
+        console.log(mid)
+        this.$message('mid 提取失败', 'error');
+      }
+
+
+    },
+
+    /**
+     * 点赞用户视频
+     * @returns {Promise<void>}
+     */
+    async thumbUpUserVideo() {
+      const mid = this.$getMid(this.whiteSpaceUrl);
+      if (mid) {
+        try {
+          const response = await api.thumbUpUserVideo(mid);
+          if (response.success) {
+            this.$message(response.message, 'success');
+          }
+        } catch (error) {
+          console.error('Failed to  saveVideoComment', error);
+        }
+      } else {
+        console.log(mid)
+        this.$message('mid 提取失败', 'error');
+      }
+
+
+    },
+
+    async isWhite() {
       try {
         const bvId = this.$getBvid(this.isWhiteUrl);
         if (bvId) {
           const response = await api.isWhite(bvId);
           this.whiteRes = response.data;
-        }else{
+        } else {
           console.log(bvId)
-          this.$message('bvid 提取失败','error')
+          this.$message('bvid 提取失败', 'error')
         }
       } catch (error) {
         console.error('Failed to  fetchRegionList:', error);
       }
     },
 
-    async isBlack(){
+    async isBlack() {
       try {
         const bvId = this.$getBvid(this.isBlackUrl);
         if (bvId) {
           const response = await api.isBlack(bvId);
           this.blackRes = response.data;
-        }else{
-          this.$message('bvid 提取失败','error')
+        } else {
+          this.$message('bvid 提取失败', 'error')
         }
 
       } catch (error) {
@@ -427,7 +504,9 @@ export default {
         return;
       }
 
-      const nameStr = filterArr.map((item) => {return item.name; })
+      const nameStr = filterArr.map((item) => {
+        return item.name;
+      })
           .join(",");
       if (confirm("确定对 " + nameStr + " 等分区进行点踩吗")) {
 
@@ -489,8 +568,6 @@ export default {
     },
     handleTaskStatusChange(task) {
       task.isEnabled = !task.isEnabled;
-      console.log('定时任务状态:', task.isEnabled);
-      console.log(task.id)
       api.updateTaskEnabled(task);
 
     },
