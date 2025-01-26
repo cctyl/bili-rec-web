@@ -250,5 +250,22 @@ export default {
      */
     disklikeByTid(tidArr) {
         return ajax(`/black-rule/disklike-by-tid`, tidArr, 'POST');
-    }
+    },
+    /**
+     * 判断是否是黑名单
+     * @param bvid
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    isBlack(bvid) {
+        return ajax(`/black-rule/check-video?bvid=${bvid}`);
+    },
+
+    /**
+     * 判断是否是白名单
+     * @param bvid
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    isWhite(bvid) {
+        return ajax(`/white-rule/check-video?bvid=${bvid}`);
+    },
 };

@@ -25,7 +25,10 @@
       <slot>
       </slot>
     </div>
-
+    <div class="mt-4 pr-1" style="max-height: 350px;  overflow: auto">
+      <slot name="other" >
+      </slot>
+    </div>
 
   </div>
 

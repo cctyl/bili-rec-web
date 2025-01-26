@@ -4,7 +4,9 @@ import router from './router'
 import store from './store'
 import MessagePlugin from './plugins/message'
 import './assets/styles.css'
+import Util from './plugins/utils'
 Vue.use(MessagePlugin);
+Vue.use(Util);
 Vue.config.productionTip = false;
 
 

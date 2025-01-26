@@ -7,7 +7,7 @@
       <h2 class="text-2xl font-bold">定时任务管理</h2>
     </div>
     <!-- 任务瀑布流布局 -->
-    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
       <div v-for="task in tasks" :key="task.id"
            class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1  active:shadow-inner transition-all duration-200">
         <div
@@ -124,7 +124,7 @@
       <h2 class="text-2xl font-bold">其他可触发操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
-    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
 
       <SimpleCard
@@ -146,7 +146,7 @@
       <h2 class="text-2xl font-bold">黑名单操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
-    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
       <SimpleCard
           title="对指定分区的 排行榜、热门视频进行点踩"
@@ -166,10 +166,78 @@
 
       <SimpleCard
           title="判断指定视频是否符合黑名单"
-          :trigger="triggerTask"
+          :trigger="isBlack"
           img="fas fa-exclamation-triangle"
           desc="输入视频链接，判断指定视频是否符合黑名单"
-      ></SimpleCard>
+      >
+
+        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
+               v-model="isBlackUrl"
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+        <div slot="other"  v-if="blackRes">
+
+
+          <div class="task-info-item ">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>视频：</span>
+            </div>
+            <div class="">{{ blackRes.videoDetail.title }}</div>
+          </div>
+          <div class="task-info-item " :style="blackRes.total ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>结论</span>
+            </div>
+            <div class="task-info-value">{{ blackRes.total===true?'黑名单':'不属于黑名单' }}</div>
+          </div>
+          <div class="task-info-item " v-if="blackRes.total===true" :style="blackRes.total ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>黑名单原因</span>
+            </div>
+            <div class="" v-html="blackRes.blackReason"></div>
+          </div>
+          <div class="task-info-item" :style="blackRes.midMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>用户id是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="blackRes.tidMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>分区是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="blackRes.coverMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>封面是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="blackRes.tagMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>标签是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="blackRes.titleMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>标题是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="blackRes.descMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>描述是否匹配</span>
+            </div>
+          </div>
+        </div>
+
+      </SimpleCard>
 
       <SimpleCard
           title="对指定用户的视频进行点踩"
@@ -185,8 +253,61 @@
       <h2 class="text-2xl font-bold">白名单操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
-    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-3 gap-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
+      <SimpleCard
+          title="判断指定视频是否符合白名单"
+          :trigger="isWhite"
+          img="fas fa-exclamation-triangle"
+          desc="输入视频链接，判断指定视频是否符合白名单"
+      >
+
+        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
+               v-model="isWhiteUrl"
+               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+        <div slot="other"  v-if="whiteRes">
+
+
+          <div class="task-info-item ">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>视频：</span>
+            </div>
+            <div class="">{{ whiteRes.videoDetail.title }}</div>
+          </div>
+          <div class="task-info-item " :style="whiteRes.total ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>结论</span>
+            </div>
+            <div class="task-info-value">{{ whiteRes.total===true?'白名单':'不属于白名单' }}</div>
+          </div>
+          <div class="task-info-item " v-if="whiteRes.total===true" :style="whiteRes.total ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>白名单原因</span>
+            </div>
+            <div class="" v-html="whiteRes.thumbUpReason"></div>
+          </div>
+          <div class="task-info-item" :style="whiteRes.midMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>用户id是否匹配</span>
+            </div>
+          </div>
+          <div class="task-info-item" :style="whiteRes.tidMatch ?'background-color: #3864ed;':''">
+            <div class="task-info-label">
+              <i class="fas fa-tasks"></i>
+              <span>分区是否匹配</span>
+            </div>
+          </div>
+
+
+
+        </div>
+
+      </SimpleCard>
       <SimpleCard
           title="根据用户视频/视频列表训练白名单规则"
           :trigger="triggerTask"
@@ -201,6 +322,9 @@
           img="fas fa-thumbs-up"
           desc="输入对方的主页地址，对该用户的所有视频均进行点赞"
       ></SimpleCard>
+
+
+
     </div>
 
   </div>
@@ -239,6 +363,10 @@ export default {
           pid: null,
         },
       ],
+      isBlackUrl:'',
+      isWhiteUrl:'',
+      blackRes:null,
+      whiteRes: null,
     };
   },
   mounted() {
@@ -247,6 +375,36 @@ export default {
     this.fetchRegionList();
   },
   methods: {
+    async isWhite(){
+      try {
+        const bvId = this.$getBvid(this.isWhiteUrl);
+        if (bvId) {
+          const response = await api.isWhite(bvId);
+          this.whiteRes = response.data;
+        }else{
+          console.log(bvId)
+          this.$message('bvid 提取失败','error')
+        }
+      } catch (error) {
+        console.error('Failed to  fetchRegionList:', error);
+      }
+    },
+
+    async isBlack(){
+      try {
+        const bvId = this.$getBvid(this.isBlackUrl);
+        if (bvId) {
+          const response = await api.isBlack(bvId);
+          this.blackRes = response.data;
+        }else{
+          this.$message('bvid 提取失败','error')
+        }
+
+      } catch (error) {
+        console.error('Failed to  fetchRegionList:', error);
+      }
+    },
+
     async fetchRegionList() {
       try {
         const response = await api.getRegionList();
@@ -301,11 +459,10 @@ export default {
     async saveVideoComment() {
 
 
-      const bvPattern = /BV[a-zA-Z0-9]{10}/; // BV 号通常是 12 位字符（BV + 10 位字母数字）
-      const match = this.saveVideoCommentUrl.match(bvPattern);
+      const bvId = this.$getBvid(this.saveVideoCommentUrl);
 
-      if (match) {
-        const bvId = match[0]; // 提取匹配的 BV 号
+      if (bvId) {
+
         try {
           const response = await api.saveVideoComment(bvId);
           if (response.success) {
