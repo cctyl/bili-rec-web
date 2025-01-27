@@ -286,4 +286,14 @@ export default {
     dislikeUserVideo(mid,train){
         return ajax(`/black-rule/disklike-by-uid?train=${train}`,[mid], 'POST');
     },
+
+    /**
+     * 训练白名单
+     * @param param
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    trainWhiteRule(param){
+        return ajax(`/white-rule/train?id=${param.id?param.id:''}&mid=${param.mid?param.mid:''}`,param.trainedBvidList, 'POST');
+    },
+
 };

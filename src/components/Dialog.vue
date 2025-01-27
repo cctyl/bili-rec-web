@@ -47,7 +47,10 @@
     methods: {
       close() {
         this.$emit('update:visible', false);
-        this.onClose();
+        if (this.onClose) {
+          this.onClose();
+        }
+
       }
     }
   };

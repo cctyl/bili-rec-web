@@ -7,8 +7,7 @@
         
       </div>
       <h3 class="text-lg font-semibold text-center mb-2">{{title}}</h3>
-      <p class="text-sm text-gray-400 text-center mb-4">
-        {{desc}}
+      <p class="text-sm text-gray-400 text-center mb-4" v-html="desc">
       </p>
     </div>
     <div class="mt-4 flex justify-center">

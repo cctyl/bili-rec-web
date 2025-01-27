@@ -196,7 +196,7 @@ export default {
       showAddModal: false,
       showEditModal: false,
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 999,
       currentItem: {
         info: '',
         tagNameList: [],

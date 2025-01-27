@@ -251,7 +251,8 @@
                v-model="blackSpaceUrl"
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-        <div slot="other" class="task-info-item" style="display: flex; flex-direction: row;justify-content: space-between;">
+        <div slot="other" class="task-info-item"
+             style="display: flex; flex-direction: row;justify-content: space-between;">
           <div class="task-info-label">
             <span>将这些视频加入黑名单规则训练</span>
 
@@ -267,7 +268,6 @@
         </div>
 
 
-
       </SimpleCard>
     </div>
 
@@ -277,9 +277,10 @@
       <h2 class="text-2xl font-bold">白名单操作</h2>
     </div>
     <!-- 任务瀑布流布局 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
+    <div class="flex flex-wrap gap-6">
 
       <SimpleCard
+          class="flex-grow basis-[300px]"
           title="判断指定视频是否符合白名单"
           :trigger="isWhite"
           img="fas fa-exclamation-triangle"
@@ -332,15 +333,10 @@
         </div>
 
       </SimpleCard>
-      <SimpleCard
-          title="根据用户视频/视频列表训练白名单规则"
-          :trigger="triggerTask"
-          img="fas fa-list-check"
-          desc="输入用户主页地址，或者一批视频列表，根据这些视频提供的信息，补充白名单规则"
-      ></SimpleCard>
-
 
       <SimpleCard
+
+          class="flex-grow basis-[300px]"
           title="对指定用户的视频进行点赞"
           :trigger="thumbUpUserVideo"
           img="fas fa-thumbs-up"
@@ -349,8 +345,108 @@
         <input placeholder="https://space.bilibili.com/123456"
                v-model="whiteSpaceUrl"
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </SimpleCard>
+      <SimpleCard
+          class="flex-grow basis-[600px]"
+
+          title="根据用户视频/视频列表训练白名单规则"
+          :trigger="trainWhiteRule"
+          img="fas fa-list-check"
+          desc="输入用户主页地址，或者一批视频列表，根据这些视频提供的信息，补充白名单规则。<br>注意,只有出现了三次以上的关键词才会被采纳，如果没有关键词被采纳，规则将不会被生成。<br>
+                为了避免这种尴尬的事情发生，，请保证提供较多的相同类型的视频"
+      >
+        <div class="block w-full">
+          <!-- 开关控制器 -->
+          <div class="flex items-center justify-between mb-4">
+            <span
+                class="mr-2 text-sm px-2 py-1 bg-gray-700 rounded"
+            style="color:#9CA3AF"
+            >{{ useTagInput ? '根据指定的视频进行训练' : '根据指定用户投稿的视频进行训练' }}</span>
+            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox"
+                     v-model="useTagInput"
+                     :id="'mode-toggle'"
+                     class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+              <label :for="'mode-toggle'"
+                     class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer">
+              </label>
+            </div>
+          </div>
+
+          <!-- 条件渲染两种输入方式 -->
+          <template v-if="!useTagInput">
+            <div class="mb-2">up主个人主页链接</div>
+            <input
+                placeholder="https://space.bilibili.com/123456"
+                v-model="whiteSpaceTrainUrl"
+                class="w-full bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </template>
+          <TagInput
+              v-else
+              label="BV号"
+              :tags="tagObj"
+              type="bvTag"
+              :on-add="addTag"
+              :on-remove="removeTag"
+          />
+        </div>
+
+        <!-- 白名单列表 -->
+        <div slot="other" class="bg-gray-800 rounded-lg overflow-hidden mb-6 mt-6 pr-4">
+
+          <div class="flex justify-between items-center mb-8">
+            <h5 class="text-2xl font-bold">选择一个规则用于训练</h5>
+            <div class="flex items-center space-x-4">
+              <div class="relative">
+                <input type="text" v-model="searchQuery" placeholder="搜索白名单..."
+                       class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2  text-sm">
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              </div>
+            </div>
+            <!-- 新增清除按钮 -->
+            <button
+
+                @click="selectRuleId = null"
+                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm flex items-center"
+            >
+              <i class="fas fa-times mr-2"></i>
+              清除选择
+            </button>
+
+          </div>
+          <table class="w-full whitelist-management__table">
+            <thead>
+            <tr class="bg-gray-700">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">#</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">规则名称</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">标签关键词</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">标题关键词</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">封面关键词</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">描述关键词</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700">
+            <tr v-for="item in filteredWhitelist" :key="item.id" class="hover:bg-gray-750">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="radio" v-model="selectRuleId" :value="item.id" name="rid">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ item.info }}</td>
+              <td class="px-6 py-4">{{ item.tagNameList.join(', ') }}</td>
+              <td class="px-6 py-4">{{ item.titleKeyWordList.join(', ') }}</td>
+              <td class="px-6 py-4">{{ item.coverKeyword.join(', ') }}</td>
+              <td class="px-6 py-4">{{ item.descKeyWordList.join(', ') }}</td>
+
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
 
       </SimpleCard>
+
+
+
 
 
     </div>
@@ -363,12 +459,14 @@
 import api from "@/api";
 import SimpleCard from "@/components/SimpleCard.vue";
 import RegionComponent from "@/components/Region.vue";
+import TagInput from "@/components/TagInput.vue";
+
 
 export default {
   name: "home-view",
   components: {
+    TagInput,
     RegionComponent,
-
     SimpleCard
   },
   data() {
@@ -396,16 +494,107 @@ export default {
       blackRes: null,
       whiteRes: null,
       whiteSpaceUrl: '',
-      blackSpaceUrl: 'https://space.bilibili.com/298718054',
+      blackSpaceUrl: '',
       blackSpaceTrain: false,
+      tagObj: {
+        bvTag: [],
+      },
+      whiteSpaceTrainUrl: '',
+      useTagInput: false,
+      whitelist: [],
+      pageNo: 1,
+      pageSize: 999,
+      searchQuery: '',
+      selectRuleId:null,
     };
   },
   mounted() {
 
+    this.fetchWhitelist();
     this.fetchTaskData();
     this.fetchRegionList();
   },
+  computed: {
+    filteredWhitelist() {
+      const query = this.searchQuery.toLowerCase();
+      console.log(this.whitelist);
+      return this.whitelist.filter(item => {
+            try {
+              return (item.info && item.info.toLowerCase().includes(query)) ||
+                  (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.titleKeyWordList && item.titleKeyWordList.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.coverKeyword && item.coverKeyword.some(keyword => keyword.toLowerCase().includes(query))) ||
+                  (item.descKeyWordList && item.descKeyWordList.some(keyword => keyword.toLowerCase().includes(query)));
+            } catch (err) {
+              console.log(err);
+            }
+          }
+      );
+    }
+  },
   methods: {
+
+    async trainWhiteRule() {
+      let flag = false;
+      if (this.selectRuleId) {
+          const ruleItem = this.whitelist.filter(item => {
+              return item.id == this.selectRuleId
+          });
+          flag = confirm(`你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`);
+      } else {
+          flag = confirm("你没有选择规则哦，将创建一个全新的规则");
+      }
+  
+      if (flag) {
+          try {
+              const params = {};
+              
+              // 如果选择了规则ID，添加到参数中
+              if (this.selectRuleId) {
+                  params.id = this.selectRuleId;
+              }
+              
+              // 根据输入方式选择参数
+              if (this.useTagInput) {
+                  // 使用视频列表进行训练
+                  params.trainedBvidList = this.tagObj.bvTag;
+              } else {
+                  // 使用UP主ID进行训练
+                  const mid = this.$getMid(this.whiteSpaceTrainUrl);
+                  if (!mid) {
+                      this.$message('无法解析UP主ID', 'error');
+                      return;
+                  }
+                  params.mid = mid;
+              }
+              
+              const response = await api.trainWhiteRule(params);
+              if (response.success) {
+                  this.$message('训练任务已提交', 'success');
+              } else {
+                  this.$message(response.message || '训练失败', 'error');
+              }
+          } catch (error) {
+              console.error('Failed to train white rule:', error);
+          }
+      }
+  },
+
+    async fetchWhitelist() {
+      console.log("fetchWhitelist")
+      try {
+        const response = await api.getWhiteRuleList(this.pageNo, this.pageSize);
+        this.whitelist = response.data.list;
+      } catch (error) {
+        console.error('Failed to fetch keywords:', error);
+      }
+    },
+    addTag(type, input) {
+      this.tagObj[type].push(input);
+    },
+    removeTag(type, index) {
+      this.tagObj[type].splice(index, 1);
+    },
     /**
      * 点踩用户视频
      * @returns {Promise<void>}

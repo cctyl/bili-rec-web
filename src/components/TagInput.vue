@@ -36,6 +36,7 @@ export default {
   },
   methods: {
     addTag() {
+      console.log(this.tagInput);
       if (this.tagInput.trim() !== '') {
         this.onAdd(this.type,this.tagInput.trim())
         this.tagInput = '';
