@@ -8,7 +8,7 @@
     </div>
     <!-- 任务瀑布流布局 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
-      <div v-for="task in tasks" :key="task.id"
+      <div v-for="task in filterTaskList" :key="task.id"
            class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1  active:shadow-inner transition-all duration-200">
         <div
             class="w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -22,7 +22,7 @@
 
         <div class="task-details">
           <div class="flex justify-center mb-2">
-            <span :class="statusClass(task.status)" class="px-2 py-1 text-xs font-semibold rounded-full">
+            <span :class="statusClass(task.currentRunStatus)" class="px-2 py-1 text-xs font-semibold rounded-full">
               {{ getStatus(task.currentRunStatus) }}
             </span>
 
@@ -128,6 +128,7 @@
 
 
       <SimpleCard
+          :status="getTaskStatus('io.github.cctyl.controller.ReplyController.saveVideoReplay')"
           title="保存某个视频下的所有评论"
           :trigger="saveVideoComment"
           img="fas fa-comments"
@@ -149,6 +150,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
       <SimpleCard
+          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.dislikeByTid')"
           title="对指定分区的 排行榜、热门视频进行点踩"
           :trigger="thumbDown"
           img="fas fa-ban"
@@ -165,6 +167,7 @@
 
 
       <SimpleCard
+          :status="getTaskStatus('RUNNING')"
           title="判断指定视频是否符合黑名单"
           :trigger="isBlack"
           img="fas fa-exclamation-triangle"
@@ -241,6 +244,7 @@
       </SimpleCard>
 
       <SimpleCard
+          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.dislikeByUserId')"
           title="对指定用户的视频进行点踩"
           :trigger="dislikeUserVideo"
           img="fas fa-thumbs-down"
@@ -280,6 +284,7 @@
     <div class="flex flex-wrap gap-6">
 
       <SimpleCard
+          :status="getTaskStatus('RUNNING')"
           class="flex-grow basis-[300px]"
           title="判断指定视频是否符合白名单"
           :trigger="isWhite"
@@ -335,7 +340,7 @@
       </SimpleCard>
 
       <SimpleCard
-
+          :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.thumbUpUserAllVideo')"
           class="flex-grow basis-[300px]"
           title="对指定用户的视频进行点赞"
           :trigger="thumbUpUserVideo"
@@ -347,6 +352,7 @@
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
       </SimpleCard>
       <SimpleCard
+          :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.addTrain')"
           class="flex-grow basis-[600px]"
 
           title="根据用户视频/视频列表训练白名单规则"
@@ -360,7 +366,7 @@
           <div class="flex items-center justify-between mb-4">
             <span
                 class="mr-2 text-sm px-2 py-1 bg-gray-700 rounded"
-            style="color:#9CA3AF"
+                style="color:#9CA3AF"
             >{{ useTagInput ? '根据指定的视频进行训练' : '根据指定用户投稿的视频进行训练' }}</span>
             <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
               <input type="checkbox"
@@ -446,9 +452,6 @@
       </SimpleCard>
 
 
-
-
-
     </div>
 
   </div>
@@ -505,7 +508,7 @@ export default {
       pageNo: 1,
       pageSize: 999,
       searchQuery: '',
-      selectRuleId:null,
+      selectRuleId: null,
     };
   },
   mounted() {
@@ -530,55 +533,62 @@ export default {
             }
           }
       );
-    }
+    },
+    filterTaskList() {
+      return this.tasks.filter(task => {
+        return task.taskName;
+      });
+    },
   },
   methods: {
 
     async trainWhiteRule() {
       let flag = false;
       if (this.selectRuleId) {
-          const ruleItem = this.whitelist.filter(item => {
-              return item.id == this.selectRuleId
-          });
-          flag = confirm(`你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`);
+        const ruleItem = this.whitelist.filter(item => {
+          return item.id == this.selectRuleId
+        });
+        flag = confirm(`你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`);
       } else {
-          flag = confirm("你没有选择规则哦，将创建一个全新的规则");
+        flag = confirm("你没有选择规则哦，将创建一个全新的规则");
       }
-  
+
       if (flag) {
-          try {
-              const params = {};
-              
-              // 如果选择了规则ID，添加到参数中
-              if (this.selectRuleId) {
-                  params.id = this.selectRuleId;
-              }
-              
-              // 根据输入方式选择参数
-              if (this.useTagInput) {
-                  // 使用视频列表进行训练
-                  params.trainedBvidList = this.tagObj.bvTag;
-              } else {
-                  // 使用UP主ID进行训练
-                  const mid = this.$getMid(this.whiteSpaceTrainUrl);
-                  if (!mid) {
-                      this.$message('无法解析UP主ID', 'error');
-                      return;
-                  }
-                  params.mid = mid;
-              }
-              
-              const response = await api.trainWhiteRule(params);
-              if (response.success) {
-                  this.$message('训练任务已提交', 'success');
-              } else {
-                  this.$message(response.message || '训练失败', 'error');
-              }
-          } catch (error) {
-              console.error('Failed to train white rule:', error);
+        try {
+          const params = {};
+
+          // 如果选择了规则ID，添加到参数中
+          if (this.selectRuleId) {
+            params.id = this.selectRuleId;
           }
+          params.trainedBvidList =[];
+          // 根据输入方式选择参数
+          if (this.useTagInput) {
+            // 使用视频列表进行训练
+            params.trainedBvidList = this.tagObj.bvTag;
+          } else {
+            // 使用UP主ID进行训练
+            const mid = this.$getMid(this.whiteSpaceTrainUrl);
+            console.log('mid='+mid);
+            if (!mid) {
+              this.$message('无法解析UP主ID', 'error');
+              return;
+            }
+            params.mid = mid;
+          }
+
+          console.log(params);
+          const response = await api.trainWhiteRule(params);
+          if (response.success) {
+            this.$message('训练任务已提交', 'success');
+          } else {
+            this.$message(response.message || '训练失败', 'error');
+          }
+        } catch (error) {
+          console.error('Failed to train white rule:', error);
+        }
       }
-  },
+    },
 
     async fetchWhitelist() {
       console.log("fetchWhitelist")
@@ -762,11 +772,11 @@ export default {
     },
     statusClass(status) {
       switch (status) {
-        case '运行中':
+        case 'RUNNING':
           return 'bg-green-500 text-white';
-        case '已完成':
+        case 'STOPPED':
           return 'bg-blue-500 text-white';
-        case '计划中':
+        case 'WAITING':
           return 'bg-gray-500 text-white';
         default:
           return 'bg-gray-500 text-white';
@@ -782,7 +792,7 @@ export default {
           this.$message(response.message, 'success');
         }
 
-        await api.fetchTaskData();
+        await this.fetchTaskData();
 
       } catch (error) {
         console.error('Failed to  triggerTask', error);
@@ -818,7 +828,27 @@ export default {
         default:
           return str;
       }
-    }
+    },
+    /**
+     * 查找指定任务的运行状态
+     * @param classMethodName
+     */
+    getTaskStatus(classMethodName) {
+
+      const arr = this.tasks.filter((item) => {
+        return item.classMethodName === classMethodName
+      })
+      if (arr.length > 0) {
+
+        // console.log(classMethodName+'-'+arr[0].currentRunStatus)
+        return arr[0].currentRunStatus
+      } else {
+        // console.log(classMethodName+'-未知')
+        return '无状态';
+
+      }
+
+    },
   }
 };
 </script>
