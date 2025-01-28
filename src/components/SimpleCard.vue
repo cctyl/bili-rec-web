@@ -12,7 +12,7 @@
     </div>
     <div class="task-details">
       <div class="flex justify-center mb-2">
-           <span :class="statusClass()" class="px-2 py-1 text-xs font-semibold rounded-full">
+           <span :class="statusClass()" class="px-2 py-1 text-xs font-semibold rounded-full" v-if="status!='无状态'">
               {{ getStatus() }}
             </span>
       </div>
