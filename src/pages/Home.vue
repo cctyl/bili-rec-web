@@ -350,7 +350,7 @@ export default {
           }
         },
         legend: {
-          data: ['白名单', '黑名单', '其他'],
+          data: ['点赞', '点踩', '其他'],
           textStyle: {
             color: '#9CA3AF'
           }
@@ -397,7 +397,7 @@ export default {
         },
         series: [
           {
-            name: '白名单',
+            name: '点赞',
             type: 'bar',
             barWidth: '20%',
             data: whiteData.values,
@@ -407,7 +407,7 @@ export default {
             }
           },
           {
-            name: '黑名单',
+            name: '点踩',
             type: 'bar',
             barWidth: '20%',
             data: blackData.values,
