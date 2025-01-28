@@ -299,7 +299,7 @@ export default {
      * 获取总览数据
      * @returns {Promise | Promise<unknown> | *}
      */
-    getOverviewData() {
-        return ajax('/overview');
+    getOverviewData(selectedYear) {
+        return ajax(`/overview?year=${selectedYear}`);
     }
 };

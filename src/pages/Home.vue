@@ -112,6 +112,17 @@
     <div class="grid grid-cols-1 gap-6 mb-6">
       <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
         <h3 class="text-lg mb-4">历史处理数据统计</h3>
+        <div class="relative">
+          <select
+              @change="handleYearChange"
+              v-model="selectedYear"
+              class="bg-gray-700 text-white px-4 py-2 rounded-md appearance-none cursor-pointer pr-8"
+          >
+            <option v-for="year in range(2020,2050)" :key="year" :value="year">
+              {{ year }}年
+            </option>
+          </select>
+        </div>
         <div ref="chartContainer" style="height: 400px;"></div>
       </div>
     </div>
@@ -321,13 +332,23 @@ export default {
             "img": "fas fa-play-circle"
           }
         ]
-      }
+      },
+      selectedYear: new Date().getFullYear(), // 默认当前年份
+
     }
   },
   methods: {
+    range(start,end){
+
+      //生成start 到 end 这两个值中间的数组
+      return Array.from({length: end - start + 1}, (_, i) => start + i);
+
+    },
+    handleYearChange(){
+      this.fetchOverviewData();
+    },
     initChart() {
       this.chart = echarts.init(this.$refs.chartContainer)
-
       const processData = (data) => {
         return data.reduce((acc, item) => {
           const [[date, value]] = Object.entries(item)
@@ -336,7 +357,6 @@ export default {
           return acc
         }, {dates: [], values: []})
       }
-
       const whiteData = processData(this.overview.whiteHistory)
       const blackData = processData(this.overview.blackHistory)
       const otherData = processData(this.overview.otherHistory)
@@ -435,7 +455,7 @@ export default {
     async fetchOverviewData() {
       try {
         // 这里替换为实际的API调用
-        const response = await api.getOverviewData();
+        const response = await api.getOverviewData(this.selectedYear);
         this.overview = response.data
         this.initChart()
       } catch (error) {
