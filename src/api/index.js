@@ -295,5 +295,11 @@ export default {
     trainWhiteRule(param){
         return ajax(`/white-rule/train?id=${param.id?param.id:''}&mid=${param.mid?param.mid:''}`,param.trainedBvidList, 'POST');
     },
-
+    /**
+     * 获取总览数据
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    getOverviewData() {
+        return ajax('/overview');
+    }
 };

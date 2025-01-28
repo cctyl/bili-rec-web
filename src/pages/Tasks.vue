@@ -839,11 +839,8 @@ export default {
         return item.classMethodName === classMethodName
       })
       if (arr.length > 0) {
-
-        // console.log(classMethodName+'-'+arr[0].currentRunStatus)
         return arr[0].currentRunStatus
       } else {
-        // console.log(classMethodName+'-未知')
         return '无状态';
 
       }
