@@ -762,8 +762,11 @@ export default {
       task.editScheduledHour = false
     },
     getNextRunTime(hour) {
-
-      return 24 + hour - new Date().getHours();
+      const now =   new Date().getHours();
+      if (now<hour){
+        return hour-now;
+      }
+      return 24 + hour - now;
     },
     handleTaskStatusChange(task) {
       task.isEnabled = !task.isEnabled;

@@ -360,9 +360,7 @@ export default {
     },
     async addCookie() {
       try {
-        if (this.newCookie.url) {
-          this.newCookie.url = null;
-        }
+
         const response = await api.addCookie(this.newCookie);
         if (response.success && response.code === 20000) {
           this.newCookie.id = response.data.id;
@@ -372,6 +370,7 @@ export default {
         } else {
           alert('新增Cookie失败，请重试');
         }
+
       } catch (error) {
         console.error('新增Cookie失败:', error);
         alert('新增Cookie失败，请重试');
@@ -426,6 +425,8 @@ export default {
           this.userLevel = data.level;
           this.userCoins = data.coins;
           this.userAvatar = process.env.VUE_APP_URL + "/config/getPic?url=" + data.face;
+
+          this.$message('刷新用户信息成功','success');
         }else if(response.message.indexOf("未登录/登录失效")!==-1){
             console.log("登陆失效，请重新登陆");
             this.relogin();

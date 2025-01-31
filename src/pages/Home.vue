@@ -69,6 +69,24 @@
         <p class="text-3xl font-bold text-yellow-400">{{ overview.runDays }}</p>
         <p class="text-sm text-gray-400 mt-2">稳定运行中</p>
       </div>
+
+      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg">历史点赞数</h3>
+          <i class="fas fa-thumbs-up text-2xl text-blue-400"></i>
+        </div>
+        <p class="text-3xl font-bold text-blue-400">{{ overview.likeVideoCount }}</p>
+        <p class="text-sm text-gray-400 mt-2">历史点赞的视频总数</p>
+      </div>
+
+      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg">历史点踩数</h3>
+          <i class="fas fa-thumbs-down text-2xl text-purple-400"></i>
+        </div>
+        <p class="text-3xl font-bold text-purple-400">{{ overview.hateVideoCount }}</p>
+        <p class="text-sm text-gray-400 mt-2">历史点踩的视频总数</p>
+      </div>
     </div>
 
     <!-- 待处理数据卡片 -->
@@ -300,9 +318,9 @@ export default {
             "scheduledHour": 6,
             "totalRunCount": 3,
             "lastRunDuration": 20,
-            "taskName": "首页排行榜任务",
+            "taskName": "首页推荐任务",
             "classMethodName": "io.github.cctyl.service.impl.BiliService.doHomeRecommendTask",
-            "description": "连续抓取首页排行榜的数据，加入待处理列表",
+            "description": "连续抓取首页推荐的数据，加入待处理列表",
             "img": "fas fa-home"
           },
           {
