@@ -19,6 +19,12 @@
       </li>
 
       <li>
+        <router-link to="/review" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
+          <i class="fas fa-eye w-6"></i>
+          <span class="ml-3">视频审核</span>
+        </router-link>
+      </li>
+      <li>
         <router-link to="/other-setting" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
           <i class="fas fa-wrench w-6"></i>
           <span class="ml-3">其他配置</span>

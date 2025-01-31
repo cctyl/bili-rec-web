@@ -10,6 +10,7 @@ import OtherSetting from "@/pages/OtherSetting.vue";
 // import Analytics from "@/pages/Analytics.vue";
 // import Security from "@/pages/Security.vue";
 // import Logout from "@/pages/Logout.vue";
+import Review from "@/pages/Review.vue"
 
 Vue.use(VueRouter)
 
@@ -45,10 +46,10 @@ const router = new VueRouter({
             path: '/other-setting',
             component: OtherSetting,
         },
-        // {
-        //     path: '/analytics',
-        //     component: Analytics,
-        // },
+        {
+            path: '/review',
+            component: Review,
+        },
         // {
         //     path: '/security',
         //     component: Security,
