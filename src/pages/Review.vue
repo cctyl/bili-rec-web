@@ -16,6 +16,38 @@
             >{{ type.label }}</span>
           </div>
         </div>
+        <!-- 添加计数器显示 -->
+        <div class="flex items-center space-x-6">
+          <div class="flex items-center">
+            <span class="text-yellow-500">
+              <i class="fas fa-clock mr-2"></i>
+              待处理:
+            </span>
+            <span class="ml-2 text-xl font-bold text-yellow-400">{{ pendingCount }}</span>
+          </div>
+          <div class="flex items-center">
+            <span class="text-green-500">
+              <i class="fas fa-check-circle mr-2"></i>
+              已确认:
+            </span>
+            <span class="ml-2 text-xl font-bold text-green-400">{{ confirmedCount }}</span>
+          </div>
+          <!-- 添加一键处理按钮 -->
+          <button
+            @click="handleAllVideos"
+            :disabled="!videoList.length || isProcessing"
+            class="ml-6 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 
+                   hover:from-blue-600 hover:to-blue-700 text-white font-medium 
+                   !rounded-button transition-all duration-300 flex items-center 
+                   shadow-lg hover:shadow-blue-500/30"
+          >
+            <i class="fas fa-magic mr-2"></i>
+            <span>一键处理</span>
+            <span v-if="isProcessing" class="ml-2">
+              <i class="fas fa-circle-notch fa-spin"></i>
+            </span>
+          </button>
+        </div>
       </div>
 
       <div class="flex-1 w-full flex flex-col">
@@ -49,6 +81,16 @@
                 <span class="ml-2">{{ video.owner?.name }}</span>
               </div>
               <p class="mt-2 text-sm text-gray-400 line-clamp-2">{{ video.desc }}</p>
+              <!-- 添加显示原因的部分 -->
+              <div v-if="shouldShowReason(video)" class="mt-2 text-sm">
+                <span class="text-gray-400">原因：</span>
+                <span :class="{
+                  'text-green-400': video.handleType === 'THUMB_UP',
+                  'text-red-400': video.handleType === 'DISLIKE'
+                }" v-html="getReasonText(video)">
+
+                </span>
+              </div>
               <div class="mt-4 flex items-center justify-between">
                 <div class="flex space-x-2">
                   <button 
@@ -156,6 +198,9 @@ export default {
       pageSize: 10,
       total: 0,
       processedVideos: new Set(), // 新增：用于跟踪已处理的视频
+      pendingCount: 0,
+      confirmedCount: 0,
+      isProcessing: false, // 新增：用于跟踪是否正在处理
     }
   },
   computed: {
@@ -178,6 +223,8 @@ export default {
         if (response.data) {
           this.videoList = response.data.records
           this.total = response.data.total
+          // 初始化待处理数量
+          this.pendingCount = response.data.total
         }
       } catch (error) {
         console.error('获取视频列表失败:', error)
@@ -210,11 +257,46 @@ export default {
         // 同时记录到 Set 中确保状态持久
         this.processedVideos.add(video.id);
         
-        this.$message.success('处理成功');
+        // 更新计数
+        this.pendingCount = Math.max(0, this.pendingCount - 1);
+        this.confirmedCount++;
+        
+        this.$message('处理成功', 'success');
       } catch (error) {
-        this.$message.error('处理失败：' + error.message);
+        this.$message('处理失败：' + error.message, 'error');
       }
-    }
+    },
+    async handleAllVideos() {
+      if (this.isProcessing) return;
+      
+      try {
+        this.isProcessing = true;
+        const unprocessedVideos = this.videoList.filter(v => !v.processed);
+        
+        for (const video of unprocessedVideos) {
+          await this.handleVideo(video, video.handleType);
+        }
+        
+        this.$message('批量处理完成', 'success');
+      } catch (error) {
+        this.$message('批量处理失败：' + error.message, 'error');
+      } finally {
+        this.isProcessing = false;
+      }
+    },
+    shouldShowReason(video) {
+      return (video.handleType === 'THUMB_UP' && video.thumbUpReason) || 
+             (video.handleType === 'DISLIKE' && video.blackReason);
+    },
+
+    getReasonText(video) {
+      if (video.handleType === 'THUMB_UP') {
+        return video.thumbUpReason;
+      } else if (video.handleType === 'DISLIKE') {
+        return video.blackReason;
+      }
+      return '';
+    },
   }
 }
 </script>
@@ -269,5 +351,7 @@ export default {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
+  background: linear-gradient(to right, #4B5563, #6B7280);
 }
 </style>
