@@ -301,5 +301,35 @@ export default {
      */
     getOverviewData(selectedYear) {
         return ajax(`/overview?year=${selectedYear}`);
-    }
+    },
+
+    /**
+     * 获取待处理的视频列表
+     * @param {Object} params 查询参数
+     * @param {number} params.page 页码
+     * @param {number} params.size 每页数量
+     * @param {string} params.sort 排序
+     * @param {string} params.handleType 处理类型 (THUMB_UP/DISLIKE/OTHER)
+     * @returns {Promise<unknown>}
+     */
+    getReady2HandleVideo(params) {
+        return ajax(`/task/ready2handle?page=${params.page}&size=${params.size}&sort=${params.sort || ''}&handleType=${params.handleType}`);
+    },
+
+    /**
+     * 处理单条视频数据
+     * @param {string} id - 视频ID
+     * @param {string} handleType - 处理类型(THUMB_UP/DISLIKE/OTHER)
+     * @param {string} [reason] - 修改原因
+     * @returns {Promise<unknown>}
+     */
+    processVideo(id, handleType, reason) {
+        const params = new URLSearchParams();
+        params.append('id', id);
+        params.append('handleType', handleType);
+        if (reason) {
+            params.append('reason', reason);
+        }
+        return ajax(`/task/process?${params.toString()}`, null, 'PUT');
+    },
 };

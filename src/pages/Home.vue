@@ -94,7 +94,7 @@
       <!-- 待二次处理数据卡片 -->
       <div class="bg-gray-700 rounded-lg p-6">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium">待二次处理</h3>
+          <h3 class="text-lg font-medium">待二次处理(审核)</h3>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
@@ -104,7 +104,7 @@
             <span class="text-3xl font-bold">{{ overview.secondHandleCount }}</span>
             <span class="ml-2 text-sm text-gray-400">条</span>
           </div>
-          <p class="mt-2 text-sm text-gray-400">等待二次处理的数据</p>
+          <p class="mt-2 text-sm text-gray-400">等待二次处理的数据，即左侧的视频审核菜单</p>
         </div>
       </div>
 

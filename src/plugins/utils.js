@@ -34,7 +34,14 @@ export default {
                 return null;
             }
         };
-
+        /**
+         * 跨域获取图片资源
+         * @param url
+         * @returns {string}
+         */
+        Vue.prototype.$getPic = function (url) {
+           return process.env.VUE_APP_URL + "/config/getPic?url=" + url;
+        };
 
     }
 };
