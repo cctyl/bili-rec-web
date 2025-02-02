@@ -3,7 +3,7 @@
     <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-2rem)]">
       <div class="mb-8 flex justify-between items-center">
         <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-white">待审核视频</h1>
+          <h1 class="text-2xl font-bold text-white">历史处理过的视频</h1>
           <div class="flex space-x-2">
             <span
               v-for="type in handleTypes"
@@ -16,36 +16,20 @@
             >{{ type.label }}</span>
           </div>
         </div>
-        <!-- 添加计数器显示 -->
-        <div class="flex items-center space-x-6">
-          <div class="flex items-center">
-            <span class="text-yellow-500">
-              <i class="fas fa-clock mr-2"></i>
-              待处理:
-            </span>
-            <span class="ml-2 text-xl font-bold text-yellow-400">{{ pendingCount }}</span>
-          </div>
-          <div class="flex items-center">
-            <span class="text-green-500">
-              <i class="fas fa-check-circle mr-2"></i>
-              已确认:
-            </span>
-            <span class="ml-2 text-xl font-bold text-green-400">{{ confirmedCount }}</span>
-          </div>
-          <!-- 添加一键处理按钮 -->
+        <!-- 新增搜索框部分 -->
+        <div class="flex items-center space-x-2">
+          <input
+            v-model="search"
+            type="text"
+            placeholder="搜索视频..."
+            class="px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-button focus:outline-none focus:border-blue-500"
+            @keyup.enter="handleSearch"
+          />
           <button
-            @click="handleAllVideos"
-            :disabled="!videoList.length || isProcessing"
-            class="ml-6 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 
-                   hover:from-blue-600 hover:to-blue-700 text-white font-medium 
-                   !rounded-button transition-all duration-300 flex items-center 
-                   shadow-lg hover:shadow-blue-500/30"
+            @click="handleSearch"
+            class="px-4 py-2 bg-blue-600 text-white rounded-button hover:bg-blue-700 focus:outline-none"
           >
-            <i class="fas fa-magic mr-2"></i>
-            <span>一键处理</span>
-            <span v-if="isProcessing" class="ml-2">
-              <i class="fas fa-circle-notch fa-spin"></i>
-            </span>
+            <i class="fas fa-search"></i>
           </button>
         </div>
       </div>
@@ -70,10 +54,7 @@
                 ]" 
                 :alt="video.title"
               >
-              <span :class="[
-                'absolute top-2 right-2 px-2 py-1 text-xs !rounded-button',
-                `tag-${video.handleType.toLowerCase()}`
-              ]">{{ getHandleTypeLabel(video.handleType) }}</span>
+
             </div>
             <div class="mt-4">
               <h3 class="text-lg font-medium text-white line-clamp-2">{{ video.title }}</h3>
@@ -93,7 +74,7 @@
                 </span>
               </div>
               <div class="mt-4 flex items-center justify-between">
-                <div class="flex space-x-2">
+              <div class="flex space-x-2">
                   <button 
                     :disabled="video.processed"
                     @click.stop="handleVideo(video, 'THUMB_UP')"
@@ -101,11 +82,11 @@
                       'px-4 py-2 !rounded-button whitespace-nowrap',
                       video.handleType === 'THUMB_UP' 
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
+                        : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
                     <i class="fas fa-thumbs-up mr-2"></i>
-                    {{ video.handleType === 'THUMB_UP' ? '确认点赞' : '点赞' }}
+                    {{ video.handleType === 'THUMB_UP' ? '历史点赞' : '纠正为：点赞' }}
                   </button>
                   <button 
                     :disabled="video.processed"
@@ -114,11 +95,11 @@
                       'px-4 py-2 !rounded-button whitespace-nowrap',
                       video.handleType === 'DISLIKE' 
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
+                        : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
                     <i class="fas fa-thumbs-down mr-2"></i>
-                    {{ video.handleType === 'DISLIKE' ? '确认点踩' : '点踩' }}
+                    {{ video.handleType === 'DISLIKE' ? '历史点踩' : '纠正为：点踩' }}
                   </button>
                   <button 
                     :disabled="video.processed"
@@ -127,11 +108,11 @@
                       'px-4 py-2 !rounded-button whitespace-nowrap',
                       video.handleType === 'OTHER' 
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
+                        : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
                     <i class="fas fa-question-circle mr-2"></i>
-                    {{ video.handleType === 'OTHER' ? '确认其他' : '其他' }}
+                    {{ video.handleType === 'OTHER' ? '历史其他' : '纠正为：其他' }}
                   </button>
                 </div>
                 <span v-if="video.processed" class="text-green-500">
@@ -144,7 +125,7 @@
         
         <div v-else class="flex-1 w-full flex flex-col items-center justify-center">
           <i class="fas fa-inbox text-6xl text-gray-600 mb-4"></i>
-          <p class="text-gray-400 text-lg">暂无待处理的视频</p>
+          <p class="text-gray-400 text-lg">暂无视频</p>
           <p class="text-gray-500 mt-2">请稍后再来查看或切换其他分类</p>
         </div>
 
@@ -209,6 +190,7 @@ export default {
       pendingCount: 0,
       confirmedCount: 0,
       isProcessing: false, // 新增：用于跟踪是否正在处理
+      search:''
     }
   },
   computed: {
@@ -267,10 +249,10 @@ export default {
         const params = {
           page: this.currentPage ,
           size: this.pageSize,
-          handleType: this.currentType === 'ALL' ? '' : this.currentType
+          handleType: this.currentType === 'ALL' ? '' : this.currentType,
+          search:this.search
         }
-        const response = await api.getReady2HandleVideo(params)
-        // const response = await api.getAlreadyHandleVideo(params)
+        const response = await api.getAlreadyHandleVideo(params)
         if (response.data) {
           this.videoList = response.data.records
           this.total = response.data.total
@@ -300,8 +282,15 @@ export default {
     },
     async handleVideo(video, newHandleType) {
       try {
+        if (video.handleType == newHandleType){
+          return;
+        }
+        const flag = confirm("确定要纠正之前的处理结果吗？");
+        if (!flag){
+          return;
+        }
         const reason = video.handleType !== newHandleType ? '用户修改为' + newHandleType : undefined;
-        await api.processVideo(video.id, newHandleType, reason,false);
+        await api.processVideo(video.id, newHandleType, reason,true);
         
         // 使用 Vue.set 确保响应式更新
         this.$set(video, 'processed', true);
@@ -351,6 +340,10 @@ export default {
     goToBilibili(bvid) {
       const url = 'https://www.bilibili.com/video/' + bvid;
       window.open(url, '_blank');
+    },
+    handleSearch() {
+      this.currentPage = 1; // 重置页码
+      this.fetchVideoList();
     },
   }
 }

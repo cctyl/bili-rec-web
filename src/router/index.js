@@ -11,6 +11,7 @@ import OtherSetting from "@/pages/OtherSetting.vue";
 // import Security from "@/pages/Security.vue";
 // import Logout from "@/pages/Logout.vue";
 import Review from "@/pages/Review.vue"
+import HistoryVideo from "@/pages/HistoryVideo.vue"
 
 Vue.use(VueRouter)
 
@@ -49,6 +50,10 @@ const router = new VueRouter({
         {
             path: '/review',
             component: Review,
+        },
+        {
+            path: '/history-video',
+            component: HistoryVideo,
         },
         // {
         //     path: '/security',

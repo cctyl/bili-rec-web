@@ -208,147 +208,19 @@ export default {
     return {
       chart: null,
       overview: {
-        "runningTaskCount": 5,
-        "blackRuleCount": 1959,
-        "whiteRuleCount": 118,
-        "runDays": 430,
+        "runningTaskCount": 0,
+        "blackRuleCount": 0,
+        "whiteRuleCount": 0,
+        "runDays": 0,
         "whiteHistory": [
-          {
-            "2023-11-25": 29
-          },
-          {
-            "2023-12-19": 14
-          },
-          {
-            "2025-01-16": 37
-          },
-          {
-            "2025-01-26": 38
-          }
         ],
         "blackHistory": [
-          {
-            "2023-11-25": 1440
-          },
-          {
-            "2023-11-30": 1
-          },
-          {
-            "2023-12-19": 2
-          },
-          {
-            "2024-01-06": 5
-          },
-          {
-            "2024-01-07": 54
-          },
-          {
-            "2024-01-14": 69
-          },
-          {
-            "2024-01-17": 5
-          },
-          {
-            "2024-01-18": 41
-          },
-          {
-            "2024-03-24": 16
-          },
-          {
-            "2024-04-29": 108
-          },
-          {
-            "2025-01-16": 37
-          },
-          {
-            "2025-01-19": 54
-          },
-          {
-            "2025-01-24": 55
-          },
-          {
-            "2025-01-25": 71
-          },
-          {
-            "2025-01-26": 1
-          }
         ],
         "otherHistory": [
-          {
-            "2023-11-25": 2210
-          },
-          {
-            "2024-03-03": 21
-          }
         ],
-        "secondHandleCount": 382861,
-        "thirdHandleCount": 2463,
+        "secondHandleCount": 0,
+        "thirdHandleCount": 0,
         taskList: [
-          {
-            "id": "1",
-            "lastRunTime": "2025-01-28 12:06:23",
-            "isEnabled": false,
-            "currentRunStatus": "RUNNING",
-            "scheduledHour": 11,
-            "totalRunCount": 13,
-            "lastRunDuration": 20,
-            "taskName": "关键词搜索任务",
-            "classMethodName": "io.github.cctyl.service.impl.BiliService.doSearchTask",
-            "description": "根据设定的关键词进行搜索，搜索的数据加入待处理列表",
-            "img": "fas fa-search"
-          },
-          {
-            "id": "2",
-            "lastRunTime": "2025-01-28 12:06:24",
-            "isEnabled": false,
-            "currentRunStatus": "WAITING",
-            "scheduledHour": 21,
-            "totalRunCount": 8,
-            "lastRunDuration": 20,
-            "taskName": "热门排行榜任务",
-            "classMethodName": "io.github.cctyl.service.impl.BiliService.doHotRankTask",
-            "description": "抓取热门排行榜的数据，加入待处理列表",
-            "img": "fas fa-chart-line"
-          },
-          {
-            "id": "3",
-            "lastRunTime": "2025-01-28 12:06:25",
-            "isEnabled": false,
-            "currentRunStatus": "WAITING",
-            "scheduledHour": 6,
-            "totalRunCount": 3,
-            "lastRunDuration": 20,
-            "taskName": "首页推荐任务",
-            "classMethodName": "io.github.cctyl.service.impl.BiliService.doHomeRecommendTask",
-            "description": "连续抓取首页推荐的数据，加入待处理列表",
-            "img": "fas fa-home"
-          },
-          {
-            "id": "4",
-            "lastRunTime": "2025-01-28 12:06:26",
-            "isEnabled": false,
-            "currentRunStatus": "WAITING",
-            "scheduledHour": 12,
-            "totalRunCount": 2,
-            "lastRunDuration": 20,
-            "taskName": "处理视频-就按你说的做",
-            "classMethodName": "io.github.cctyl.service.impl.BiliService.doThirdProcess",
-            "description": "按机器判断处理所有未人工审核的视频，程序初始判断的是白名单就按白名单处理，是黑名单就按黑名单处理",
-            "img": "fas fa-robot"
-          },
-          {
-            "id": "5",
-            "lastRunTime": "2025-01-28 12:06:27",
-            "isEnabled": false,
-            "currentRunStatus": "WAITING",
-            "scheduledHour": 13,
-            "totalRunCount": 2,
-            "lastRunDuration": 20,
-            "taskName": "处理视频-触发三次处理",
-            "classMethodName": "io.github.cctyl.service.impl.BiliService.doDefaultProcessVideo",
-            "description": "进行三次处理，按照二次处理的结果对视频点赞或点踩",
-            "img": "fas fa-play-circle"
-          }
         ]
       },
       selectedYear: new Date().getFullYear(), // 默认当前年份
