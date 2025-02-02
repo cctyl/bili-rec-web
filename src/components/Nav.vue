@@ -57,12 +57,7 @@
       </li>
 
     </ul>
-    <div class="mt-auto">
-      <router-link to="/logout" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
-        <i class="fas fa-sign-out-alt w-6"></i>
-        <span class="ml-3">退出登录</span>
-      </router-link>
-    </div>
+
   </nav>
 </template>
 
