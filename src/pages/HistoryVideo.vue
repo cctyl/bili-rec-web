@@ -1,33 +1,33 @@
 <template>
-  <div class="min-h-screen overflow-y-auto bg-gray-900"  style="width: 100%" >
+  <div class="min-h-screen overflow-y-auto bg-gray-900" style="width: 100%">
     <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-2rem)]">
       <div class="mb-8 flex justify-between items-center">
         <div class="flex items-center space-x-4">
           <h1 class="text-2xl font-bold text-white">历史处理过的视频</h1>
           <div class="flex space-x-2">
             <span
-              v-for="type in handleTypes"
-              :key="type.value"
-              :class="[
+                v-for="type in handleTypes"
+                :key="type.value"
+                :class="[
                 'px-3 py-1 text-sm !rounded-button cursor-pointer',
                 currentType === type.value ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
               ]"
-              @click="handleTypeChange(type.value)"
+                @click="handleTypeChange(type.value)"
             >{{ type.label }}</span>
           </div>
         </div>
         <!-- 新增搜索框部分 -->
         <div class="flex items-center space-x-2">
           <input
-            v-model="search"
-            type="text"
-            placeholder="搜索视频..."
-            class="px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-button focus:outline-none focus:border-blue-500"
-            @keyup.enter="handleSearch"
+              v-model="search"
+              type="text"
+              placeholder="搜索视频..."
+              class="px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-button focus:outline-none focus:border-blue-500"
+              @keyup.enter="handleSearch"
           />
           <button
-            @click="handleSearch"
-            class="px-4 py-2 bg-blue-600 text-white rounded-button hover:bg-blue-700 focus:outline-none"
+              @click="handleSearch"
+              class="px-4 py-2 bg-blue-600 text-white rounded-button hover:bg-blue-700 focus:outline-none"
           >
             <i class="fas fa-search"></i>
           </button>
@@ -37,22 +37,22 @@
       <div class="flex-1 w-full flex flex-col">
         <div v-if="videoList.length > 0" class="grid grid-cols-2 gap-6">
           <div
-            v-for="video in videoList"
-            :key="video.bvid"
-            :class="[
+              v-for="video in videoList"
+              :key="video.bvid"
+              :class="[
               'bg-gray-800 p-4 rounded-lg shadow-sm transition-all duration-500 video-card cursor-pointer',
               video.processed ? 'opacity-50 processed-card' : ''
             ]"
-            @click="goToBilibili(video.bvid)"
+
           >
-            <div class="relative">
-              <img 
-                :src="$getPic(video.coverUrl)" 
-                :class="[
+            <div class="relative"  @click="goToBilibili(video.bvid)">
+              <img
+                  :src="$getPic(video.coverUrl)"
+                  :class="[
                   'w-full h-48 object-cover rounded-lg',
                   video.handleType === 'DISLIKE' ? 'blur-cover' : ''
-                ]" 
-                :alt="video.title"
+                ]"
+                  :alt="video.title"
               >
 
             </div>
@@ -74,40 +74,40 @@
                 </span>
               </div>
               <div class="mt-4 flex items-center justify-between">
-              <div class="flex space-x-2">
-                  <button 
-                    :disabled="video.processed"
-                    @click.stop="handleVideo(video, 'THUMB_UP')"
-                    :class="[
+                <div class="flex space-x-2">
+                  <button
+                      :disabled="video.processed"
+                      @click.stop="handleVideo(video, 'THUMB_UP')"
+                      :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'THUMB_UP' 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      video.handleType === 'THUMB_UP'
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
                     <i class="fas fa-thumbs-up mr-2"></i>
                     {{ video.handleType === 'THUMB_UP' ? '历史点赞' : '纠正为：点赞' }}
                   </button>
-                  <button 
-                    :disabled="video.processed"
-                    @click.stop="handleVideo(video, 'DISLIKE')"
-                    :class="[
+                  <button
+                      :disabled="video.processed"
+                      @click.stop="handleVideo(video, 'DISLIKE')"
+                      :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'DISLIKE' 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      video.handleType === 'DISLIKE'
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
                     <i class="fas fa-thumbs-down mr-2"></i>
                     {{ video.handleType === 'DISLIKE' ? '历史点踩' : '纠正为：点踩' }}
                   </button>
-                  <button 
-                    :disabled="video.processed"
-                    @click.stop="handleVideo(video, 'OTHER')"
-                    :class="[
+                  <button
+                      :disabled="video.processed"
+                      @click.stop="handleVideo(video, 'OTHER')"
+                      :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'OTHER' 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      video.handleType === 'OTHER'
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'border border-gray-600 text-gray-800    bg-orange-200'
                     ]"
                   >
@@ -122,7 +122,7 @@
             </div>
           </div>
         </div>
-        
+
         <div v-else class="flex-1 w-full flex flex-col items-center justify-center">
           <i class="fas fa-inbox text-6xl text-gray-600 mb-4"></i>
           <p class="text-gray-400 text-lg">暂无视频</p>
@@ -132,32 +132,33 @@
         <div class="w-full mt-8">
           <nav class="flex justify-center items-center space-x-2">
             <button
-              class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
-              :disabled="currentPage === 1"
-              @click="changePage(currentPage - 1)"
+                class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
+                :disabled="currentPage === 1"
+                @click="changePage(currentPage - 1)"
             >
               <i class="fas fa-chevron-left"></i>
             </button>
             <template v-for="(item, index) in displayedPages">
               <span
-                v-if="item === '...'"
-                :key="'ellipsis' + index"
-                class="px-3 py-2 text-gray-500"
+                  v-if="item === '...'"
+                  :key="'ellipsis' + index"
+                  class="px-3 py-2 text-gray-500"
               >...</span>
               <button
-                v-else
-                :key="item"
-                :class="[
+                  v-else
+                  :key="item"
+                  :class="[
                   'px-3 py-2 !rounded-button',
                   currentPage === item ? 'bg-blue-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
                 ]"
-                @click="changePage(item)"
-              >{{ item }}</button>
+                  @click="changePage(item)"
+              >{{ item }}
+              </button>
             </template>
             <button
-              class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
-              :disabled="currentPage === totalPages"
-              @click="changePage(currentPage + 1)"
+                class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
+                :disabled="currentPage === totalPages"
+                @click="changePage(currentPage + 1)"
             >
               <i class="fas fa-chevron-right"></i>
             </button>
@@ -176,12 +177,13 @@ export default {
   data() {
     return {
       handleTypes: [
-        { value: 'ALL', label: '全部' },
-        { value: 'THUMB_UP', label: '待点赞' },
-        { value: 'DISLIKE', label: '待点踩' },
-        { value: 'OTHER', label: '其他' }
+
+        {value: 'THUMB_UP', label: '待点赞'},
+        {value: 'DISLIKE', label: '待点踩'},
+        {value: 'ALL', label: '全部'},
+        {value: 'OTHER', label: '其他'}
       ],
-      currentType: 'ALL',
+      currentType: 'THUMB_UP',
       videoList: [],
       currentPage: 1,
       pageSize: 10,
@@ -190,7 +192,7 @@ export default {
       pendingCount: 0,
       confirmedCount: 0,
       isProcessing: false, // 新增：用于跟踪是否正在处理
-      search:''
+      search: ''
     }
   },
   computed: {
@@ -201,7 +203,7 @@ export default {
       const result = []
       const current = this.currentPage
       const total = this.totalPages
-      
+
       // 当总页数小于等于7时，显示所有页码
       if (total <= 7) {
         for (let i = 1; i <= total; i++) {
@@ -209,10 +211,10 @@ export default {
         }
         return result
       }
-      
+
       // 添加第一页
       result.push(1)
-      
+
       // 处理中间页码
       if (current <= 3) {
         // 当前页靠近开始
@@ -236,7 +238,7 @@ export default {
         result.push('...')
         result.push(total)
       }
-      
+
       return result
     }
   },
@@ -247,10 +249,10 @@ export default {
     async fetchVideoList() {
       try {
         const params = {
-          page: this.currentPage ,
+          page: this.currentPage,
           size: this.pageSize,
           handleType: this.currentType === 'ALL' ? '' : this.currentType,
-          search:this.search
+          search: this.search
         }
         const response = await api.getAlreadyHandleVideo(params)
         if (response.data) {
@@ -282,25 +284,25 @@ export default {
     },
     async handleVideo(video, newHandleType) {
       try {
-        if (video.handleType == newHandleType){
+        if (video.handleType == newHandleType) {
           return;
         }
         const flag = confirm("确定要纠正之前的处理结果吗？");
-        if (!flag){
+        if (!flag) {
           return;
         }
         const reason = video.handleType !== newHandleType ? '用户修改为' + newHandleType : undefined;
-        await api.processVideo(video.id, newHandleType, reason,true);
-        
+        await api.processVideo(video.id, newHandleType, reason, true);
+
         // 使用 Vue.set 确保响应式更新
         this.$set(video, 'processed', true);
         // 同时记录到 Set 中确保状态持久
         this.processedVideos.add(video.id);
-        
+
         // 更新计数
         this.pendingCount = Math.max(0, this.pendingCount - 1);
         this.confirmedCount++;
-        
+
         this.$message('处理成功', 'success');
       } catch (error) {
         this.$message('处理失败：' + error.message, 'error');
@@ -308,15 +310,15 @@ export default {
     },
     async handleAllVideos() {
       if (this.isProcessing) return;
-      
+
       try {
         this.isProcessing = true;
         const unprocessedVideos = this.videoList.filter(v => !v.processed);
-        
+
         for (const video of unprocessedVideos) {
           await this.handleVideo(video, video.handleType);
         }
-        
+
         this.$message('批量处理完成', 'success');
       } catch (error) {
         this.$message('批量处理失败：' + error.message, 'error');
@@ -325,8 +327,8 @@ export default {
       }
     },
     shouldShowReason(video) {
-      return (video.handleType === 'THUMB_UP' && video.thumbUpReason) || 
-             (video.handleType === 'DISLIKE' && video.blackReason);
+      return (video.handleType === 'THUMB_UP' && video.thumbUpReason) ||
+          (video.handleType === 'DISLIKE' && video.blackReason);
     },
 
     getReasonText(video) {
@@ -355,21 +357,26 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
+
 .tag-white {
   background-color: #10B981;
   color: white;
 }
+
 .tag-black {
   background-color: #EF4444;
   color: white;
 }
+
 .tag-other {
   background-color: #6B7280;
   color: white;
 }
+
 .blur-cover {
   filter: blur(8px);
 }
+
 .processed-card {
   position: relative;
   pointer-events: none;
