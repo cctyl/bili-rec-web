@@ -59,9 +59,9 @@
               'bg-gray-800 p-4 rounded-lg shadow-sm transition-all duration-500 video-card cursor-pointer',
               video.processed ? 'opacity-50 processed-card' : ''
             ]"
-            @click="goToBilibili(video.bvid)"
+
           >
-            <div class="relative">
+            <div class="relative" @click="goToBilibili(video.bvid)">
               <img 
                 :src="$getPic(video.coverUrl)" 
                 :class="[
