@@ -209,6 +209,7 @@ export default {
       pendingCount: 0,
       confirmedCount: 0,
       isProcessing: false, // 新增：用于跟踪是否正在处理
+      timer:null,
     }
   },
   computed: {
@@ -298,11 +299,15 @@ export default {
       }
       return typeMap[type] || '待处理'
     },
+
+
     async handleVideo(video, newHandleType) {
       try {
         const reason = video.handleType !== newHandleType ? '用户修改为' + newHandleType : undefined;
         await api.processVideo(video.id, newHandleType, reason,false);
-        
+
+
+
         // 使用 Vue.set 确保响应式更新
         this.$set(video, 'processed', true);
         // 同时记录到 Set 中确保状态持久
@@ -311,7 +316,20 @@ export default {
         // 更新计数
         this.pendingCount = Math.max(0, this.pendingCount - 1);
         this.confirmedCount++;
-        
+
+
+        if (this.timer){
+          clearTimeout(this.timer)
+
+
+        }
+        this.timer = setTimeout(()=>{
+
+          //清理处理过的数据，processed=true的视频
+          //然后调用
+          this.fetchVideoList();
+        },2000)
+
         this.$message('处理成功', 'success');
       } catch (error) {
         this.$message('处理失败：' + error.message, 'error');
