@@ -178,8 +178,8 @@ export default {
     return {
       handleTypes: [
 
-        {value: 'THUMB_UP', label: '待点赞'},
-        {value: 'DISLIKE', label: '待点踩'},
+        {value: 'THUMB_UP', label: '已点赞'},
+        {value: 'DISLIKE', label: '已点踩'},
         {value: 'ALL', label: '全部'},
         {value: 'OTHER', label: '其他'}
       ],
