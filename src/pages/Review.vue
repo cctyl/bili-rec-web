@@ -16,7 +16,7 @@
             >{{ type.label }}</span>
           </div>
         </div>
-        <!-- 添加计数器显示 -->
+        <!-- 移除原一键处理按钮，只保留计数器 -->
         <div class="flex items-center space-x-6">
           <div class="flex items-center">
             <span class="text-yellow-500">
@@ -32,21 +32,6 @@
             </span>
             <span class="ml-2 text-xl font-bold text-green-400">{{ confirmedCount }}</span>
           </div>
-          <!-- 添加一键处理按钮 -->
-          <button
-            @click="handleAllVideos"
-            :disabled="!videoList.length || isProcessing"
-            class="ml-6 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 
-                   hover:from-blue-600 hover:to-blue-700 text-white font-medium 
-                   !rounded-button transition-all duration-300 flex items-center 
-                   shadow-lg hover:shadow-blue-500/30"
-          >
-            <i class="fas fa-magic mr-2"></i>
-            <span>一键处理</span>
-            <span v-if="isProcessing" class="ml-2">
-              <i class="fas fa-circle-notch fa-spin"></i>
-            </span>
-          </button>
         </div>
       </div>
 
@@ -184,6 +169,19 @@
         </div>
       </div>
     </main>
+
+    <!-- 添加悬浮固定的一键处理按钮 -->
+    <button
+      @click="handleAllVideos"
+      :disabled="!videoList.length || isProcessing"
+      class="fixed-process-btn"
+    >
+      <i class="fas fa-magic mr-2"></i>
+      <span>一键处理</span>
+      <span v-if="isProcessing" class="ml-2">
+        <i class="fas fa-circle-notch fa-spin"></i>
+      </span>
+    </button>
   </div>
 </template>
 
@@ -427,5 +425,35 @@ button:disabled {
   cursor: not-allowed;
   pointer-events: none;
   background: linear-gradient(to right, #4B5563, #6B7280);
+}
+
+/* 添加悬浮按钮样式 */
+.fixed-process-btn {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  padding: 16px 24px;
+  background: linear-gradient(to right, #3B82F6, #2563EB);
+  color: white;
+  font-weight: 500;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fixed-process-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(to right, #2563EB, #1D4ED8);
+  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.6);
+}
+
+.fixed-process-btn:disabled {
+  background: linear-gradient(to right, #4B5563, #6B7280);
+  transform: none;
+  box-shadow: none;
 }
 </style>
