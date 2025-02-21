@@ -114,6 +114,90 @@
                     <i class="fas fa-question-circle mr-2"></i>
                     {{ video.handleType === 'OTHER' ? '历史其他' : '纠正为：其他' }}
                   </button>
+
+                  <button
+                      @click.stop="recheck(video)"
+                      :class="[
+                      'px-4 py-2 !rounded-button whitespace-nowrap relative',
+                      'bg-purple-500 text-white hover:bg-purple-600' // 改为紫色系
+                    ]"
+                  >
+                    <i class="fas fa-sync-alt mr-2"></i> <!-- 同时将图标改为同步图标 -->
+                    重新核验
+                    <!-- 添加 tooltip -->
+                    <div v-if="video.recheckResult"
+                         class="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80">
+                      <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm">
+                        <!-- 白名单结果 -->
+                        <div class="mb-3 pb-3 border-b border-gray-700">
+                          <div class="flex items-center mb-2">
+                            <i class="fas fa-shield-alt mr-2 text-blue-400"></i>
+                            <span class="font-medium">白名单检查</span>
+                          </div>
+                          <div v-if="video.whiteResult.total" class="text-green-400 mb-2">
+                            <i class="fas fa-check-circle mr-2"></i>匹配白名单规则
+                          </div>
+                          <div v-else class="text-gray-400 mb-2">
+                            <i class="fas fa-times-circle mr-2"></i>未匹配白名单规则
+                          </div>
+                          <div class="space-y-1">
+                            <div v-if="video.whiteResult.midMatch" class="text-blue-400">
+                              <i class="fas fa-user mr-2"></i>UP主匹配
+                            </div>
+                            <div v-if="video.whiteResult.tidMatch" class="text-yellow-400">
+                              <i class="fas fa-folder mr-2"></i>分区匹配
+                            </div>
+                            <div v-if="video.whiteResult.whitelistRuleMatch" class="text-purple-400">
+                              <i class="fas fa-list mr-2"></i>规则匹配
+                            </div>
+                            <div v-if="video.whiteResult.thumbUpReason"
+                                 class="mt-2 text-gray-300"
+                                 v-html="video.whiteResult.thumbUpReason">
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- 黑名单结果 -->
+                        <div>
+                          <div class="flex items-center mb-2">
+                            <i class="fas fa-ban mr-2 text-red-400"></i>
+                            <span class="font-medium">黑名单检查</span>
+                          </div>
+                          <div v-if="video.blackResult.total" class="text-red-400 mb-2">
+                            <i class="fas fa-exclamation-circle mr-2"></i>匹配黑名单规则
+                          </div>
+                          <div v-else class="text-gray-400 mb-2">
+                            <i class="fas fa-check-circle mr-2"></i>未匹配黑名单规则
+                          </div>
+                          <div class="space-y-1">
+                            <div v-if="video.blackResult.midMatch" class="text-red-400">
+                              <i class="fas fa-user mr-2"></i>UP主匹配
+                            </div>
+                            <div v-if="video.blackResult.tidMatch" class="text-red-400">
+                              <i class="fas fa-folder mr-2"></i>分区匹配
+                            </div>
+                            <div v-if="video.blackResult.tagMatch" class="text-red-400">
+                              <i class="fas fa-tags mr-2"></i>标签匹配
+                            </div>
+                            <div v-if="video.blackResult.titleMatch" class="text-red-400">
+                              <i class="fas fa-heading mr-2"></i>标题匹配
+                            </div>
+                            <div v-if="video.blackResult.descMatch" class="text-red-400">
+                              <i class="fas fa-align-left mr-2"></i>描述匹配
+                            </div>
+                            <div v-if="video.blackResult.coverMatch" class="text-red-400">
+                              <i class="fas fa-image mr-2"></i>封面匹配
+                            </div>
+                            <div v-if="video.blackResult.blackReason"
+                                 class="mt-2 text-gray-300"
+                                 v-html="video.blackResult.blackReason">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tooltip-arrow"></div>
+                    </div>
+                  </button>
                 </div>
                 <span v-if="video.processed" class="text-green-500">
                   <i class="fas fa-check-circle mr-1"></i>已处理
@@ -246,6 +330,36 @@ export default {
     this.fetchVideoList()
   },
   methods: {
+    /**
+     * 重新核验数据
+     * @param video
+     */
+    async recheck(video) {
+      try {
+        // 同时调用白名单和黑名单检查
+        const [whiteResponse, blackResponse] = await Promise.all([
+          api.isWhite(video.bvid),
+          api.isBlack(video.bvid)
+        ]);
+
+        if (whiteResponse.success && whiteResponse.code === 20000 &&
+            blackResponse.success && blackResponse.code === 20000) {
+          // 更新视频的检查结果
+          this.$set(video, 'recheckResult', true);
+          this.$set(video, 'whiteResult', whiteResponse.data);
+          this.$set(video, 'blackResult', blackResponse.data);
+
+          // 3秒后自动隐藏 tooltip
+          setTimeout(() => {
+            this.$set(video, 'recheckResult', null);
+            this.$set(video, 'whiteResult', null);
+            this.$set(video, 'blackResult', null);
+          }, 3000);
+        }
+      } catch (error) {
+        this.$message('核验失败：' + error.message, 'error');
+      }
+    },
     async fetchVideoList() {
       try {
         const params = {
@@ -409,5 +523,28 @@ button:disabled {
   cursor: not-allowed;
   pointer-events: none;
   background: linear-gradient(to right, #4B5563, #6B7280);
+}
+
+.tooltip {
+  z-index: 1000;
+  pointer-events: none;
+  width: 320px; /* 调整宽度以适应更多内容 */
+}
+
+.tooltip-arrow {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: rgb(31, 41, 55) transparent transparent transparent;
+}
+
+.tooltip .bg-gray-800 {
+  position: relative;
+  border: 1px solid rgb(55, 65, 81);
+  max-height: 400px;
+  overflow-y: auto;
 }
 </style>
