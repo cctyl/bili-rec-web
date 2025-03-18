@@ -428,19 +428,18 @@ export default {
         this.confirmedCount++;
 
 
-        if (this.timer){
-          clearTimeout(this.timer)
+        //已处理的视频数量
+        const processedCount = this.videoList.filter(video => video.processed === true).length;
+        if (processedCount===this.videoList.length){
+          this.$message('即将刷新页面', 'success');
+          setTimeout(()=>{
+            this.fetchVideoList();
+          },500)
 
-
+        }else {
+          this.$message('处理成功', 'success');
         }
-        this.timer = setTimeout(()=>{
 
-          //清理处理过的数据，processed=true的视频
-          //然后调用
-          this.fetchVideoList();
-        },2000)
-
-        this.$message('处理成功', 'success');
       } catch (error) {
         this.$message('处理失败：' + error.message, 'error');
       }
