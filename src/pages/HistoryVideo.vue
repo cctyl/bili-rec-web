@@ -45,7 +45,7 @@
             ]"
 
           >
-            <div class="relative"  @click="goToBilibili(video.bvid)">
+            <div class="relative"  @click="goToBilibili(video)">
               <img
                   :src="$getPic(video.coverUrl)"
                   :class="[
@@ -453,9 +453,10 @@ export default {
       }
       return '';
     },
-    goToBilibili(bvid) {
-      const url = 'https://www.bilibili.com/video/' + bvid;
+    goToBilibili(video) {
+      const url = 'https://www.bilibili.com/video/' + video.bvid;
       window.open(url, '_blank');
+      api.watchVideo(video.aid)
     },
     handleSearch() {
       this.currentPage = 1; // 重置页码
