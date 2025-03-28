@@ -5,6 +5,14 @@
       <h1 class="text-2xl font-['Pacifico'] text-primary">logo</h1>
     </div>
     <ul class="space-y-2 flex-grow">
+
+      <li>
+        <router-link to="/watch-uploader-list" class="flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded-md" active-class="bg-primary">
+          <i class="fas fa-tasks w-6"></i>
+          <span class="ml-3">观察中up主列表</span>
+        </router-link>
+      </li>
+
       <li>
         <router-link to="/home" class="flex items-center p-3 text-white  rounded-md" active-class="bg-primary">
           <i class="fas fa-chart-line w-6"></i>
