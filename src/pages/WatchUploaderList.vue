@@ -1,7 +1,7 @@
 <!-- 代码已包含 CSS：使用 TailwindCSS , 安装 TailwindCSS 后方可看到布局样式效果 -->
 <template>
-    <div class="min-h-screen bg-gray-800">
-        <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class=" bg-gray-800" style="width: 100%">
+        <div class=" mx-auto px-4 py-6">
             <!-- 顶部导航 -->
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center">
