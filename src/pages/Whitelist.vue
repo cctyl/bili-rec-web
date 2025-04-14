@@ -23,7 +23,7 @@
       白名单规则用于自动通过符合条件的内容。请谨慎设置以确保内容质量。
     </div>
 
-    <!-- 白名单列表 -->
+    <!-- 白名单联合规则列表 -->
     <div class="bg-gray-800 rounded-lg overflow-hidden mb-6">
       <table class="w-full whitelist-management__table">
         <thead>
@@ -58,6 +58,20 @@
       </table>
     </div>
 
+
+
+    <!-- 白名单关键词列表 -->
+    <KeywordListComponent
+        hint="添加新关键词"
+        title="白名单关键词"
+        :keyword-list-prop="arrData"
+        type="WHITE,KEYWORD"
+        desc="当 视频标题 或 视频简介 中包含以下关键词时，将判断为白名单"
+        :add="addKeyword"
+        :remove="removeKeyword"
+    >
+
+    </KeywordListComponent>
 
     <!-- 白名单用户id -->
     <KeywordListComponent
@@ -99,6 +113,19 @@
       </button>
 
     </KeywordListComponent>
+
+    <!-- 白名单标签列表 -->
+    <KeywordListComponent
+        hint="添加新标签 "
+        title="白名单标签"
+        :keyword-list-prop="arrData"
+
+        type="WHITE,TAG"
+        desc="当 视频标签 中包含以下任意标签时，将判断为白名单"
+        :add="addKeyword"
+        :remove="removeKeyword"
+    ></KeywordListComponent>
+
     <!-- 忽略的关键词列表 -->
     <KeywordListComponent
         hint="添加新关键词"
@@ -208,6 +235,9 @@ export default {
         'WHITE,IGNORE_KEYWORD': [],
         'WHITE,MID': [],
         'WHITE,TID': [],
+        'WHITE,KEYWORD': [],
+        'WHITE,TAG': [],
+
       },
       whitelist: [],
       showTidModal: false,
