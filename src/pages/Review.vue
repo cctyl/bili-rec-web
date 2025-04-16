@@ -129,7 +129,9 @@
                     重新核验
                     <!-- 添加 tooltip -->
                     <div v-if="video.recheckResult"
-                         class="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80">
+                         class=" absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-120"
+                        style="pointer-events: auto;border: 1px solid #666"
+                    >
                       <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm">
                         <!-- 白名单结果 -->
                         <div class="mb-3 pb-3 border-b border-gray-700">
@@ -144,18 +146,24 @@
                             <i class="fas fa-times-circle mr-2"></i>未匹配白名单规则
                           </div>
                           <div class="space-y-1">
+                            <div v-if="video.whiteResult.listRuleMatch" class="text-purple-400">
+                              <i class="fas fa-list mr-2"></i>联合规则匹配
+                            </div>
                             <div v-if="video.whiteResult.midMatch" class="text-blue-400">
                               <i class="fas fa-user mr-2"></i>UP主匹配
                             </div>
                             <div v-if="video.whiteResult.tidMatch" class="text-yellow-400">
                               <i class="fas fa-folder mr-2"></i>分区匹配
                             </div>
-                            <div v-if="video.whiteResult.whitelistRuleMatch" class="text-purple-400">
-                              <i class="fas fa-list mr-2"></i>规则匹配
+                            <div v-if="video.whiteResult.titleMatch" class="text-green-400">
+                              <i class="fas fa-list mr-2"></i>标题匹配
                             </div>
-                            <div v-if="video.whiteResult.thumbUpReason"
+                            <div v-if="video.whiteResult.descMatch" class="text-pink-400">
+                              <i class="fas fa-list mr-2"></i>描述匹配
+                            </div>
+                            <div v-if="video.thumbUpReason"
                                  class="mt-2 text-gray-300"
-                                 v-html="video.whiteResult.thumbUpReason">
+                                 v-html="video.thumbUpReason">
                             </div>
                           </div>
                         </div>
@@ -191,9 +199,9 @@
                             <div v-if="video.blackResult.coverMatch" class="text-red-400">
                               <i class="fas fa-image mr-2"></i>封面匹配
                             </div>
-                            <div v-if="video.blackResult.blackReason"
+                            <div v-if="video.blackReason"
                                  class="mt-2 text-gray-300"
-                                 v-html="video.blackResult.blackReason">
+                                 v-html="video.blackReason">
                             </div>
                           </div>
                         </div>
@@ -388,24 +396,22 @@ export default {
     async recheck(video) {
       try {
         // 同时调用白名单和黑名单检查
-        const [whiteResponse, blackResponse] = await Promise.all([
-          api.isWhite(video.bvid),
-          api.isBlack(video.bvid)
-        ]);
+        const resp = await api.checkVideo(video.bvid)
 
-        if (whiteResponse.success && whiteResponse.code === 20000 &&
-            blackResponse.success && blackResponse.code === 20000) {
+        if (resp.success && resp.code === 20000) {
           // 更新视频的检查结果
           this.$set(video, 'recheckResult', true);
-          this.$set(video, 'whiteResult', whiteResponse.data);
-          this.$set(video, 'blackResult', blackResponse.data);
+          this.$set(video, 'whiteResult', resp.data.whiteResult);
+          this.$set(video, 'blackResult', resp.data.blackResult);
+          this.$set(video, 'thumbUpReason', resp.data.thumbUpReason);
+          this.$set(video, 'blackReason', resp.data.blackReason);
 
           // 3秒后自动隐藏 tooltip
           setTimeout(() => {
             this.$set(video, 'recheckResult', null);
             this.$set(video, 'whiteResult', null);
             this.$set(video, 'blackResult', null);
-          }, 3000);
+          }, 6000);
         }
       } catch (error) {
         this.$message('核验失败：' + error.message, 'error');

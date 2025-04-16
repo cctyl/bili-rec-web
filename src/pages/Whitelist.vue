@@ -60,18 +60,31 @@
 
 
 
-    <!-- 白名单关键词列表 -->
+    <!-- 白名单标题关键词列表 -->
     <KeywordListComponent
         hint="添加新关键词"
-        title="白名单关键词"
+        title="白名单标题关键词"
         :keyword-list-prop="arrData"
-        type="WHITE,KEYWORD"
-        desc="当 视频标题 或 视频简介 中包含以下关键词时，将判断为白名单"
+        type="WHITE,TITLE"
+        desc="当 视频标题 中包含以下关键词时，将判断为白名单"
         :add="addKeyword"
         :remove="removeKeyword"
     >
 
     </KeywordListComponent>
+    <!-- 白名单描述关键词列表 -->
+    <KeywordListComponent
+        hint="添加新关键词"
+        title="白名单描述关键词"
+        :keyword-list-prop="arrData"
+        type="WHITE,DESC"
+        desc="当 视频描述 中包含以下关键词时，将判断为白名单"
+        :add="addKeyword"
+        :remove="removeKeyword"
+    >
+
+    </KeywordListComponent>
+
 
     <!-- 白名单用户id -->
     <KeywordListComponent
@@ -235,7 +248,8 @@ export default {
         'WHITE,IGNORE_KEYWORD': [],
         'WHITE,MID': [],
         'WHITE,TID': [],
-        'WHITE,KEYWORD': [],
+        'WHITE,TITLE': [],
+        'WHITE,DESC': [],
         'WHITE,TAG': [],
 
       },

@@ -357,4 +357,12 @@ export default {
     watchVideo(aid){
         return ajax(`/video-detail/watch/${aid}`,null, 'POST');
     },
+    /**
+     * 黑白名单检测
+     * @param bvid
+     */
+    checkVideo(bvid) {
+        return ajax(`/video-detail/check-video?bvid=${bvid}`);
+
+    }
 };
