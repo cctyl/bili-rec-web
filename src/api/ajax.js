@@ -10,7 +10,7 @@ export default function ajax(url, data = {}, type = "GET") {
             url: url,
             baseURL:BASE_URL,
             data:data,
-            withCredentials:true
+            withCredentials:false
         }).then(response => {
             response = response.data;
             if (!response.success) {
