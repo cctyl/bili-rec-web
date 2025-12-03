@@ -39,7 +39,7 @@
         <div class="flex items-center justify-between">
           <div v-if="config.type === 'switch'"
             class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'toggle-' + config.key" v-model="config.value" @change="sysConfigUpdate = true"
+            <input type="checkbox" :id="'toggle-' + config.key" v-model="config.value" @change="handleAiConfigChange(config)"
               class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
             <label :for="'toggle-' + config.key"
               class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
@@ -77,6 +77,56 @@
               class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 配置区域 -->
+    <div v-if="showAiSection" class="border-t border-gray-700 pt-8 mb-12">
+      <div class="flex justify-between items-center mb-6">
+        <span class="text-2xl font-bold">AI 配置</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div v-for="config in filteredAiConfigs" :key="config.key" class="bg-gray-800 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
+          <div class="flex items-center justify-between">
+            <div v-if="config.type === 'switch'"
+              class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox" :id="'ai-toggle-' + config.key" v-model="config.value" @change="sysConfigUpdate = true"
+                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+              <label :for="'ai-toggle-' + config.key"
+                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+            </div>
+
+            <div v-else-if="config.type === 'text'" class="flex items-center">
+              <input :id="'ai-input-' + config.key" v-model="config.value" :disabled="!config.editable"
+                class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+              <button @click="toggleEdit(config.key)"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                {{ config.editable ? '保存' : '编辑' }}
+              </button>
+            </div>
+            <div v-else-if="config.type === 'textpassword'" class="flex items-center">
+              <input :id="'ai-input-' + config.key" v-model="config.value" :type="config.editable ? 'text' : 'password'"
+                :disabled="!config.editable"
+                class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+              <button @click="toggleEdit(config.key)"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                {{ config.editable ? '保存' : '编辑' }}
+              </button>
+            </div>
+
+            <div v-else-if="config.type === 'textarea'" class="w-full">
+              <textarea v-model="config.value" :disabled="!config.editable"
+                @input="sysConfigUpdate = true"
+                class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full h-20 mb-2 resize-none">
+              </textarea>
+              <button @click="toggleEdit(config.key)"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                {{ config.editable ? '保存' : '编辑' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -410,19 +460,34 @@ export default {
   },
 
   computed: {
-    filteredSystemConfigs() {
+    showAiSection() {
       const aiChatEnabled = this.systemConfigs.find(config => config.key === 'ai_chat_enable');
-      const isAiEnabled = aiChatEnabled && aiChatEnabled.value === true;
-
+      return aiChatEnabled && aiChatEnabled.value === true;
+    },
+    filteredSystemConfigs() {
+      // 过滤掉 AI 相关的配置，但保留 ai_chat_enable 开关
       return this.systemConfigs.filter(config => {
         const isAiConfig = config.key.startsWith('ai_');
-        // ai_chat_enable 始终显示，其他 AI 配置只有在启用时才显示
-        return !isAiConfig || config.key === 'ai_chat_enable' || (isAiConfig && isAiEnabled);
+        return !isAiConfig || config.key === 'ai_chat_enable';
+      });
+    },
+    filteredAiConfigs() {
+      // 只显示 AI 相关的配置
+      return this.systemConfigs.filter(config => {
+        const isAiConfig = config.key.startsWith('ai_');
+        return isAiConfig && config.key !== 'ai_chat_enable';
       });
     }
   },
 
   methods: {
+    handleAiConfigChange(config) {
+      this.sysConfigUpdate = true;
+      // 如果是 ai_chat_enable 开关被改变，强制更新页面
+      if (config.key === 'ai_chat_enable') {
+        this.$forceUpdate();
+      }
+    },
     async relogin() {
       // 实现重新登录的逻辑
       console.log('重新登录');
