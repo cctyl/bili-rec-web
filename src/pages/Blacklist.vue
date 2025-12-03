@@ -127,6 +127,53 @@
 
     </Select>
 
+    <!-- AI 提示词模块 -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-white">AI 提示词设置</h3>
+
+      <div class="bg-blue-600 bg-opacity-20 border border-blue-500 rounded-lg p-4 mb-6">
+        <p class="text-blue-200 text-sm leading-relaxed">
+          <i class="fas fa-lightbulb mr-2"></i>
+          用自然语言，向 ai 描述你所讨厌的视频的特征，比如：不喜欢王者荣耀
+        </p>
+      </div>
+
+      <div class="flex flex-col space-y-4">
+        <div>
+          <label class="block text-gray-300 text-sm font-medium mb-2">AI 提示词内容</label>
+          <div class="flex space-x-4">
+            <textarea
+              v-model="aiPromptContent"
+              :disabled="!aiPromptEditable"
+              :class="[
+                'flex-1 px-4 py-3 rounded-lg border resize-none transition-all duration-200',
+                aiPromptEditable
+                  ? 'bg-gray-700 text-white border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-600'
+                  : 'bg-gray-800 text-gray-400 border-gray-700 cursor-not-allowed opacity-75'
+              ]"
+              rows="4"
+              :placeholder="aiPromptEditable ? '请输入你讨厌的视频特征描述，例如：不喜欢王者荣耀相关的游戏视频...' : '点击编辑按钮开始输入...'"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            @click="toggleAiPromptEdit"
+            :class="[
+              'text-white px-6 py-2 rounded-lg focus:outline-none transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105',
+              aiPromptEditable
+                ? 'bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-500 border border-green-600'
+                : 'bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 border border-blue-600'
+            ]"
+          >
+            <i :class="aiPromptEditable ? 'fas fa-save animate-pulse' : 'fas fa-edit'" class="mr-2"></i>
+            {{ aiPromptEditable ? '保存' : '编辑' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!--分区选择弹窗-->
     <PartitionDialog
         :showTidModalProp.sync="showTidModal"
@@ -175,6 +222,10 @@ export default {
         'BLACK,TAG,CACHE': []
       },
       showTidModal: false,
+      // AI 提示词相关数据
+      aiPromptContent: '',
+      aiPromptEditable: false,
+      existingAiPromptId: null, // 存储现有 AI 提示词的 ID
     };
   },
 
@@ -183,10 +234,88 @@ export default {
     for (let key in this.arrData) {
       this.fetchData(key);
     }
+    // 获取 AI 提示词
+    this.fetchAiPromptData();
   },
   computed: {},
   methods: {
 
+    /**
+     * 获取 AI 提示词数据
+     */
+    async fetchAiPromptData() {
+      try {
+        const response = await api.getDictList('BLACK', 'AI_JUDGMENT_PROMPT', 'NORMAL');
+        if (response.code === 200 && response.data.list.length > 0) {
+          const aiPromptItem = response.data.list[0];
+          this.aiPromptContent = aiPromptItem.value;
+          this.existingAiPromptId = aiPromptItem.id; // 保存现有记录的 ID
+        } else {
+          // 如果没有数据，设置默认内容
+          this.aiPromptContent = '';
+          this.existingAiPromptId = null;
+        }
+      } catch (error) {
+        console.error('Failed to fetch AI prompt data:', error);
+      }
+    },
+
+    /**
+     * 切换 AI 提示词编辑状态
+     */
+    async toggleAiPromptEdit() {
+      if (this.aiPromptEditable) {
+        // 保存模式
+        await this.saveAiPrompt();
+      } else {
+        // 编辑模式
+        this.aiPromptEditable = true;
+      }
+    },
+
+    /**
+     * 保存 AI 提示词
+     */
+    async saveAiPrompt() {
+      if (!this.aiPromptContent.trim()) {
+        this.$message('AI 提示词内容不能为空', 'error');
+        return;
+      }
+
+      try {
+        const keywordItem = {
+          value: this.aiPromptContent.trim(),
+          desc: '',
+          dict_type: 'AI_JUDGMENT_PROMPT',
+          access_type: 'BLACK',
+          status: 'NORMAL'
+        };
+
+        // 如果有现有记录，先删除旧记录
+        if (this.existingAiPromptId) {
+          console.log('删除旧的 AI 提示词记录，ID:', this.existingAiPromptId);
+          const deleteResponse = await api.delDictById(this.existingAiPromptId);
+          if (deleteResponse.code !== 200) {
+            console.error('Failed to delete old AI prompt:', deleteResponse.message);
+            // 即使删除失败，也继续尝试添加新记录
+          }
+        }
+
+        // 添加新记录
+        const response = await api.addDict(keywordItem);
+        if (response.code === 200) {
+          this.$message('AI 提示词保存成功', 'success');
+          this.aiPromptEditable = false;
+          // 重新获取数据以更新 ID
+          await this.fetchAiPromptData();
+        } else {
+          this.$message(response.message, 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save AI prompt:', error);
+        this.$message('AI 提示词保存失败', 'error');
+      }
+    },
 
     /**
      * 确认添加分区
