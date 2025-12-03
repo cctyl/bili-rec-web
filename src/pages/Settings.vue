@@ -34,30 +34,30 @@
     </div>
     <!-- 系统配置列表 -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div v-for="(config, index) in systemConfigs" :key="index" class="bg-gray-800 p-4 rounded-lg">
+      <div v-for="config in filteredSystemConfigs" :key="config.key" class="bg-gray-800 p-4 rounded-lg">
         <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
         <div class="flex items-center justify-between">
           <div v-if="config.type === 'switch'"
             class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'toggle-' + index" v-model="config.value" @click="sysConfigUpdate = true"
+            <input type="checkbox" :id="'toggle-' + config.key" v-model="config.value" @change="sysConfigUpdate = true"
               class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
-            <label :for="'toggle-' + index"
+            <label :for="'toggle-' + config.key"
               class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
           </div>
 
           <div v-else-if="config.type === 'text'" class="flex items-center">
-            <input :id="'input-' + index" v-model="config.value" :disabled="!config.editable"
+            <input :id="'input-' + config.key" v-model="config.value" :disabled="!config.editable"
               class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
-            <button @click="toggleEdit(index)"
+            <button @click="toggleEdit(config.key)"
               class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
           </div>
           <div v-else-if="config.type === 'textpassword'" class="flex items-center">
-            <input :id="'input-' + index" v-model="config.value" :type="config.editable ? 'text' : 'password'"
+            <input :id="'input-' + config.key" v-model="config.value" :type="config.editable ? 'text' : 'password'"
               :disabled="!config.editable"
               class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
-            <button @click="toggleEdit(index)"
+            <button @click="toggleEdit(config.key)"
               class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
               {{ config.editable ? '保存' : '编辑' }}
             </button>
@@ -67,6 +67,17 @@
             class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option v-for="option in config.options" :key="option" :value="option">{{ option }}</option>
           </select>
+
+          <div v-else-if="config.type === 'textarea'" class="w-full">
+            <textarea v-model="config.value" :disabled="!config.editable"
+              @input="sysConfigUpdate = true"
+              class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full h-20 mb-2 resize-none">
+            </textarea>
+            <button @click="toggleEdit(config.key)"
+              class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+              {{ config.editable ? '保存' : '编辑' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -278,6 +289,69 @@ export default {
           description: '哔哩哔哩登陆后的认证，登陆成功后存在',
           editable: false
         },
+        {
+          id: null,
+          name: 'AI聊天功能',
+          key: 'ai_chat_enable',
+          value: false,
+          type: 'switch',
+          description: '开启AI聊天功能',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI API密钥',
+          key: 'ai_api_key',
+          value: '',
+          type: 'textpassword',
+          description: 'AI服务的API密钥',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI服务地址',
+          key: 'ai_base_url',
+          value: '',
+          type: 'text',
+          description: 'AI服务的基础URL',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI模型',
+          key: 'ai_model',
+          value: '',
+          type: 'text',
+          description: '使用的AI模型名称',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI温度参数',
+          key: 'ai_temperature',
+          value: '0.7',
+          type: 'text',
+          description: 'AI生成内容的随机性 (0-2)',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI最大Token数',
+          key: 'ai_max_tokens',
+          value: '4096',
+          type: 'text',
+          description: 'AI回复的最大Token数量',
+          editable: false
+        },
+        {
+          id: null,
+          name: 'AI系统提示语',
+          key: 'ai_system_prompt',
+          value: '你是一个专业、友好、有帮助的AI助手。请用简洁明了的语言回答用户的问题。',
+          type: 'textarea',
+          description: 'AI助手的系统提示语',
+          editable: false
+        },
 /*
       {
           id: null,
@@ -335,6 +409,19 @@ export default {
     };
   },
 
+  computed: {
+    filteredSystemConfigs() {
+      const aiChatEnabled = this.systemConfigs.find(config => config.key === 'ai_chat_enable');
+      const isAiEnabled = aiChatEnabled && aiChatEnabled.value === true;
+
+      return this.systemConfigs.filter(config => {
+        const isAiConfig = config.key.startsWith('ai_');
+        // ai_chat_enable 始终显示，其他 AI 配置只有在启用时才显示
+        return !isAiConfig || config.key === 'ai_chat_enable' || (isAiConfig && isAiEnabled);
+      });
+    }
+  },
+
   methods: {
     async relogin() {
       // 实现重新登录的逻辑
@@ -350,15 +437,17 @@ export default {
       }
 
     },
-    toggleEdit(index) {
+    toggleEdit(configKey) {
       this.sysConfigUpdate = true;
-      const config = this.systemConfigs[index];
-      if (config.editable) {
-        // 保存逻辑
-        console.log('保存配置:', config.name, config.value);
-        config.editable = false;
-      } else {
-        config.editable = true;
+      const config = this.systemConfigs.find(c => c.key === configKey);
+      if (config) {
+        if (config.editable) {
+          // 保存逻辑
+          console.log('保存配置:', config.name, config.value);
+          config.editable = false;
+        } else {
+          config.editable = true;
+        }
       }
     },
     async addCookie() {
@@ -515,7 +604,7 @@ export default {
         const data = this.systemConfigs.map(config => ({
           id: config.id,
           name: config.key,
-          value: config.value
+          value: config.value.toString() // 将所有值转换为字符串
         }));
         const response = await api.addOrUpdateConfig(data);
         if (!( response.code === 200)) {
