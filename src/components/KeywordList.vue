@@ -48,8 +48,9 @@ export default {
       newKeyword: "",
       newDesc: "",
       keywordList: [],
-      accessType: "",
-      dictType: ""
+      access_type: "",
+      dict_type: "",
+      status:""
     }
   },
   computed: {
@@ -89,32 +90,33 @@ export default {
 
     addKeyword() {
       if (this.newKeyword && !this.keywordList.find(k => k.value === this.newKeyword)) {
-        let newItem = {value: this.newKeyword, desc: this.newDesc, dictType: this.dictType, accessType: this.accessType};
+        let newItem = {value: this.newKeyword, desc: this.newDesc, dict_type: this.dict_type, access_type: this.access_type,status: this.status};
         this.keywordList.push(newItem); // 添加默认描述
 
         this.newKeyword = '';
         this.newDesc = '';
         this.$message('添加成功', 'success');
-        this.add(this.accessType,this.dictType, newItem);
+        this.add(this.access_type,this.dict_type, newItem);
       } else {
         this.$message('关键词已存在', 'warning');
       }
     },
     removeKeyword(keywordItem) {
       this.keywordList = this.keywordList.filter(k => k !== keywordItem);
-      this.remove(this.accessType,this.dictType, keywordItem);
+      this.remove(this.access_type,this.dict_type, keywordItem);
     },
     submit() {
       this.onSubmit(this.type, this.keywordList)
     },
 
     splitType() {
-      let [accessType, dictType] = this.type.split(",")
+      let [access_type, dict_type,status] = this.type.split(",")
 
-      this.accessType = accessType;
-      this.dictType = dictType;
+      this.access_type = access_type;
+      this.dict_type = dict_type;
+      this.status = status;
 
-      // console.log(accessType, dictType)
+      // console.log(access_type, dict_type)
     },
   },
   watch: {

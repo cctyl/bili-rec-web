@@ -16,7 +16,7 @@
         title="黑名单关键词"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,KEYWORD"
+        type="BLACK,KEYWORD,NORMAL"
         desc="当 视频标题 或 视频简介 中包含以下关键词时，将自动点踩"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -31,7 +31,7 @@
         title="黑名单分区 ID"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,TID"
+        type="BLACK,TID,NORMAL"
         desc="当 视频分区 ID 为以下 ID 时，将自动点踩"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -51,7 +51,7 @@
         title="黑名单 UP 主 ID"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,MID"
+        type="BLACK,MID,NORMAL"
         desc="当 视频 UP 主 ID 为以下 ID 时，将自动点踩"
         ref="BLACKMIDKeywordListComponent"
         :add="addKeyword"
@@ -71,7 +71,7 @@
         title="黑名单标签"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,TAG"
+        type="BLACK,TAG,NORMAL"
         desc="当 视频标签 中包含以下任意标签时，将自动点踩"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -83,7 +83,7 @@
         title="忽略的黑名单关键词"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,IGNORE_KEYWORD"
+        type="BLACK,KEYWORD,IGNORE"
         desc="即你认为这些关键词是通用的,不应当作为黑名单判断的依据,以下关键词不会进入关键词筛选(不会自动加入黑名单)"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -95,7 +95,7 @@
         title="忽略的黑名单标签"
         :keyword-list-prop="arrData"
         :on-submit="submitKeyword"
-        type="BLACK,IGNORE_TAG"
+        type="BLACK,TAG,IGNORE"
         desc="即你认为这些标签是通用的,不应当作为黑名单判断的依据,以下标签不会进入标签筛选(不会自动加入黑名单)"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -103,7 +103,7 @@
 
     <!-- 关键词筛选界面 -->
     <Select :available-keywords-prop="arrData"
-            type="BLACK_CACHE,KEYWORD"
+            type="BLACK,KEYWORD,CACHE"
             :submit-keyword-selection="submitKeywordSelection"
             title="关键词筛选"
             desc=
@@ -118,7 +118,7 @@
 
     <!-- 标签筛选界面 -->
     <Select :available-keywords-prop="arrData"
-            type="BLACK_CACHE,TAG"
+            type="BLACK,TAG,CACHE"
             :submit-keyword-selection="submitKeywordSelection"
             title="标签筛选" desc="以下是根据你之前点踩的视频生成的黑名单标签，请选择保留或抛弃;
             如果你选择采纳,它会出现在上方的[黑名单标签]中,
@@ -130,7 +130,7 @@
     <!--分区选择弹窗-->
     <PartitionDialog
         :showTidModalProp.sync="showTidModal"
-        :dict-arr="arrData['BLACK,TID']"
+        :dict-arr="arrData['BLACK,TID,NORMAL']"
         :confirm="handleRegionConfirm"
     >
     </PartitionDialog>
@@ -165,14 +165,14 @@ export default {
       newSectionId: '',
       newUploaderId: '',
       arrData: {
-        'BLACK,KEYWORD': [],
-        'BLACK,TAG': [],
-        'BLACK,TID': [],
-        'BLACK,MID': [],
-        'BLACK,IGNORE_TAG': [],
-        'BLACK,IGNORE_KEYWORD': [],
-        'BLACK_CACHE,KEYWORD': [],
-        'BLACK_CACHE,TAG': []
+        'BLACK,KEYWORD,NORMAL': [],
+        'BLACK,TAG,NORMAL': [],
+        'BLACK,TID,NORMAL': [],
+        'BLACK,MID,NORMAL': [],
+        'BLACK,TAG,IGNORE': [],
+        'BLACK,KEYWORD,IGNORE': [],
+        'BLACK,KEYWORD,CACHE': [],
+        'BLACK,TAG,CACHE': []
       },
       showTidModal: false,
     };
@@ -236,8 +236,8 @@ export default {
     },
     async fetchData(type) {
       try {
-        const [accessType, dictType] = type.split(',');
-        const response = await api.getDictList(accessType, dictType);
+        const [accessType, dictType,status] = type.split(',');
+        const response = await api.getDictList(accessType, dictType,status);
         this.arrData[type] = response.data.list;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
@@ -265,14 +265,17 @@ export default {
      * @returns {Promise<void>}
      */
     async addKeyword(accessType, dictType, keywordItem) {
-      keywordItem.accessType = accessType;
-      keywordItem.dictType = dictType;
+      keywordItem.access_type = accessType;
+      keywordItem.dict_type = dictType;
       try {
         const response = await api.addDict(keywordItem);
-        if (!response.success) {
+        if (response.code!==200) {
+
           this.$message(response.message,
               'error'
           );
+        }else {
+          keywordItem.id = response.data;
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -289,7 +292,8 @@ export default {
 
       try {
         const response = await api.delDictById(keywordItem.id);
-        if (!response.success) {
+        if (response.code!==200) {
+
           this.$message(response.message,
               'error'
           );

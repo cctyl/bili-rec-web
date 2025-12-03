@@ -65,7 +65,7 @@
         hint="添加新关键词"
         title="白名单标题关键词"
         :keyword-list-prop="arrData"
-        type="WHITE,TITLE"
+        type="WHITE,TITLE,NORMAL"
         desc="当 视频标题 中包含以下关键词时，将判断为白名单"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -77,7 +77,7 @@
         hint="添加新关键词"
         title="白名单描述关键词"
         :keyword-list-prop="arrData"
-        type="WHITE,DESC"
+        type="WHITE,DESC,NORMAL"
         desc="当 视频描述 中包含以下关键词时，将判断为白名单"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -91,7 +91,7 @@
             hint="添加新关键词"
             title="白名单用户id"
             :keyword-list-prop="arrData"
-            type="WHITE,MID"
+            type="WHITE,MID,NORMAL"
             desc="当 视频 UP 主 ID 为以下 ID 时，将自动点赞"
             :add="addKeyword"
             :remove="removeKeyword"
@@ -113,7 +113,7 @@
         hint="添加新分区 ID"
         title="白名单分区 ID"
         :keyword-list-prop="arrData"
-        type="WHITE,TID"
+        type="WHITE,TID,NORMAL"
         desc="当 视频分区 ID 为以下 ID 时，将自动点赞"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -133,7 +133,7 @@
         title="白名单标签"
         :keyword-list-prop="arrData"
 
-        type="WHITE,TAG"
+        type="WHITE,TAG,NORMAL"
         desc="当 视频标签 中包含以下任意标签时，将判断为白名单"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -144,7 +144,7 @@
         hint="添加新关键词"
         title="忽略的关键词"
         :keyword-list-prop="arrData"
-        type="WHITE,IGNORE_KEYWORD"
+        type="WHITE,KEYWORD,IGNORE"
         desc="忽略的关键词不会在训练中进入白名单规则"
         :add="addKeyword"
         :remove="removeKeyword"
@@ -154,7 +154,7 @@
     <!--分区选择弹窗-->
     <PartitionDialog
         :showTidModalProp.sync="showTidModal"
-        :dict-arr="arrData['WHITE,TID']"
+        :dict-arr="arrData['WHITE,TID,NORMAL']"
         :confirm="handleRegionConfirm"
     >
     </PartitionDialog>
@@ -245,12 +245,12 @@ export default {
         descKeyWordList: []
       },
       arrData: {
-        'WHITE,IGNORE_KEYWORD': [],
-        'WHITE,MID': [],
-        'WHITE,TID': [],
-        'WHITE,TITLE': [],
-        'WHITE,DESC': [],
-        'WHITE,TAG': [],
+        'WHITE,KEYWORD,IGNORE': [],
+        'WHITE,MID,NORMAL': [],
+        'WHITE,TID,NORMAL': [],
+        'WHITE,TITLE,NORMAL': [],
+        'WHITE,DESC,NORMAL': [],
+        'WHITE,TAG,NORMAL': [],
 
       },
       whitelist: [],
@@ -341,8 +341,8 @@ export default {
     },
     async fetchData(type) {
       try {
-        const [accessType, dictType] = type.split(',');
-        const response = await api.getDictList(accessType, dictType);
+        const [accessType, dictType,status] = type.split(',');
+        const response = await api.getDictList(accessType, dictType,status);
         this.arrData[type] = response.data.list;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
@@ -359,10 +359,13 @@ export default {
     async addKeyword(accessType, dictType, keywordItem) {
       try {
         const response = await api.addDict(keywordItem);
-        if (!response.success) {
+        if (response.code!==200) {
+
           this.$message(response.message,
               'error'
           );
+        }else {
+          keywordItem.id = response.data;
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -379,7 +382,8 @@ export default {
 
       try {
         const response = await api.delDictById(keywordItem.id);
-        if (!response.success) {
+        if (response.code!==200) {
+
           this.$message(response.message,
               'error'
           );

@@ -103,9 +103,10 @@ export default {
      * @returns {Promise | Promise<unknown> | *}
      * @param accessType String
      * @param dictType String
+     * @param status String
      */
-    getDictList(accessType, dictType) {
-        return ajax(`/dict/list?dictType=${dictType}&accessType=${accessType}`);
+    getDictList(accessType, dictType,status) {
+        return ajax(`/dict/list?dict_type=${dictType}&access_type=${accessType}&status=${status}`);
     },
 
 
