@@ -70,11 +70,11 @@ export default {
     },
     /**
      * 删除Cookie数据
-     * @param {Object} cookieData
+     * @param {number} id
      * @returns {Promise<unknown>}
      */
-    deleteCookie(cookieData) {
-        return ajax('/cookie-header-data', cookieData, 'DELETE');
+    deleteCookie(id) {
+        return ajax(`/cookie-header-data/${id}`, null, 'DELETE');
     },
 
 

@@ -347,7 +347,7 @@ export default {
         // 同时调用白名单和黑名单检查
         const resp = await api.checkVideo(video.bvid)
 
-        if (resp.success && resp.code === 20000) {
+        if ( resp.code === 200) {
           // 更新视频的检查结果
           this.$set(video, 'recheckResult', true);
           this.$set(video, 'whiteResult', resp.data.whiteResult);

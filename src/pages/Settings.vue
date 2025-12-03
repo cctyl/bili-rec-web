@@ -117,7 +117,7 @@
             </select>
           </td>
           <td class="px-4 py-2">
-            <select v-model="cookie.mediaType" :disabled="!cookie.editable"
+            <select v-model="cookie.media_type" :disabled="!cookie.editable"
               class="bg-gray-700 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
               <option v-for="option in mediaTypeOptions" :key="option" :value="option">{{ option }}</option>
             </select>
@@ -176,7 +176,7 @@
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium mb-2" for="newCookieMediaType">用途</label>
-          <select id="newCookieMediaType" v-model="newCookie.mediaType"
+          <select id="newCookieMediaType" v-model="newCookie.media_type"
             class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option v-for="option in mediaTypeOptions" :key="option" :value="option">{{ option }}</option>
           </select>
@@ -295,7 +295,7 @@ export default {
         ckey: '',
         cvalue: '',
         classify: '',
-        mediaType: ''
+        media_type: ''
       },
       cookieList: [
         {
@@ -304,7 +304,7 @@ export default {
           ckey: 'session_id',
           cvalue: 'abc123',
           classify: 'COOKIE',
-          mediaType: 'GENERAL',
+          media_type: 'GENERAL',
           editable: false
         },
         {
@@ -313,7 +313,7 @@ export default {
           ckey: 'auth_token',
           cvalue: 'xyz789',
           classify: 'REQUEST_HEADER',
-          mediaType: 'URL_MATCHING',
+          media_type: 'URL_MATCHING',
           editable: false
         },
         {
@@ -322,7 +322,7 @@ export default {
           ckey: 'user_pref',
           cvalue: 'dark_mode',
           classify: 'RESPONSE_HEADER',
-          mediaType: 'TIMELY_UPDATE',
+          media_type: 'TIMELY_UPDATE',
           editable: false
         },
       ],
@@ -340,12 +340,15 @@ export default {
       // 实现重新登录的逻辑
       console.log('重新登录');
       const response = await api.getTvQrCode()
-      if (response.success && response.code === 20000) {
+      if ( response.code === 200) {
         this.qrCodeUrl = response.data;
         console.log(this.qrCodeUrl);
+        await this.generateQRCode();
+        this.showModal = true;
+      }else {
+        this.$message('二维码链接获取失败：', 'error');
       }
-      await this.generateQRCode();
-      this.showModal = true;
+
     },
     toggleEdit(index) {
       this.sysConfigUpdate = true;
@@ -362,11 +365,11 @@ export default {
       try {
 
         const response = await api.addCookie(this.newCookie);
-        if (response.success && response.code === 20000) {
+        if ( response.code === 200) {
           this.newCookie.id = response.data.id;
           this.cookieList.push({ ...this.newCookie, editable: false });
           this.showAddCookieModal = false;
-          this.newCookie = { url: null, ckey: '', cvalue: '', classify: '', mediaType: '' };
+          this.newCookie = { url: null, ckey: '', cvalue: '', classify: '', media_type: '' };
         } else {
           alert('新增Cookie失败，请重试');
         }
@@ -380,7 +383,7 @@ export default {
       const cookie = this.cookieList[index];
       try {
         const response = await api.updateCookie(cookie);
-        if (response.success && response.code === 20000) {
+        if (response.code === 200) {
           cookie.editable = false;
         } else {
           alert('修改Cookie失败，请重试');
@@ -393,8 +396,8 @@ export default {
     async deleteCookie(index) {
       const cookie = this.cookieList[index];
       try {
-        const response = await api.deleteCookie({ id: cookie.id });
-        if (response.success && response.code === 20000) {
+        const response = await api.deleteCookie(cookie.id );
+        if ( response.code === 200) {
           this.cookieList.splice(index, 1);
         } else {
           alert('删除Cookie失败，请重试');
@@ -419,7 +422,7 @@ export default {
       this.isFetching = true;
       try {
         const response = await api.checkAccessKey();
-        if (response.success && response.code === 20000) {
+        if ( response.code === 200) {
           const data = response.data.data;
           this.userName = data.name;
           this.userLevel = data.level;
@@ -453,7 +456,7 @@ export default {
       try {
         const response = await api.checkTvScanResult();
         console.log(response);
-        if (response.success && response.code === 20000 && response.data.indexOf("登陆成功") !== -1) {
+        if ( response.code === 200 && response.data.indexOf("登陆成功") !== -1) {
           alert('登录成功');
           this.showModal = false;
           this.fetchUserData();
@@ -468,8 +471,8 @@ export default {
     async fetchCookieList(page, limit) {
       try {
         const response = await api.getCookieList(page, limit);
-        if (response.success && response.code === 20000) {
-          const data = response.data.page;
+        if (response.code === 200) {
+          const data = response.data;
           this.cookieList = data.records.map(record => ({
             ...record,
             editable: false
@@ -484,7 +487,7 @@ export default {
     async fetchConfigData() {
       try {
         const response = await api.getConfigList();
-        if (response.success && response.code === 20000) {
+        if ( response.code === 200) {
           const data = response.data;
           //遍历systemConfigs，取出key，根据这个key到data中查找name=该key的对象，然后取出data中对象的value，设置到systemConfigs对象中的value
           this.systemConfigs.forEach(config => {
@@ -515,7 +518,7 @@ export default {
           value: config.value
         }));
         const response = await api.addOrUpdateConfig(data);
-        if (!(response.success && response.code === 20000)) {
+        if (!( response.code === 200)) {
           alert('修改Cookie失败，请重试');
         } else {
           this.sysConfigUpdate = false;

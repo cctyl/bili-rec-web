@@ -13,7 +13,7 @@ export default function ajax(url, data = {}, type = "GET") {
             withCredentials:false
         }).then(response => {
             response = response.data;
-            if (!response.success) {
+            if (response.code!==200) {
                 vm.$message(response.message,'error');
             }
             resolve(response)
