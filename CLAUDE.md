@@ -96,11 +96,37 @@ src/
 - `/other-setting` - 其他设置
 
 ### 开发注意事项
-0. ui风格和样式要保持一致，色调：primary: '#3B82F6',secondary: '#10B981'。 
+0. ui风格和样式要保持一致，色调：primary: '#3B82F6',secondary: '#10B981'。
 1. **API 调用**: 所有 API 调用统一使用 `src/api/index.js` 中的方法
 2. **状态更新**: 通过 Vuex actions 和 mutations 管理状态
 3. **组件复用**: common components 位于 `src/components/` 目录
 4. **样式**: 使用 TailwindCSS，样式类遵循工具类优先原则
 5. **错误处理**: API 调用错误统一在组件中处理
 6. **权限验证**: 在 App.vue 中进行登录状态检查
+
+## Skills 索引
+
+本项目使用 Claude Code Skills 功能来提供特定场景的专业指导。Skills 通过触发词自动激活，提供更精准的开发建议。
+
+| Skill | 触发词 | 说明 |
+|-------|--------|------|
+| api-request | API、请求、接口、axios、ajax、api调用、后端接口、数据请求 | HTTP API 开发规范，包括 API 定义、调用、错误处理等 |
+| tailwindcss-styling | 样式、CSS、Tailwind、样式设计、UI、界面、布局、颜色、按钮、表单、卡片、美化、样式调整 | TailwindCSS 样式开发规范，包括颜色系统、布局系统、组件样式等 |
+| router-usage | 路由、router、导航、跳转、$router、$route、页面跳转、路由配置、路由守卫、router-link、router-view | Vue Router 路由使用规范，包括路由配置、声明式导航、编程式导航、路由参数、路由守卫等 |
+
+### 使用说明
+
+当你在开发中提到触发词时，对应的 Skill 会自动加载，提供详细的技术指导。例如：
+- "帮我添加一个 API 接口" → 自动激活 api-request Skill
+- "如何在组件中调用后端接口？" → 自动激活 api-request Skill
+- "帮我设计一个卡片组件的样式" → 自动激活 tailwindcss-styling Skill
+- "这个页面需要美化一下" → 自动激活 tailwindcss-styling Skill
+- "帮我添加一个新的路由" → 自动激活 router-usage Skill
+- "如何从列表页跳转到详情页？" → 自动激活 router-usage Skill
+- "如何在导航时传递参数？" → 自动激活 router-usage Skill
+
+### Skill 目录
+
+所有 Skill 定义在 `.claude/skills/` 目录下，每个 Skill 是一个独立的文件夹，包含 `SKILL.md` 文件。
+
 
