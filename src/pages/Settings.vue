@@ -88,7 +88,7 @@
       <div class="flex justify-between items-center mb-6">
         <span class="text-2xl font-bold">AI 配置</span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div v-for="config in filteredAiConfigs" :key="config.key" class="bg-gray-800 p-4 rounded-lg">
           <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
           <div class="flex items-center justify-between">
@@ -128,6 +128,121 @@
                       class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
                 {{ config.editable ? '保存' : '编辑' }}
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 连接测试按钮 -->
+      <div class="flex justify-center">
+        <button @click="toggleTestPanel"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
+          {{ showTestPanel ? '▼ 收起测试面板' : '▶ 测试AI连接' }}
+        </button>
+      </div>
+
+      <!-- AI 测试面板 -->
+      <div v-if="showTestPanel" class="mt-6 bg-gray-800 rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">AI 连接测试</h3>
+          <div class="flex items-center space-x-4 text-sm">
+            <!-- 配置状态指示 -->
+            <span :class="aiConfigComplete.apiKey ? 'text-green-500' : 'text-red-500'">
+              {{ aiConfigComplete.apiKey ? '✓' : '✗' }} API密钥
+            </span>
+            <span :class="aiConfigComplete.baseUrl ? 'text-green-500' : 'text-red-500'">
+              {{ aiConfigComplete.baseUrl ? '✓' : '✗' }} 服务地址
+            </span>
+            <span :class="aiConfigComplete.model ? 'text-green-500' : 'text-red-500'">
+              {{ aiConfigComplete.model ? '✓' : '✗' }} 模型
+            </span>
+          </div>
+        </div>
+
+        <!-- 快捷测试按钮 -->
+        <div class="mb-4">
+          <span class="text-sm text-gray-400 mr-2">快捷测试:</span>
+          <button v-for="test in quickTests" :key="test.label"
+                  @click="test.action === 'clear' ? clearTestChat() : sendQuickTest(test.message)"
+                  :disabled="isTesting || !aiConfigComplete.allComplete"
+                  :class="test.action === 'clear' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-700'"
+                  class="text-white px-3 py-1 rounded mr-2 mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ test.label }}
+          </button>
+        </div>
+
+        <!-- 消息展示区 -->
+        <div class="bg-gray-900 rounded-lg p-4 mb-4 h-64 overflow-y-auto">
+          <div v-if="testMessages.length === 0" class="text-gray-500 text-center py-8">
+            暂无对话记录，请发送测试消息
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="(msg, index) in testMessages" :key="index"
+                 :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+              <div :class="msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'"
+                   class="max-w-[80%] rounded-lg px-4 py-2">
+                <div class="flex items-center mb-1">
+                  <span class="text-xs font-semibold mr-2">
+                    {{ msg.role === 'user' ? '👤 你' : '🤖 AI' }}
+                  </span>
+                  <span v-if="msg.role === 'assistant' && msg.responseTime" class="text-xs text-gray-400">
+                    {{ msg.responseTime }}ms
+                  </span>
+                </div>
+                <div class="text-sm whitespace-pre-wrap">{{ msg.content }}</div>
+              </div>
+            </div>
+            <!-- 加载中提示 -->
+            <div v-if="isTesting" class="flex justify-start">
+              <div class="bg-gray-700 rounded-lg px-4 py-2">
+                <div class="flex items-center">
+                  <span class="text-xs font-semibold mr-2">🤖 AI</span>
+                  <span class="text-sm text-gray-400">正在思考</span>
+                  <span class="ml-2 flex space-x-1">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="flex space-x-2">
+          <input v-model="testInput"
+                 @keyup.enter="sendTestMessage"
+                 :disabled="isTesting || !aiConfigComplete.allComplete"
+                 placeholder="输入测试问题..."
+                 class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button @click="sendTestMessage"
+                  :disabled="isTesting || !testInput.trim() || !aiConfigComplete.allComplete"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed font-semibold">
+            {{ isTesting ? '发送中...' : '发送' }}
+          </button>
+        </div>
+
+        <!-- 错误提示 -->
+        <div v-if="testError" class="mt-4 bg-red-900 bg-opacity-30 border border-red-700 rounded-lg p-4">
+          <div class="flex items-start">
+            <span class="text-red-500 mr-2">⚠️</span>
+            <div class="flex-1">
+              <div class="font-semibold text-red-400">测试失败</div>
+              <div class="text-sm text-red-300 mt-1">{{ testError }}</div>
+            </div>
+            <button @click="testError = ''" class="text-red-400 hover:text-red-300">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- 配置不完整提示 -->
+        <div v-if="!aiConfigComplete.allComplete" class="mt-4 bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-4">
+          <div class="flex items-start">
+            <span class="text-yellow-500 mr-2">⚠️</span>
+            <div class="text-sm text-yellow-300">
+              配置不完整，请先完成AI配置后再进行测试
             </div>
           </div>
         </div>
@@ -458,6 +573,18 @@ export default {
       totalPages: 1,
       pageSize: 5,
       sysConfigUpdate: false,
+      // AI 测试相关
+      showTestPanel: false,
+      testMessages: [],
+      testInput: '',
+      isTesting: false,
+      testError: '',
+      quickTests: [
+        { label: '👋 打招呼', message: '你好，请用一句话介绍你自己' },
+        { label: '🧮 数学测试', message: '1+1等于几？' },
+        { label: '📝 写作测试', message: '用一句话描述人工智能' },
+        { label: '🗑️ 清空对话', action: 'clear' }
+      ]
     };
   },
 
@@ -479,6 +606,18 @@ export default {
         const isAiConfig = config.key.startsWith('ai_');
         return isAiConfig && config.key !== 'ai_chat_enable';
       });
+    },
+    aiConfigComplete() {
+      const apiKey = this.systemConfigs.find(c => c.key === 'ai_api_key')?.value;
+      const baseUrl = this.systemConfigs.find(c => c.key === 'ai_base_url')?.value;
+      const model = this.systemConfigs.find(c => c.key === 'ai_model')?.value;
+
+      return {
+        apiKey: !!apiKey,
+        baseUrl: !!baseUrl,
+        model: !!model,
+        allComplete: !!apiKey && !!baseUrl && !!model
+      };
     }
   },
 
@@ -700,6 +839,117 @@ export default {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
         this.fetchCookieList(this.currentPage, this.pageSize);
+      }
+    },
+    // AI 测试相关方法
+    toggleTestPanel() {
+      this.showTestPanel = !this.showTestPanel;
+    },
+    clearTestChat() {
+      this.testMessages = [];
+      this.testError = '';
+      this.$message('对话已清空', 'success');
+    },
+    async sendQuickTest(message) {
+      this.testInput = message;
+      await this.sendTestMessage();
+    },
+    async sendTestMessage() {
+      const message = this.testInput.trim();
+      if (!message) return;
+
+      // 清除之前的错误
+      this.testError = '';
+
+      // 添加用户消息
+      this.testMessages.push({
+        role: 'user',
+        content: message
+      });
+
+      // 清空输入框
+      this.testInput = '';
+
+      // 滚动到底部
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+
+      // 开始测试
+      this.isTesting = true;
+
+      try {
+        const startTime = Date.now();
+
+        // 获取系统提示语
+        const systemPrompt = this.systemConfigs.find(c => c.key === 'ai_system_prompt')?.value || '你是一个专业、友好、有帮助的AI助手。';
+
+        // 构建消息列表：system + 历史对话
+        const messages = [
+          {
+            role: 'system',
+            content: systemPrompt
+          }
+        ];
+
+        // 添加历史对话（排除当前正在发送的消息）
+        this.testMessages
+          .slice(0, -1)
+          .forEach(msg => {
+            // role 已经是标准格式：user, assistant
+            messages.push({
+              role: msg.role,
+              content: msg.content
+            });
+          });
+
+        // 添加当前用户消息
+        messages.push({
+          role: 'user',
+          content: message
+        });
+
+        const response = await api.testAiChat({
+          messages: messages
+        });
+
+        const responseTime = Date.now() - startTime;
+
+        if (response.code === 200) {
+          // 添加AI响应（data 直接是字符串）
+          this.testMessages.push({
+            role: 'assistant',
+            content: response.data,
+            responseTime: responseTime
+          });
+
+          this.$message('测试成功', 'success');
+        } else {
+          // 处理错误
+          this.testError = response.message || '测试失败，请检查配置';
+
+          // 移除用户消息（因为发送失败了）
+          this.testMessages.pop();
+        }
+      } catch (error) {
+        console.error('AI测试失败:', error);
+        this.testError = error.message || '网络错误，请检查网络连接';
+
+        // 移除用户消息（因为发送失败了）
+        this.testMessages.pop();
+      } finally {
+        this.isTesting = false;
+
+        // 滚动到底部
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+      }
+    },
+    scrollToBottom() {
+      const messageContainer = this.$el.querySelector('.overflow-y-auto');
+      if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
       }
     }
   },

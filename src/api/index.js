@@ -364,6 +364,30 @@ export default {
      */
     checkVideo(bvid) {
         return ajax(`/video-detail/check-video?bvid=${bvid}`);
+    },
 
+    /**
+     * AI聊天测试接口
+     * @param {Object} data - { messages: Array<{role: string, content: string}> }
+     * @returns {Promise<unknown>}
+     *
+     * 请求格式示例:
+     * {
+     *   "messages": [
+     *     { "role": "system", "content": "系统提示语" },
+     *     { "role": "user", "content": "用户问题" },
+     *     { "role": "assistant", "content": "AI回复" }
+     *   ]
+     * }
+     *
+     * 响应格式示例:
+     * {
+     *   "code": 200,
+     *   "message": "success",
+     *   "data": "AI回答的内容..."
+     * }
+     */
+    testAiChat(data) {
+        return ajax('/ai/test-chat', data, 'POST');
     }
 };
