@@ -1,6 +1,30 @@
+import api from "@/api";
 
 export default {
     install(Vue) {
+
+
+        Vue.prototype.$checkLogin = async function () {
+
+
+            try {
+                const response = await api.checkAccessKey();
+                if (response.message.indexOf("未登录/登录失效") !== -1
+                    ||
+                    response.message.indexOf("登录已过期") !== -1
+
+                ) {
+                    this.$message(response.message, 'error');
+                    return null;
+                }
+
+                return response;
+            } catch (error) {
+                console.error('获取用户数据失败:', error);
+                return null;
+            }
+
+        };
 
 
         /**
@@ -30,7 +54,7 @@ export default {
                 // 创建一个新的URL对象
                 let mid = new URL(url).pathname.split('/').pop();
                 return mid;
-            }else {
+            } else {
                 return null;
             }
         };
@@ -40,7 +64,7 @@ export default {
          * @returns {string}
          */
         Vue.prototype.$getPic = function (url) {
-           return process.env.VUE_APP_URL + "/config/getPic?url=" + url;
+            return process.env.VUE_APP_URL + "/config/getPic?url=" + url;
         };
 
     }

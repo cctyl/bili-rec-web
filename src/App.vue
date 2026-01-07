@@ -10,7 +10,6 @@
 
 <script>
 import Header from "@/components/Nav.vue";
-import api from "@/api";
 
 export default {
   name: 'App',
@@ -24,15 +23,11 @@ export default {
     async checkLogin() {
 
       if (this.$route.path !== '/settings'){
-        try {
-          const response = await api.checkAccessKey();
-          if (response.message.indexOf("未登录/登录失效") !== -1) {
-            this.$message(response.message, 'error');
-          }
 
-        } catch (error) {
-          console.error('获取用户数据失败:', error);
-        }
+
+        await this.$checkLogin();
+
+
       }
 
     }
