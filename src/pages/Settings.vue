@@ -820,13 +820,13 @@ export default {
         }));
         const response = await api.addOrUpdateConfig(data);
         if (!(response.code === 200)) {
-          alert('修改Cookie失败，请重试');
+          throw new Error('配置保存失败');
         } else {
           this.sysConfigUpdate = false;
         }
       } catch (error) {
         console.error('修改Cookie失败:', error);
-        alert('修改Cookie失败，请重试');
+        throw error; // 重新抛出错误，让调用方能够捕获
       }
     },
     prevPage() {
@@ -842,7 +842,17 @@ export default {
       }
     },
     // AI 测试相关方法
-    toggleTestPanel() {
+    async toggleTestPanel() {
+      // 如果当前测试面板是关闭的，且存在未保存的配置，先保存配置
+      if (!this.showTestPanel && this.sysConfigUpdate) {
+        try {
+          await this.updateConfigData();
+          this.$message('配置已保存', 'success');
+        } catch (error) {
+          this.$message('配置保存失败，无法打开测试面板', 'error');
+          return;
+        }
+      }
       this.showTestPanel = !this.showTestPanel;
     },
     clearTestChat() {
