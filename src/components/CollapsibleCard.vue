@@ -20,18 +20,18 @@
       </div>
     </div>
 
-    <!-- 卡片内容 -->
-    <transition
-      name="collapse"
-      @enter="startTransition"
-      @after-enter="endTransition"
-      @before-leave="startTransition"
-      @after-leave="endTransition"
-    >
+<!--    &lt;!&ndash; 卡片内容 &ndash;&gt;-->
+<!--    <transition-->
+<!--      name="collapse"-->
+<!--      @enter="startTransition"-->
+<!--      @after-enter="endTransition"-->
+<!--      @before-leave="startTransition"-->
+<!--      @after-leave="endTransition"-->
+<!--    >-->
       <div v-show="!collapsed" class="card-content p-4 border-t border-gray-700">
         <slot></slot>
       </div>
-    </transition>
+<!--    </transition>-->
   </div>
 </template>
 
