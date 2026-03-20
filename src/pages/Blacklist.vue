@@ -11,126 +11,170 @@
     </div>
 
     <!-- 黑名单关键词列表 -->
-    <KeywordListComponent
-        hint="添加新关键词"
+    <CollapsibleCard
         title="黑名单关键词"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,KEYWORD,NORMAL"
         desc="当 视频标题 或 视频简介 中包含以下关键词时，将自动点踩"
-        :add="addKeyword"
-        :remove="removeKeyword"
+        :collapsed="collapsibleStates.keyword"
+        @toggle="collapsibleStates.keyword = !collapsibleStates.keyword"
     >
-
-
-    </KeywordListComponent>
+      <KeywordListComponent
+          hint="添加新关键词"
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,KEYWORD,NORMAL"
+          desc=""
+          :add="addKeyword"
+          :remove="removeKeyword"
+      >
+      </KeywordListComponent>
+    </CollapsibleCard>
 
     <!-- 黑名单分区ID列表 -->
-    <KeywordListComponent
-        hint="添加新分区 ID"
+    <CollapsibleCard
         title="黑名单分区 ID"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,TID,NORMAL"
         desc="当 视频分区 ID 为以下 ID 时，将自动点踩"
-        :add="addKeyword"
-        :remove="removeKeyword"
+        :collapsed="collapsibleStates.tid"
+        @toggle="collapsibleStates.tid = !collapsibleStates.tid"
     >
-
-      <button
-          @click="showTidModal = true "
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
-        <i class="fas fa-plus mr-2"></i>从记录的分区中选择
-      </button>
-
-    </KeywordListComponent>
+      <KeywordListComponent
+          hint="添加新分区 ID"
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,TID,NORMAL"
+          desc=""
+          :add="addKeyword"
+          :remove="removeKeyword"
+      >
+        <button
+            @click="showTidModal = true "
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+          <i class="fas fa-plus mr-2"></i>从记录的分区中选择
+        </button>
+      </KeywordListComponent>
+    </CollapsibleCard>
 
     <!-- 黑名单 UP 主 ID 列表 -->
-    <KeywordListComponent
-        hint="添加新 UP 主 ID"
+    <CollapsibleCard
         title="黑名单 UP 主 ID"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,MID,NORMAL"
         desc="当 视频 UP 主 ID 为以下 ID 时，将自动点踩"
-        ref="BLACKMIDKeywordListComponent"
-        :add="addKeyword"
-        :remove="removeKeyword"
+        :collapsed="collapsibleStates.mid"
+        @toggle="collapsibleStates.mid = !collapsibleStates.mid"
     >
+      <KeywordListComponent
+          hint="添加新 UP 主 ID"
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,MID,NORMAL"
+          desc=""
+          ref="BLACKMIDKeywordListComponent"
+          :add="addKeyword"
+          :remove="removeKeyword"
+      >
+        <button
+            @click="urlAddMid"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+          <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
+        </button>
+      </KeywordListComponent>
+    </CollapsibleCard>
 
-      <button
-          @click="urlAddMid"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
-        <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
-      </button>
-
-    </KeywordListComponent>
     <!-- 黑名单标签列表 -->
-    <KeywordListComponent
-        hint="添加新标签 "
+    <CollapsibleCard
         title="黑名单标签"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,TAG,NORMAL"
         desc="当 视频标签 中包含以下任意标签时，将自动点踩"
-        :add="addKeyword"
-        :remove="removeKeyword"
-    ></KeywordListComponent>
+        :collapsed="collapsibleStates.tag"
+        @toggle="collapsibleStates.tag = !collapsibleStates.tag"
+    >
+      <KeywordListComponent
+          hint="添加新标签 "
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,TAG,NORMAL"
+          desc=""
+          :add="addKeyword"
+          :remove="removeKeyword"
+      ></KeywordListComponent>
+    </CollapsibleCard>
 
     <!-- 忽略的黑名单关键词列表 -->
-    <KeywordListComponent
-        hint="添加关键词 "
+    <CollapsibleCard
         title="忽略的黑名单关键词"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,KEYWORD,IGNORE"
         desc="即你认为这些关键词是通用的,不应当作为黑名单判断的依据,以下关键词不会进入关键词筛选(不会自动加入黑名单)"
-        :add="addKeyword"
-        :remove="removeKeyword"
-    ></KeywordListComponent>
+        :collapsed="collapsibleStates.ignoreKeyword"
+        @toggle="collapsibleStates.ignoreKeyword = !collapsibleStates.ignoreKeyword"
+    >
+      <KeywordListComponent
+          hint="添加关键词 "
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,KEYWORD,IGNORE"
+          desc=""
+          :add="addKeyword"
+          :remove="removeKeyword"
+      ></KeywordListComponent>
+    </CollapsibleCard>
 
-    <!-- 忽略的黑名单关键词列表 -->
-    <KeywordListComponent
-        hint="添加新标签 "
+    <!-- 忽略的黑名单标签列表 -->
+    <CollapsibleCard
         title="忽略的黑名单标签"
-        :keyword-list-prop="arrData"
-        :on-submit="submitKeyword"
-        type="BLACK,TAG,IGNORE"
         desc="即你认为这些标签是通用的,不应当作为黑名单判断的依据,以下标签不会进入标签筛选(不会自动加入黑名单)"
-        :add="addKeyword"
-        :remove="removeKeyword"
-    ></KeywordListComponent>
+        :collapsed="collapsibleStates.ignoreTag"
+        @toggle="collapsibleStates.ignoreTag = !collapsibleStates.ignoreTag"
+    >
+      <KeywordListComponent
+          hint="添加新标签 "
+          title=""
+          :keyword-list-prop="arrData"
+          :on-submit="submitKeyword"
+          type="BLACK,TAG,IGNORE"
+          desc=""
+          :add="addKeyword"
+          :remove="removeKeyword"
+      ></KeywordListComponent>
+    </CollapsibleCard>
 
     <!-- 关键词筛选界面 -->
-    <Select :available-keywords-prop="arrData"
-            type="BLACK,KEYWORD,CACHE"
-            :submit-keyword-selection="submitKeywordSelection"
-            title="关键词筛选"
-            desc=
-                "
-            以下是根据你之前点踩的视频生成的黑名单关键词，请选择保留或抛弃.
-            如果你选择采纳,它会出现在上方的[黑名单关键词]中,
-            如果你选择抛弃,它会出现在上方的[忽略的关键词]中
-            选择的结果会在下次任务中生效.
-            ">
-
-    </Select>
+    <CollapsibleCard
+        title="关键词筛选"
+        desc="以下是根据你之前点踩的视频生成的黑名单关键词，请选择保留或抛弃。如果你选择采纳,它会出现在上方的[黑名单关键词]中, 如果你选择抛弃,它会出现在上方的[忽略的关键词]中。选择的结果会在下次任务中生效"
+        :collapsed="collapsibleStates.keywordCache"
+        @toggle="collapsibleStates.keywordCache = !collapsibleStates.keywordCache"
+    >
+      <Select :available-keywords-prop="arrData"
+              type="BLACK,KEYWORD,CACHE"
+              :submit-keyword-selection="submitKeywordSelection"
+              title=""
+              desc="">
+      </Select>
+    </CollapsibleCard>
 
     <!-- 标签筛选界面 -->
-    <Select :available-keywords-prop="arrData"
-            type="BLACK,TAG,CACHE"
-            :submit-keyword-selection="submitKeywordSelection"
-            title="标签筛选" desc="以下是根据你之前点踩的视频生成的黑名单标签，请选择保留或抛弃;
-            如果你选择采纳,它会出现在上方的[黑名单标签]中,
-            如果你选择抛弃,它会出现在上方的[忽略的黑名单标签]中
-            选择的结果会在下次任务中生效">
-
-    </Select>
+    <CollapsibleCard
+        title="标签筛选"
+        desc="以下是根据你之前点踩的视频生成的黑名单标签，请选择保留或抛弃。如果你选择采纳,它会出现在上方的[黑名单标签]中, 如果你选择抛弃,它会出现在上方的[忽略的黑名单标签]中。选择的结果会在下次任务中生效"
+        :collapsed="collapsibleStates.tagCache"
+        @toggle="collapsibleStates.tagCache = !collapsibleStates.tagCache"
+    >
+      <Select :available-keywords-prop="arrData"
+              type="BLACK,TAG,CACHE"
+              :submit-keyword-selection="submitKeywordSelection"
+              title=""
+              desc="">
+      </Select>
+    </CollapsibleCard>
 
     <!-- AI 提示词模块 -->
-    <div class="bg-gray-800 p-6 rounded-lg mb-8">
-      <h3 class="text-xl font-semibold mb-4 text-white">AI 提示词设置</h3>
-
+    <CollapsibleCard
+        title="AI 提示词设置"
+        desc="用自然语言，向 ai 描述你所讨厌的视频的特征，比如：不喜欢王者荣耀"
+        :collapsed="collapsibleStates.aiPrompt"
+        @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
+    >
       <div class="bg-blue-600 bg-opacity-20 border border-blue-500 rounded-lg p-4 mb-6">
         <p class="text-blue-200 text-sm leading-relaxed">
           <i class="fas fa-lightbulb mr-2"></i>
@@ -172,7 +216,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </CollapsibleCard>
 
     <!--分区选择弹窗-->
     <PartitionDialog
@@ -190,6 +234,7 @@ import api from '@/api/index.js';
 import Select from "@/components/Select.vue";
 import KeywordListComponent from "@/components/KeywordList.vue";
 import PartitionDialog from "@/components/PartitionDialog.vue";
+import CollapsibleCard from "@/components/CollapsibleCard.vue";
 
 export default {
   name: "black-list-view",
@@ -197,6 +242,7 @@ export default {
     PartitionDialog,
     KeywordListComponent,
     Select,
+    CollapsibleCard,
   },
   data() {
     return {
@@ -226,6 +272,18 @@ export default {
       aiPromptContent: '',
       aiPromptEditable: false,
       existingAiPromptId: null, // 存储现有 AI 提示词的 ID
+      // 折叠状态
+      collapsibleStates: {
+        keyword: true,          // 黑名单关键词
+        tid: true,              // 黑名单分区 ID
+        mid: true,              // 黑名单 UP 主 ID
+        tag: true,              // 黑名单标签
+        ignoreKeyword: true,    // 忽略的黑名单关键词
+        ignoreTag: true,        // 忽略的黑名单标签
+        keywordCache: true,     // 关键词筛选
+        tagCache: true,         // 标签筛选
+        aiPrompt: true,         // AI 提示词设置
+      },
     };
   },
 

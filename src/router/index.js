@@ -4,7 +4,7 @@ import Home from "@/pages/Home.vue";
 // 其他页面组件的导入
 import Tasks from "@/pages/Tasks.vue";
 import Whitelist from "@/pages/Whitelist.vue";
-import Blacklist from "@/pages/Blacklist.vue";
+import Blacklist from "@/pages/blacklist.vue";
 import Settings from "@/pages/Settings.vue";
 import OtherSetting from "@/pages/OtherSetting.vue";
 // import Analytics from "@/pages/Analytics.vue";
