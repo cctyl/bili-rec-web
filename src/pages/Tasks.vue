@@ -504,7 +504,7 @@ export default {
       },
       whiteSpaceTrainUrl: '',
       useTagInput: false,
-      whitelist: [],
+      rulelist: [],
       pageNo: 1,
       pageSize: 999,
       searchQuery: '',
@@ -520,8 +520,8 @@ export default {
   computed: {
     filteredWhitelist() {
       const query = this.searchQuery.toLowerCase();
-      console.log(this.whitelist);
-      return this.whitelist.filter(item => {
+      console.log(this.rulelist);
+      return this.rulelist.filter(item => {
             try {
               return (item.info && item.info.toLowerCase().includes(query)) ||
                   (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
@@ -545,7 +545,7 @@ export default {
     async trainWhiteRule() {
       let flag = false;
       if (this.selectRuleId) {
-        const ruleItem = this.whitelist.filter(item => {
+        const ruleItem = this.rulelist.filter(item => {
           return item.id == this.selectRuleId
         });
         flag = confirm(`你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`);

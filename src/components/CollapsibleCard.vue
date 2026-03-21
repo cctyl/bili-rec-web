@@ -52,6 +52,11 @@ export default {
       default: true
     }
   },
+  watch:{
+    // collapsed(newValue){
+    //   console.log("组件内，collapsed变化："+newValue)
+    // }
+  },
   methods: {
     startTransition(el) {
       el.style.height = '0';

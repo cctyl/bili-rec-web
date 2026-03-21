@@ -389,5 +389,16 @@ export default {
      */
     testAiChat(data) {
         return ajax('/ai/test-chat', data, 'POST');
-    }
+    },
+
+
+    /**
+     * 申请tv二维码
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    getAssociateRule() {
+
+        throw new Error("未实现")
+
+    },
 };

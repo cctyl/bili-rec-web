@@ -94,8 +94,9 @@ getCookieList(page, limit) {
  * @param {string} status 状态
  * @returns {Promise<unknown>}
  */
-getDictList(accessType, dictType, status) {
-  return ajax(`/dict/list?dict_type=${dictType}&access_type=${accessType}&status=${status}`);
+getDictList(accessType, accessType, status)
+{
+    return ajax(`/dict/list?dict_type=${accessType}&access_type=${accessType}&status=${status}`);
 }
 ```
 
@@ -187,63 +188,71 @@ export default {
 
 ```javascript
 // 场景1：路径参数
-async fetchData(page, limit) {
-  try {
-    const response = await api.getCookieList(page, limit);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+async
+fetchData(page, limit)
+{
+    try {
+        const response = await api.getCookieList(page, limit);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+        this.cookieList = response.data.list;
+    } catch (error) {
+        console.error('Failed to fetch cookies:', error);
     }
-    this.cookieList = response.data.list;
-  } catch (error) {
-    console.error('Failed to fetch cookies:', error);
-  }
 }
 
 // 场景2：查询参数
-async fetchData(accessType, dictType, status) {
-  try {
-    const response = await api.getDictList(accessType, dictType, status);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+async
+fetchData(accessType, accessType, status)
+{
+    try {
+        const response = await api.getDictList(accessType, accessType, status);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+        this.dictList = response.data.list;
+    } catch (error) {
+        console.error('Failed to fetch dict list:', error);
     }
-    this.dictList = response.data.list;
-  } catch (error) {
-    console.error('Failed to fetch dict list:', error);
-  }
 }
 
 // 场景3：POST 请求提交数据
-async addKeyword(keywordItem) {
-  try {
-    const response = await api.addDict(keywordItem);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+async
+addKeyword(keywordItem)
+{
+    try {
+        const response = await api.addDict(keywordItem);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+        // 服务器返回的新创建数据的 ID
+        keywordItem.id = response.data;
+        this.$message('添加成功', 'success');
+    } catch (error) {
+        console.error('Failed to add keyword:', error);
     }
-    // 服务器返回的新创建数据的 ID
-    keywordItem.id = response.data;
-    this.$message('添加成功', 'success');
-  } catch (error) {
-    console.error('Failed to add keyword:', error);
-  }
 }
 
 // 场景4：DELETE 请求
-async deleteItem(id) {
-  try {
-    const response = await api.delDictById(id);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+async
+deleteItem(id)
+{
+    try {
+        const response = await api.delDictById(id);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+        this.$message('删除成功', 'success');
+        // 刷新列表
+        this.fetchData();
+    } catch (error) {
+        console.error('Failed to delete item:', error);
     }
-    this.$message('删除成功', 'success');
-    // 刷新列表
-    this.fetchData();
-  } catch (error) {
-    console.error('Failed to delete item:', error);
-  }
 }
 ```
 

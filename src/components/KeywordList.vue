@@ -48,9 +48,9 @@ export default {
       newKeyword: "",
       newDesc: "",
       keywordList: [],
-      access_type: "",
-      dict_type: "",
-      status:""
+      // access_type: "",
+      // dict_type: "",
+      // status:""
     }
   },
   computed: {
@@ -64,15 +64,16 @@ export default {
   },
 
   mounted() {
-    this.splitType();
-    this.keywordList = this.keywordListProp[this.type] || [];
+    this.keywordList = this.keywordListProp[this.dictType][this.status] || [];
   },
   props: {
     keywordListProp: Object,
     title: String,
     hint: String,
     onSubmit: Function,
-    type: String,
+    accessType:String,
+    dictType: String,
+    status:String,
     desc: String,
     add: Function,
     remove: Function,
@@ -96,40 +97,30 @@ export default {
         this.newKeyword = '';
         this.newDesc = '';
         this.$message('添加成功', 'success');
-        this.add(this.access_type,this.dict_type, newItem);
+        this.add(this.accessType,this.dictType, newItem);
       } else {
         this.$message('关键词已存在', 'warning');
       }
     },
     removeKeyword(keywordItem) {
       this.keywordList = this.keywordList.filter(k => k !== keywordItem);
-      this.remove(this.access_type,this.dict_type, keywordItem);
+      this.remove(this.accessType,this.dictType, keywordItem);
     },
     submit() {
       this.onSubmit(this.type, this.keywordList)
     },
 
-    splitType() {
-      let [access_type, dict_type,status] = this.type.split(",")
 
-      this.access_type = access_type;
-      this.dict_type = dict_type;
-      this.status = status;
-
-      // console.log(access_type, dict_type)
-    },
   },
   watch: {
     keywordListProp: {
       deep: true,
       handler() {
-        this.keywordList = this.keywordListProp[this.type] || [];
+        this.keywordList = this.keywordListProp[this.dictType][this.status] || [];
       }
     },
 
-    type() {
-      this.splitType();
-    },
+
 
   }
 }

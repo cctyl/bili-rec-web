@@ -253,7 +253,7 @@ export default {
         'WHITE,TAG,NORMAL': [],
 
       },
-      whitelist: [],
+      rulelist: [],
       showTidModal: false,
 
     };
@@ -261,8 +261,8 @@ export default {
   computed: {
     filteredWhitelist() {
       const query = this.searchQuery.toLowerCase();
-      console.log(this.whitelist);
-      return this.whitelist.filter(item => {
+      console.log(this.rulelist);
+      return this.rulelist.filter(item => {
             try {
               return (item.info && item.info.toLowerCase().includes(query)) ||
                   (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
@@ -404,7 +404,7 @@ export default {
           this.$message('删除成功',
               'success'
           );
-          this.whitelist = this.whitelist.filter(i => i.id !== item.id);
+          this.whitelist = this.rulelist.filter(i => i.id !== item.id);
         } else {
           this.$message('删除失败',
               'error'
@@ -459,13 +459,13 @@ export default {
 
 
         if (this.showAddModal) {
-          newItem.id = this.whitelist.length + 1;
-          this.whitelist.push(newItem);
+          newItem.id = this.rulelist.length + 1;
+          this.rulelist.push(newItem);
         } else {
-          const index = this.whitelist.findIndex(item => item.id === this.currentItem.id);
+          const index = this.rulelist.findIndex(item => item.id === this.currentItem.id);
           if (index !== -1) {
-            this.whitelist[index] = newItem;
-            this.$set(this.whitelist, index, newItem)
+            this.rulelist[index] = newItem;
+            this.$set(this.rulelist, index, newItem)
           }
         }
         this.closeModal();

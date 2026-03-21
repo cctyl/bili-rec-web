@@ -9,7 +9,7 @@ Vue.use(MessagePlugin);
 Vue.use(Util);
 Vue.config.productionTip = false;
 
-
+import '@fortawesome/fontawesome-free/css/all.min.css';
 //全局日志代理
 (function() {
   const originalConsoleLog = console.log;

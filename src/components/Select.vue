@@ -92,7 +92,9 @@ export default {
     title: String,
     desc: String,
     submitKeywordSelection: Function,
-    type: String,
+    accessType:String,
+    dictType: String,
+    status:String,
   },
   data() {
     return {
@@ -103,13 +105,20 @@ export default {
     };
   },
   mounted() {
-    this.availableKeywords = this.availableKeywordsProp[this.type];
+
+    // console.log("this.availableKeywordsProp=")
+    // console.log(this.availableKeywordsProp)
+    // console.log("[this.dictType][this.status]=" ,this.dictType,this.status)
+    // console.log("this.availableKeywordsProp[this.dictType][this.status]=" )
+    // console.log(this.availableKeywordsProp[this.dictType][this.status])
+
+    this.availableKeywords = this.availableKeywordsProp[this.dictType][this.status];
   },
   watch: {
     availableKeywordsProp: {
       deep: true,
       handler() {
-        this.availableKeywords = this.availableKeywordsProp[this.type];
+        this.availableKeywords = this.availableKeywordsProp[this.dictType][this.status];
       }
     }
   },
@@ -131,7 +140,7 @@ export default {
       this.discardedKeywords.push(keyword);
     },
     submit() {
-      this.submitKeywordSelection(this.type, this.selectedKeywords, this.discardedKeywords);
+      this.submitKeywordSelection(this.accessType,this.dictType,this.status, this.selectedKeywords, this.discardedKeywords);
       this.selectedKeywords = [];
       this.discardedKeywords = [];
     },

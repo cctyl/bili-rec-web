@@ -9,168 +9,9 @@
       <i class="fas fa-exclamation-triangle mr-2"></i>
       黑名单规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
     </div>
-
-    <!-- 黑名单关键词列表 -->
-    <CollapsibleCard
-        title="黑名单关键词"
-        desc="当 视频标题 或 视频简介 中包含以下关键词时，将自动点踩"
-        :collapsed="collapsibleStates.keyword"
-        @toggle="collapsibleStates.keyword = !collapsibleStates.keyword"
-    >
-      <KeywordListComponent
-          hint="添加新关键词"
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,KEYWORD,NORMAL"
-          desc=""
-          :add="addKeyword"
-          :remove="removeKeyword"
-      >
-      </KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 黑名单分区ID列表 -->
-    <CollapsibleCard
-        title="黑名单分区 ID"
-        desc="当 视频分区 ID 为以下 ID 时，将自动点踩"
-        :collapsed="collapsibleStates.tid"
-        @toggle="collapsibleStates.tid = !collapsibleStates.tid"
-    >
-      <KeywordListComponent
-          hint="添加新分区 ID"
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,TID,NORMAL"
-          desc=""
-          :add="addKeyword"
-          :remove="removeKeyword"
-      >
-        <button
-            @click="showTidModal = true "
-            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
-          <i class="fas fa-plus mr-2"></i>从记录的分区中选择
-        </button>
-      </KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 黑名单 UP 主 ID 列表 -->
-    <CollapsibleCard
-        title="黑名单 UP 主 ID"
-        desc="当 视频 UP 主 ID 为以下 ID 时，将自动点踩"
-        :collapsed="collapsibleStates.mid"
-        @toggle="collapsibleStates.mid = !collapsibleStates.mid"
-    >
-      <KeywordListComponent
-          hint="添加新 UP 主 ID"
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,MID,NORMAL"
-          desc=""
-          ref="BLACKMIDKeywordListComponent"
-          :add="addKeyword"
-          :remove="removeKeyword"
-      >
-        <button
-            @click="urlAddMid"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
-          <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
-        </button>
-      </KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 黑名单标签列表 -->
-    <CollapsibleCard
-        title="黑名单标签"
-        desc="当 视频标签 中包含以下任意标签时，将自动点踩"
-        :collapsed="collapsibleStates.tag"
-        @toggle="collapsibleStates.tag = !collapsibleStates.tag"
-    >
-      <KeywordListComponent
-          hint="添加新标签 "
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,TAG,NORMAL"
-          desc=""
-          :add="addKeyword"
-          :remove="removeKeyword"
-      ></KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 忽略的黑名单关键词列表 -->
-    <CollapsibleCard
-        title="忽略的黑名单关键词"
-        desc="即你认为这些关键词是通用的,不应当作为黑名单判断的依据,以下关键词不会进入关键词筛选(不会自动加入黑名单)"
-        :collapsed="collapsibleStates.ignoreKeyword"
-        @toggle="collapsibleStates.ignoreKeyword = !collapsibleStates.ignoreKeyword"
-    >
-      <KeywordListComponent
-          hint="添加关键词 "
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,KEYWORD,IGNORE"
-          desc=""
-          :add="addKeyword"
-          :remove="removeKeyword"
-      ></KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 忽略的黑名单标签列表 -->
-    <CollapsibleCard
-        title="忽略的黑名单标签"
-        desc="即你认为这些标签是通用的,不应当作为黑名单判断的依据,以下标签不会进入标签筛选(不会自动加入黑名单)"
-        :collapsed="collapsibleStates.ignoreTag"
-        @toggle="collapsibleStates.ignoreTag = !collapsibleStates.ignoreTag"
-    >
-      <KeywordListComponent
-          hint="添加新标签 "
-          title=""
-          :keyword-list-prop="arrData"
-          :on-submit="submitKeyword"
-          type="BLACK,TAG,IGNORE"
-          desc=""
-          :add="addKeyword"
-          :remove="removeKeyword"
-      ></KeywordListComponent>
-    </CollapsibleCard>
-
-    <!-- 关键词筛选界面 -->
-    <CollapsibleCard
-        title="关键词筛选"
-        desc="以下是根据你之前点踩的视频生成的黑名单关键词，请选择保留或抛弃。如果你选择采纳,它会出现在上方的[黑名单关键词]中, 如果你选择抛弃,它会出现在上方的[忽略的关键词]中。选择的结果会在下次任务中生效"
-        :collapsed="collapsibleStates.keywordCache"
-        @toggle="collapsibleStates.keywordCache = !collapsibleStates.keywordCache"
-    >
-      <Select :available-keywords-prop="arrData"
-              type="BLACK,KEYWORD,CACHE"
-              :submit-keyword-selection="submitKeywordSelection"
-              title=""
-              desc="">
-      </Select>
-    </CollapsibleCard>
-
-    <!-- 标签筛选界面 -->
-    <CollapsibleCard
-        title="标签筛选"
-        desc="以下是根据你之前点踩的视频生成的黑名单标签，请选择保留或抛弃。如果你选择采纳,它会出现在上方的[黑名单标签]中, 如果你选择抛弃,它会出现在上方的[忽略的黑名单标签]中。选择的结果会在下次任务中生效"
-        :collapsed="collapsibleStates.tagCache"
-        @toggle="collapsibleStates.tagCache = !collapsibleStates.tagCache"
-    >
-      <Select :available-keywords-prop="arrData"
-              type="BLACK,TAG,CACHE"
-              :submit-keyword-selection="submitKeywordSelection"
-              title=""
-              desc="">
-      </Select>
-    </CollapsibleCard>
-
     <!-- AI 提示词模块 -->
     <CollapsibleCard
-        title="AI 提示词设置"
+        title="AI 匹配"
         desc="用自然语言，向 ai 描述你所讨厌的视频的特征，比如：不喜欢王者荣耀"
         :collapsed="collapsibleStates.aiPrompt"
         @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
@@ -187,24 +28,24 @@
           <label class="block text-gray-300 text-sm font-medium mb-2">AI 提示词内容</label>
           <div class="flex space-x-4">
             <textarea
-              v-model="aiPromptContent"
-              :disabled="!aiPromptEditable"
-              :class="[
+                v-model="aiPromptContent"
+                :disabled="!aiPromptEditable"
+                :class="[
                 'flex-1 px-4 py-3 rounded-lg border resize-none transition-all duration-200',
                 aiPromptEditable
                   ? 'bg-gray-700 text-white border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-600'
                   : 'bg-gray-800 text-gray-400 border-gray-700 cursor-not-allowed opacity-75'
               ]"
-              rows="4"
-              :placeholder="aiPromptEditable ? '请输入你讨厌的视频特征描述，例如：不喜欢王者荣耀相关的游戏视频...' : '点击编辑按钮开始输入...'"
+                rows="4"
+                :placeholder="aiPromptEditable ? '请输入你讨厌的视频特征描述，例如：不喜欢王者荣耀相关的游戏视频...' : '点击编辑按钮开始输入...'"
             ></textarea>
           </div>
         </div>
 
         <div class="flex justify-end space-x-4">
           <button
-            @click="toggleAiPromptEdit"
-            :class="[
+              @click="toggleAiPromptEdit"
+              :class="[
               'text-white px-6 py-2 rounded-lg focus:outline-none transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105',
               aiPromptEditable
                 ? 'bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-500 border border-green-600'
@@ -218,10 +59,125 @@
       </div>
     </CollapsibleCard>
 
+
+
+    <!-- 单一匹配部分    -->
+    <CollapsibleCard
+        title="包含匹配"
+        desc="任意维度关键词匹配，打为黑名单"
+        :collapsed="collapsibleStates.oneMatch"
+        @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
+    >
+
+      <CollapsibleCard
+          v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
+          :title="dictTypeDesc[dictTypeStr]"
+          :desc="'当'+dictTypeDesc[dictTypeStr] + '中包含以下关键词时，将自动点踩'"
+          :collapsed="collapsibleStates[dictTypeStr]['NORMAL']"
+          @toggle="collapsibleStates[dictTypeStr]['NORMAL'] =!collapsibleStates[dictTypeStr]['NORMAL']"
+      >
+        <KeywordListComponent
+            hint="添加新关键词"
+            title=""
+            :keyword-list-prop="keywordListPropObj"
+            :on-submit="submitKeyword"
+            :access-type="accessType"
+            status="NORMAL"
+            :dict-type="dictTypeStr"
+            desc=""
+            :add="addKeyword"
+            :remove="removeKeyword"
+        >
+        </KeywordListComponent>
+      </CollapsibleCard>
+
+
+    </CollapsibleCard>
+
+
+    <!-- 复合匹配部分    -->
+    <CollapsibleCard
+        title="复合包含匹配"
+        desc="任意维度关键词匹配，打为黑名单"
+        :collapsed="collapsibleStates.allMatch"
+        @toggle="collapsibleStates.allMatch = !collapsibleStates.allMatch"
+    >
+
+      <AssociateRule :access-type="accessType"></AssociateRule>
+    </CollapsibleCard>
+
+
+    <!-- 忽略部分    -->
+    <CollapsibleCard
+        title="忽略匹配"
+        desc="这里面的关键词不会被匹配，防止误杀"
+        :collapsed="collapsibleStates.ignore"
+        @toggle="collapsibleStates.ignore = !collapsibleStates.ignore"
+    >
+
+
+      <CollapsibleCard
+          v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
+          :title="dictTypeDesc[dictTypeStr]"
+          desc=""
+          :collapsed="collapsibleStates[dictTypeStr]['IGNORE']"
+          @toggle="collapsibleStates[dictTypeStr]['IGNORE'] = !collapsibleStates[dictTypeStr]['IGNORE']"
+      >
+        <KeywordListComponent
+            hint="添加新关键词"
+            title=""
+            :keyword-list-prop="keywordListPropObj"
+            :on-submit="submitKeyword"
+            :access-type="accessType"
+            status="IGNORE"
+            :dict-type="dictTypeStr"
+            desc=""
+            :add="addKeyword"
+            :remove="removeKeyword"
+        >
+        </KeywordListComponent>
+      </CollapsibleCard>
+
+
+    </CollapsibleCard>
+
+
+    <!-- 筛选部分    -->
+    <CollapsibleCard
+        title="筛选新关键词"
+        desc="程序经过训练后产生的匹配关键词，你可以接受或者忽略"
+        :collapsed="collapsibleStates.selectTrain"
+        @toggle="collapsibleStates.selectTrain = !collapsibleStates.selectTrain"
+    >
+
+      <CollapsibleCard
+          v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
+          :title="dictTypeDesc[dictTypeStr]"
+          desc=""
+          :collapsed="collapsibleStates[dictTypeStr]['CACHE']"
+          @toggle="collapsibleStates[dictTypeStr]['CACHE'] = !collapsibleStates[dictTypeStr]['CACHE']"
+      >
+
+
+        <Select :available-keywords-prop="keywordListPropObj"
+                :submit-keyword-selection="submitKeywordSelection"
+                title=""
+                :access-type="accessType"
+                status="CACHE"
+                :dict-type="dictTypeStr"
+                desc="">
+        </Select>
+
+
+      </CollapsibleCard>
+
+    </CollapsibleCard>
+
+
     <!--分区选择弹窗-->
     <PartitionDialog
         :showTidModalProp.sync="showTidModal"
-        :dict-arr="arrData['BLACK,TID,NORMAL']"
+        :dict-arr="keywordListPropObj['TID']['NORMAL']"
         :confirm="handleRegionConfirm"
     >
     </PartitionDialog>
@@ -231,72 +187,115 @@
 
 <script>
 import api from '@/api/index.js';
-import Select from "@/components/Select.vue";
-import KeywordListComponent from "@/components/KeywordList.vue";
 import PartitionDialog from "@/components/PartitionDialog.vue";
 import CollapsibleCard from "@/components/CollapsibleCard.vue";
+import KeywordListComponent from "@/components/KeywordList.vue";
+import Select from "@/components/Select.vue";
+import AssociateRule from "@/components/AssociateRule.vue";
 
 export default {
   name: "black-list-view",
   components: {
     PartitionDialog,
+    CollapsibleCard,
+    AssociateRule,
     KeywordListComponent,
     Select,
-    CollapsibleCard,
   },
   data() {
     return {
-      // BLACK_KEYWORD: ['暴力', '色情', '赌博', '诈骗', '违法'],
-      // blackTidList: [1001, 1002, 1003],
-      // blackUserIdList: [12345, 67890, 24680],
-      // blackTagList: [12345, 67890, 24680],
-      // ignoreKeyWordList: [12345, 67890, 24680],
-      // ignoreTagList: [12345, 67890, 24680],
-      // availableKeywords: ['关键词1', '关键词2', '关键词3'],
-      // availableTagwords: ['标签1', '标签2', '标签3'],
+      accessType: 'BLACK',
       newKeyword: '',
       newSectionId: '',
       newUploaderId: '',
-      arrData: {
-        'BLACK,KEYWORD,NORMAL': [],
-        'BLACK,TAG,NORMAL': [],
-        'BLACK,TID,NORMAL': [],
-        'BLACK,MID,NORMAL': [],
-        'BLACK,TAG,IGNORE': [],
-        'BLACK,KEYWORD,IGNORE': [],
-        'BLACK,KEYWORD,CACHE': [],
-        'BLACK,TAG,CACHE': []
+      dictTypeEnum: [
+        'TITLE',
+        'MID',
+        'TAG',
+        'TID',
+        'DESC',
+        'COVER',
+        // 'SEARCH_KEYWORD',
+        // 'KEYWORD',
+        // 'STOP_WORDS',
+        // 'AI_JUDGMENT_PROMPT'
+      ],
+
+      dictStatus: ['NORMAL', 'IGNORE', 'CACHE'],
+
+      dictTypeDesc: {
+        TAG: '视频标签',
+        DESC: '视频简介',
+        TITLE: '标题',
+        COVER: '封面',
+        MID: 'up主id',
+        TID: '分区id',
+        SEARCH_KEYWORD: '搜索词',
+        KEYWORD: '通用关键词',
+        STOP_WORDS: '停顿词',
+        AI_JUDGMENT_PROMPT: 'AI判断提示词'
       },
+
+
+      //存放 TAG  TID 等对应的字典数据,每个对象包含NORMAL，IGNORE
+      keywordListPropObj: {
+        // 'TAG':{
+        //  'NORMAL':[],
+        //  'IGNORE':[],
+        // }
+      },
+
       showTidModal: false,
       // AI 提示词相关数据
       aiPromptContent: '',
       aiPromptEditable: false,
       existingAiPromptId: null, // 存储现有 AI 提示词的 ID
-      // 折叠状态
+      // 折叠状态,true 为折叠
       collapsibleStates: {
-        keyword: true,          // 黑名单关键词
-        tid: true,              // 黑名单分区 ID
-        mid: true,              // 黑名单 UP 主 ID
-        tag: true,              // 黑名单标签
-        ignoreKeyword: true,    // 忽略的黑名单关键词
-        ignoreTag: true,        // 忽略的黑名单标签
-        keywordCache: true,     // 关键词筛选
-        tagCache: true,         // 标签筛选
-        aiPrompt: true,         // AI 提示词设置
+
+        allMatch: true,//大分区，复合规则匹配
+        oneMatch: true,//大分区，单一匹配
+        ignore: true,//大分区,忽略
+        selectTrain: true,//大分区，选择训练出来的
+        aiPrompt: false,         // AI 提示词设置
       },
+
     };
   },
+  created() {
+    this.initKeywordListPropObj();
 
+  },
   mounted() {
 
-    for (let key in this.arrData) {
-      this.fetchData(key);
+    for (let dictType of this.dictTypeEnum) {
+      for (const dictStatus of this.dictStatus) {
+        this.fetchData(dictType, dictStatus);
+      }
     }
     // 获取 AI 提示词
     this.fetchAiPromptData();
+
+
   },
   computed: {},
   methods: {
+
+    initKeywordListPropObj() {
+
+      for (let dictType of this.dictTypeEnum) {
+        this.$set(this.keywordListPropObj, dictType, {});
+        //对象初始化，必须是响应式的
+        this.$set(this.collapsibleStates, dictType, {});
+        for (const dictStatus of this.dictStatus) {
+          this.$set(this.keywordListPropObj[dictType], dictStatus, []);
+          this.$set(this.collapsibleStates[dictType], dictStatus, true);
+        }
+        console.log("初始化" + dictType)
+      }
+
+
+    },
 
     /**
      * 获取 AI 提示词数据
@@ -381,14 +380,14 @@ export default {
     async handleRegionConfirm(dictArr) {
       this.showTidModal = false;
       try {
-        const response = await api.batchRemoveAndUpdate('BLACK', 'TID', dictArr);
+        const response = await api.batchRemoveAndUpdate(this.accessType, 'TID', dictArr);
         if (!response.success) {
           this.$message(response.message,
               'error'
           );
         } else {
           this.$message(response.message, 'success');
-          this.fetchData('BLACK,TID')
+          this.fetchData('TID', 'NORMAL')
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -421,20 +420,34 @@ export default {
     submitKeyword(type, keywordList) {
       console.log(type, keywordList)
     },
-    async fetchData(type) {
+
+    /**
+     * 查询字典数据
+     * @param dictType 字典类型
+     * @param status 状态
+     * @returns {Promise<void>}
+     */
+    async fetchData(dictType, status) {
       try {
-        const [accessType, dictType,status] = type.split(',');
-        const response = await api.getDictList(accessType, dictType,status);
-        this.arrData[type] = response.data.list;
+        console.log("加载：" + dictType + ",  " + status)
+        const response = await api.getDictList(this.accessType, dictType, status);
+        this.keywordListPropObj[dictType][status] = response.data.list;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
       }
     },
 
-
-    async submitKeywordSelection(type, selectedKeywords, discardedKeywords) {
+    /**
+     * 提交选择的训练结果
+     * @param accessType
+     * @param dictType
+     * @param status
+     * @param selectedKeywords
+     * @param discardedKeywords
+     * @returns {Promise<void>}
+     */
+    async submitKeywordSelection(accessType, dictType, status, selectedKeywords, discardedKeywords) {
       try {
-        const dictType = type.split(',')[1];
         await api.submitSelectTrainResult(dictType, {
           selectedId: selectedKeywords.map(item => item.id),
           discardedId: discardedKeywords.map(item => item.id)
@@ -456,12 +469,12 @@ export default {
       keywordItem.dict_type = dictType;
       try {
         const response = await api.addDict(keywordItem);
-        if (response.code!==200) {
+        if (response.code !== 200) {
 
           this.$message(response.message,
               'error'
           );
-        }else {
+        } else {
           keywordItem.id = response.data;
         }
       } catch (error) {
@@ -479,7 +492,7 @@ export default {
 
       try {
         const response = await api.delDictById(keywordItem.id);
-        if (response.code!==200) {
+        if (response.code !== 200) {
 
           this.$message(response.message,
               'error'
