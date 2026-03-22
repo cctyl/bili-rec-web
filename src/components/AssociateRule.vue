@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-800 rounded-lg overflow-hidden mb-6">
-    <table class="w-full whitelist-management__table">
+    <table class="w-full whitelist-management__table table-fixed">
       <thead>
       <tr class="bg-gray-700">
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">规则名称</th>
@@ -14,14 +14,14 @@
       </tr>
       </thead>
       <tbody class="divide-y divide-gray-700">
-      <tr v-for="item in rulelist" :key="item.id" class="hover:bg-gray-750">
-        <td class="px-6 py-4 whitespace-nowrap">{{ item.info }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.title) }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.desc) }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.tag) }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.cover) }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.tid) }}</td>
-        <td class="px-6 py-4">{{ valueJoin(item.mid) }}</td>
+      <tr v-for="item in rulelist" :key="item.id" class="hover:bg-gray-750 table-row-fixed">
+        <td class="px-6 py-4 text-ellipsis-cell">{{ item.info }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.title) }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.desc) }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.tag) }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.cover) }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.tid) }}</td>
+        <td class="px-6 py-4 text-ellipsis-cell">{{ valueJoin(item.mid) }}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <button @click="editItem(item)"
                   class="text-blue-400 hover:text-blue-300 mr-3 !rounded-button whitespace-nowrap">
@@ -306,4 +306,24 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 表格固定布局，让列宽均匀分布 */
+.table-fixed {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* 固定行高 */
+.table-row-fixed {
+  height: 64px; /* 可根据需要调整行高 */
+}
+
+/* 文本溢出显示省略号 */
+.text-ellipsis-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* 确保内容不会撑开单元格 */
+  max-width: 0;
+}
+</style>
