@@ -49,53 +49,21 @@
         </div>
 
         <TagInput
-            label="标题关键词"
-            :tags="currentItem.title"
-            :on-add="addTag"
-            :on-remove="removeTag"
+            v-for="dictType in dictTypeEnum"
+            :key="dictType"
+            :label="dictTypeDesc[dictType]"
+            :tags="currentItem[dictType]"
+            :dict-type="dictType"
+            :on-add="addDict"
+            :on-remove="removeDict"
         />
-        <TagInput
-            label="视频描述关键词"
-            :tags="currentItem.desc"
-            :on-add="addTag"
-            :on-remove="removeTag"
-        />
-        <TagInput
-            label="封面关键词(开发中)"
-            :tags="currentItem.cover"
-            type="coverKeyword"
-            :on-add="addTag"
-            :on-remove="removeTag"
-        />
-        <TagInput
-            label="标签关键词"
-            :tags="currentItem.tag"
-            :on-add="addTag"
-            :on-remove="removeTag"
-        />
-        <TagInput
-            label="分区ID"
-            :tags="currentItem.tid"
-            :on-add="addTag"
-            :on-remove="removeTag"
-        />
-        <TagInput
-            label="up猪ID"
-            :tags="currentItem.mid"
-            :on-add="addTag"
-            :on-remove="removeTag"
-        />
-
 
         <div class="flex justify-end space-x-4">
           <button @click="closeModal"
                   class="px-4 py-2 bg-gray-600 text-white rounded-md !rounded-button hover:bg-gray-500 whitespace-nowrap">
-            取消
+            关闭
           </button>
-          <button @click="saveItem"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-md !rounded-button hover:bg-blue-600 whitespace-nowrap">
-            {{ showAddModal ? '添加' : '保存' }}
-          </button>
+
         </div>
       </div>
     </div>
@@ -117,9 +85,7 @@ export default {
       required: true
     },
   },
-  computed: {
-
-  },
+  computed: {},
   data() {
     return {
       searchQuery: '',
@@ -200,7 +166,26 @@ export default {
           tag: []
         }
       ],
-
+      dictTypeEnum: [
+        'title',
+        'desc',
+        'tag',
+        'cover',
+        'tid',
+        'mid',
+      ],
+      dictTypeDesc: {
+        tag: '视频标签',
+        desc: '视频简介',
+        title: '标题',
+        cover: '封面',
+        mid: 'up主id',
+        tid: '分区id',
+        search_keyword: '搜索词',
+        keyword: '通用关键词',
+        stop_words: '停顿词',
+        ai_judgment_prompt: 'ai判断提示词'
+      },
     };
   },
 
@@ -208,15 +193,24 @@ export default {
     this.getAssociateRule()
   },
   methods: {
+
+    /**
+     * 打开规则编辑框
+     * @param item
+     */
     editItem(item) {
       this.currentItem = {...item};
       this.showEditModal = true;
     },
+    /**
+     * 删除一条复合规则
+     * @param item
+     * @returns {Promise<void>}
+     */
     async deleteItem(item) {
       if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
-
         const response = await api.delAssociateRule(item.id);
-        if (response.code ===200) {
+        if (response.code === 200) {
           this.$message('删除成功',
               'success'
           );
@@ -229,11 +223,48 @@ export default {
 
       }
     },
-    addTag(type, input) {
-      this.currentItem[type].push(input);
+
+    /**
+     * 添加字典
+     * @param dictType
+     * @param input
+     * @returns {Promise<void>}
+     */
+    async addDict(dictType, input) {
+
+
+      const keywordItem = {
+        value: input,
+        access_type: this.accessType,
+        dict_type: dictType.toUpperCase(),
+        outer_id: this.currentItem.id,
+        desc: '',
+        status: 'NORMAL'
+      };
+      const resp = await api.addDict(keywordItem);
+      if (resp.code === 200) {
+        this.$message('添加成功',
+            'success'
+        );
+
+        keywordItem .id =  resp.data;
+        this.currentItem[dictType].push(keywordItem);
+      }
     },
-    removeTag(type, index) {
-      this.currentItem[type].splice(index, 1);
+
+    /**
+     * 根据id删除字典
+     * @param id
+     */
+    async removeDict(dictType, index, id) {
+
+      this.currentItem[dictType].splice(index, 1);
+      const resp = await api.delDictById(id);
+      if (resp.code === 200) {
+        this.$message('删除成功',
+            'success'
+        );
+      }
     },
     closeModal() {
       this.showAddModal = false;
@@ -247,10 +278,14 @@ export default {
       return arr.map(i => i.value).join(",")
     },
 
+    /**
+     * 获取复合规则列表
+     * @returns {Promise<void>}
+     */
     async getAssociateRule() {
 
       try {
-        const response = await api.getAssociateRule(this.accessType, this.pageNo, this.pageSize,);
+        const response = await api.getAssociateRule(this.accessType, this.pageNo, this.pageSize);
         this.rulelist = response.data.records;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);

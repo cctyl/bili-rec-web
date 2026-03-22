@@ -7,10 +7,10 @@
         <span v-for="(tag, index) in tags" :key="index"
               class="bg-gray-600 text-white px-3 py-1 rounded-full !rounded-button mr-2 mb-2 flex items-center">
           {{ tag.value }}
-          <span class="close ml-2 text-red-400 hover:text-red-300 focus:outline-none" @click="removeTag(index)">x</span>
+          <span class="close ml-2 text-red-400 hover:text-red-300 focus:outline-none" @click="removeDict(index,tag.id)">x</span>
         </span>
       </div>
-      <input type="text" v-model="tagInput" @keydown.enter.prevent="addTag"
+      <input type="text" v-model="tagInput" @keydown.enter.prevent="addDict"
              placeholder="按下回车添加" class="tag-input bg-gray-700 text-white">
     </div>
   </div>
@@ -23,7 +23,8 @@ export default {
     label: String,
     tags: Array,
     onAdd: Function,
-    onRemove: Function
+    onRemove: Function,
+    dictType:String,
   },
 
   mounted() {
@@ -34,16 +35,15 @@ export default {
     };
   },
   methods: {
-    addTag() {
+    addDict() {
       console.log(this.tagInput);
       if (this.tagInput.trim() !== '') {
-        this.onAdd(this.type, this.tagInput.trim())
+        this.onAdd(this.dictType,this.tagInput.trim())
         this.tagInput = '';
       }
     },
-    removeTag(index) {
-
-      this.onRemove(this.type, index);
+    removeDict(index, id) {
+      this.onRemove(this.dictType,index, id);
     }
   }
 };
