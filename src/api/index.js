@@ -402,4 +402,11 @@ export default {
     getAssociateRule(accessType,page,limit) {
         return ajax(`/associate_rule/list/${accessType}/${page}/${limit}`);
     },
+    /**
+     * 根据id删除一条复合规则
+     * @param id
+     */
+    delAssociateRule(id) {
+        return ajax(`/associate_rule/del/${id}`,null,'DELETE');
+    }
 };

@@ -215,14 +215,14 @@ export default {
     async deleteItem(item) {
       if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
 
-        const response = await api.delWhiteRuleById(item.id);
-        if (response.success) {
+        const response = await api.delAssociateRule(item.id);
+        if (response.code ===200) {
           this.$message('删除成功',
               'success'
           );
-          this.whitelist = this.rulelist.filter(i => i.id !== item.id);
+          this.rulelist = this.rulelist.filter(i => i.id !== item.id);
         } else {
-          this.$message('删除失败',
+          this.$message(response.message,
               'error'
           );
         }
