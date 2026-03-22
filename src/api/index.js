@@ -408,5 +408,19 @@ export default {
      */
     delAssociateRule(id) {
         return ajax(`/associate_rule/del/${id}`,null,'DELETE');
+    },
+    /**
+     * 添加一条复合规则
+     * @param param
+     */
+    addAssociateRule(param) {
+        return ajax(`/associate_rule`,param,'POST')
+    },
+    /**
+     * 修改一条复合规则
+     * @param currentItem
+     */
+    updateRule(currentItem) {
+        return ajax(`/associate_rule`,currentItem,'PUT')
     }
 };

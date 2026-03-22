@@ -1,5 +1,13 @@
 <template>
   <div class="bg-gray-800 rounded-lg overflow-hidden mb-6">
+    <!-- 右上角按钮区域 -->
+    <div class="flex justify-end p-4">
+      <button @click="openAddRuleModal"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md !rounded-button text-sm font-medium transition-colors">
+        <i class="fas fa-plus mr-1"></i>添加规则
+      </button>
+    </div>
+
     <table class="w-full whitelist-management__table table-fixed">
       <thead>
       <tr class="bg-gray-700">
@@ -36,7 +44,6 @@
       </tbody>
     </table>
 
-
     <!-- 添加/编辑白名单项模态框 -->
     <div v-if="showAddModal || showEditModal"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -61,17 +68,44 @@
         <div class="flex justify-end space-x-4">
           <button @click="closeModal"
                   class="px-4 py-2 bg-gray-600 text-white rounded-md !rounded-button hover:bg-gray-500 whitespace-nowrap">
-            关闭
+            取消
           </button>
+          <button @click="updateItem"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-md !rounded-button hover:bg-blue-600 whitespace-nowrap">
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
 
+    <!-- 添加规则模态框（仅输入规则名称） -->
+    <div v-if="showAddRuleModal"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 p-8 rounded-lg w-96">
+        <h3 class="text-xl font-bold mb-4">添加规则</h3>
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2" for="newRuleName">规则名称</label>
+          <input type="text" id="newRuleName" v-model="newRuleName"
+                 class="w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="请输入规则名称"
+                 @keyup.enter="confirmAddRule">
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button @click="closeAddRuleModal"
+                  class="px-4 py-2 bg-gray-600 text-white rounded-md !rounded-button hover:bg-gray-500 whitespace-nowrap">
+            取消
+          </button>
+          <button @click="confirmAddRule"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-md !rounded-button hover:bg-blue-500 whitespace-nowrap">
+            确定
+          </button>
         </div>
       </div>
     </div>
   </div>
-
 </template>
-<script>
 
+<script>
 import api from "@/api";
 import TagInput from "@/components/TagInput.vue";
 
@@ -79,7 +113,6 @@ export default {
   name: 'AssociateRule',
   components: {TagInput},
   props: {
-
     accessType: {
       type: String,
       required: true
@@ -91,6 +124,8 @@ export default {
       searchQuery: '',
       showAddModal: false,
       showEditModal: false,
+      showAddRuleModal: false,      // 新增规则模态框
+      newRuleName: '',              // 新规则名称
       pageNo: 1,
       pageSize: 999,
       currentItem: {
@@ -121,14 +156,12 @@ export default {
             "desc": null,
             "status": "NORMAL"
           },
-
         ],
         "cover": [],
         "tid": [],
         "mid": [],
         tag: []
       },
-
       rulelist: [
         {
           "id": "1728619296294227969",
@@ -158,7 +191,6 @@ export default {
               "desc": null,
               "status": "NORMAL"
             },
-
           ],
           "cover": [],
           "tid": [],
@@ -188,11 +220,57 @@ export default {
       },
     };
   },
-
   mounted() {
     this.getAssociateRule()
   },
   methods: {
+    /**
+     * 打开添加规则模态框
+     */
+    openAddRuleModal() {
+      this.newRuleName = '';
+      this.showAddRuleModal = true;
+    },
+
+    /**
+     * 关闭添加规则模态框
+     */
+    closeAddRuleModal() {
+      this.showAddRuleModal = false;
+      this.newRuleName = '';
+    },
+
+    /**
+     * 确认添加规则
+     */
+    async confirmAddRule() {
+      if (!this.newRuleName || !this.newRuleName.trim()) {
+        this.$message('请输入规则名称', 'warning');
+        return;
+      }
+
+      // 这里调用实际的添加规则接口
+      // 假设添加规则需要调用 API，传入规则名称和 accessType
+      try {
+        // 根据实际 API 调整
+        const response = await api.addAssociateRule({
+          info: this.newRuleName.trim(),
+          access_type: this.accessType,
+        });
+
+        if (response.code === 200) {
+          this.$message('添加规则成功', 'success');
+          // 刷新规则列表
+          await this.getAssociateRule();
+          this.closeAddRuleModal();
+        } else {
+          this.$message(response.message || '添加规则失败', 'error');
+        }
+      } catch (error) {
+        console.error('添加规则失败:', error);
+        this.$message('添加规则失败', 'error');
+      }
+    },
 
     /**
      * 打开规则编辑框
@@ -211,16 +289,11 @@ export default {
       if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
         const response = await api.delAssociateRule(item.id);
         if (response.code === 200) {
-          this.$message('删除成功',
-              'success'
-          );
+          this.$message('删除成功', 'success');
           this.rulelist = this.rulelist.filter(i => i.id !== item.id);
         } else {
-          this.$message(response.message,
-              'error'
-          );
+          this.$message(response.message, 'error');
         }
-
       }
     },
 
@@ -231,8 +304,6 @@ export default {
      * @returns {Promise<void>}
      */
     async addDict(dictType, input) {
-
-
       const keywordItem = {
         value: input,
         access_type: this.accessType,
@@ -243,11 +314,8 @@ export default {
       };
       const resp = await api.addDict(keywordItem);
       if (resp.code === 200) {
-        this.$message('添加成功',
-            'success'
-        );
-
-        keywordItem .id =  resp.data;
+        this.$message('添加成功', 'success');
+        keywordItem.id = resp.data;
         this.currentItem[dictType].push(keywordItem);
       }
     },
@@ -257,13 +325,10 @@ export default {
      * @param id
      */
     async removeDict(dictType, index, id) {
-
       this.currentItem[dictType].splice(index, 1);
       const resp = await api.delDictById(id);
       if (resp.code === 200) {
-        this.$message('删除成功',
-            'success'
-        );
+        this.$message('删除成功', 'success');
       }
     },
     closeModal() {
@@ -274,7 +339,6 @@ export default {
      * 拼接dict数组的value
      */
     valueJoin(arr) {
-
       return arr.map(i => i.value).join(",")
     },
 
@@ -283,7 +347,6 @@ export default {
      * @returns {Promise<void>}
      */
     async getAssociateRule() {
-
       try {
         const response = await api.getAssociateRule(this.accessType, this.pageNo, this.pageSize);
         this.rulelist = response.data.records;
@@ -292,47 +355,20 @@ export default {
       }
     },
 
-
     /**
      * 保存白名单
      * @returns {Promise<void>}
      */
-    async saveItem() {
-      const newItem = {
-        ...this.currentItem,
-      };
-      for (const [key, value] of Object.entries(newItem)) {
-        //如果newItem[key]是数组,那么过滤掉数组内的空字符串
-        if (Array.isArray(value)) {
-          newItem[key] = value.filter(item => item !== '');
-        }
-      }
+    async updateItem() {
 
+      this.closeModal();
 
-      const response = await api.addOrUpdateWhiteRule(newItem);
-      if (response.success) {
-        this.$message('保存成功',
-            'success'
-        );
-
-
-        if (this.showAddModal) {
-          newItem.id = this.rulelist.length + 1;
-          this.rulelist.push(newItem);
-        } else {
-          const index = this.rulelist.findIndex(item => item.id === this.currentItem.id);
-          if (index !== -1) {
-            this.rulelist[index] = newItem;
-            this.$set(this.rulelist, index, newItem)
-          }
-        }
-        this.closeModal();
-        this.fetchWhitelist();
+      const response = await api.updateRule(this.currentItem);
+      if (response.code===200) {
+        this.$message('保存成功', 'success');
+        await this.getAssociateRule();
       } else {
-        this.$message('保存失败',
-            'error'
-        );
-
+        this.$message('保存失败', 'error');
       }
 
 
