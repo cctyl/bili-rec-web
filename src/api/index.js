@@ -393,12 +393,13 @@ export default {
 
 
     /**
-     * 申请tv二维码
+     * 查询复合规则列表
+     * @param accessType 访问类型
+     * @param page 页码
+     * @param limit 每页大小
      * @returns {Promise | Promise<unknown> | *}
      */
-    getAssociateRule() {
-
-        throw new Error("未实现")
-
+    getAssociateRule(accessType,page,limit) {
+        return ajax(`/associate_rule/list/${accessType}/${page}/${limit}`);
     },
 };

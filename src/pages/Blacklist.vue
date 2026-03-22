@@ -107,7 +107,9 @@
     </CollapsibleCard>
 
 
-    <!-- 忽略部分    -->
+    <!-- 忽略部分 - 暂时关闭    -->
+    <!--  黑名单已经是精确匹配+复合匹配了，不需要再忽略，如果还出错，说明单一匹配太严格了   -->
+<!--
     <CollapsibleCard
         title="忽略匹配"
         desc="这里面的关键词不会被匹配，防止误杀"
@@ -140,9 +142,11 @@
 
 
     </CollapsibleCard>
+-->
 
 
-    <!-- 筛选部分    -->
+    <!-- 筛选部分  - 暂时关闭  -->
+<!--
     <CollapsibleCard
         title="筛选新关键词"
         desc="程序经过训练后产生的匹配关键词，你可以接受或者忽略"
@@ -173,6 +177,7 @@
 
     </CollapsibleCard>
 
+-->
 
     <!--分区选择弹窗-->
     <PartitionDialog
@@ -190,7 +195,6 @@ import api from '@/api/index.js';
 import PartitionDialog from "@/components/PartitionDialog.vue";
 import CollapsibleCard from "@/components/CollapsibleCard.vue";
 import KeywordListComponent from "@/components/KeywordList.vue";
-import Select from "@/components/Select.vue";
 import AssociateRule from "@/components/AssociateRule.vue";
 
 export default {
@@ -200,7 +204,6 @@ export default {
     CollapsibleCard,
     AssociateRule,
     KeywordListComponent,
-    Select,
   },
   data() {
     return {
@@ -221,7 +224,7 @@ export default {
         // 'AI_JUDGMENT_PROMPT'
       ],
 
-      dictStatus: ['NORMAL', 'IGNORE', 'CACHE'],
+      dictStatus: ['NORMAL'],
 
       dictTypeDesc: {
         TAG: '视频标签',
@@ -429,7 +432,6 @@ export default {
      */
     async fetchData(dictType, status) {
       try {
-        console.log("加载：" + dictType + ",  " + status)
         const response = await api.getDictList(this.accessType, dictType, status);
         this.keywordListPropObj[dictType][status] = response.data.list;
       } catch (error) {
@@ -489,11 +491,9 @@ export default {
      * @returns {Promise<void>}
      */
     async removeKeyword(accessType, dictType, keywordItem) {
-
       try {
         const response = await api.delDictById(keywordItem.id);
         if (response.code !== 200) {
-
           this.$message(response.message,
               'error'
           );

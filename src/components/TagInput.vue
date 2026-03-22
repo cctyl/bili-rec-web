@@ -1,16 +1,16 @@
 <template>
   <div class="mb-4">
-    <label class="block text-sm font-medium mb-2" :for="type">{{ label }}</label>
+    <label class="block text-sm font-medium mb-2">{{ label }}</label>
     <div
         class="tag-input-container w-full bg-gray-700 text-white px-3 py-2 rounded-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
       <div class="tags">
-        <span v-for="(tag, index) in tags[type]" :key="index"
+        <span v-for="(tag, index) in tags" :key="index"
               class="bg-gray-600 text-white px-3 py-1 rounded-full !rounded-button mr-2 mb-2 flex items-center">
-          {{ tag }}
+          {{ tag.value }}
           <span class="close ml-2 text-red-400 hover:text-red-300 focus:outline-none" @click="removeTag(index)">x</span>
         </span>
       </div>
-      <input type="text" :id="type" v-model="tagInput" @keydown.enter.prevent="addTag"
+      <input type="text" v-model="tagInput" @keydown.enter.prevent="addTag"
              placeholder="按下回车添加" class="tag-input bg-gray-700 text-white">
     </div>
   </div>
@@ -21,8 +21,7 @@ export default {
   name: 'TagInput',
   props: {
     label: String,
-    tags: Object,
-    type: String,
+    tags: Array,
     onAdd: Function,
     onRemove: Function
   },
@@ -38,13 +37,13 @@ export default {
     addTag() {
       console.log(this.tagInput);
       if (this.tagInput.trim() !== '') {
-        this.onAdd(this.type,this.tagInput.trim())
+        this.onAdd(this.type, this.tagInput.trim())
         this.tagInput = '';
       }
     },
     removeTag(index) {
 
-      this.onRemove(this.type,index);
+      this.onRemove(this.type, index);
     }
   }
 };
