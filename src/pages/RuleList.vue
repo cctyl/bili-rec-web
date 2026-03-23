@@ -16,6 +16,8 @@
         desc="用自然语言，向 ai 描述你所讨厌的视频的特征，比如：不喜欢王者荣耀"
         :collapsed="collapsibleStates.aiPrompt"
         @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
+        :disabled="!standardConfig.ai_chat_enable"
+        disabled-tip="请到系统配置中开启AI匹配"
     >
       <div class="bg-blue-600 bg-opacity-20 border border-blue-500 rounded-lg p-4 mb-6">
         <p class="text-blue-200 text-sm leading-relaxed">
@@ -67,6 +69,8 @@
         :desc="'任意维度关键词匹配，打为'+accessTypeName"
         :collapsed="collapsibleStates.oneMatch"
         @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
+        :disabled="!standardConfig.single_match"
+        disabled-tip="请到系统配置中开启单一包含匹配"
     >
 
       <CollapsibleCard
@@ -148,6 +152,8 @@
         desc="复合规则内，三个以上规则匹配，则匹配成功"
         :collapsed="collapsibleStates.allMatch"
         @toggle="collapsibleStates.allMatch = !collapsibleStates.allMatch"
+        :disabled="!standardConfig.complex_match"
+        disabled-tip="请到系统配置中开启复合规则匹配"
     >
 
       <AssociateRule :access-type="accessType"></AssociateRule>
