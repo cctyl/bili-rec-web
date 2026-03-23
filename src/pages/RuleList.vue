@@ -5,15 +5,24 @@
     <h2 class="text-2xl font-bold mb-8">{{ accessTypeName }}管理</h2>
 
     <!-- 信息提示 -->
-    <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
+    <div v-if="accessType==='BLACK'" class="bg-red-600 text-white p-4 rounded-lg mb-6">
       <i class="fas fa-exclamation-triangle mr-2"></i>
-      {{ accessTypeName }}规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
+      黑名单规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
       以下三中规则同时生效，任意一个匹配则视频被判定为{{ accessTypeName }}
     </div>
+
+    <!-- 信息提示 -->
+    <div v-else class="bg-blue-600 text-white p-4 rounded-lg mb-6">
+      <i class="fas fa-info-circle mr-2"></i>
+      白名单规则用于自动通过符合条件的内容。请谨慎设置以确保内容质量。
+      以下三中规则同时生效，任意一个匹配则视频被判定为{{ accessTypeName }}
+    </div>
+
+
     <!-- AI 提示词模块 -->
     <CollapsibleCard
         title="AI 匹配"
-        desc="用自然语言，向 ai 描述你所讨厌的视频的特征，比如：不喜欢王者荣耀"
+        :desc="  '用自然语言，向 ai 描述视频的特征，比如：' + (accessType==='BLACK'?'不':'') +'喜欢王者荣耀'  "
         :collapsed="collapsibleStates.aiPrompt"
         @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
         :disabled="!standardConfig.ai_chat_enable"
@@ -388,7 +397,7 @@ export default {
           this.$set(this.keywordListPropObj[dictType], dictStatus, []);
           this.$set(this.collapsibleStates[dictType], dictStatus, true);
         }
-        console.log("初始化" + dictType)
+        //console.log("初始化" + dictType)
       }
 
 

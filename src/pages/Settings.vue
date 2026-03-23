@@ -240,7 +240,8 @@
         </div>
 
         <!-- 配置不完整提示 -->
-        <div v-if="!aiConfigComplete.allComplete" class="mt-4 bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-4">
+        <div v-if="!aiConfigComplete.allComplete"
+             class="mt-4 bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-4">
           <div class="flex items-start">
             <span class="text-yellow-500 mr-2">⚠️</span>
             <div class="text-sm text-yellow-300">
@@ -250,8 +251,6 @@
         </div>
       </div>
     </div>
-
-
 
 
     <!-- Cookie 列表 -->
@@ -473,7 +472,7 @@ export default {
           id: null,
           name: '单一包含匹配',
           key: 'single_match',
-          value: false,
+          value: true,
           type: 'switch',
           description: '根据单一包含规则进行判断',
           editable: false
@@ -593,10 +592,10 @@ export default {
       isTesting: false,
       testError: '',
       quickTests: [
-        { label: '👋 打招呼', message: '你好，请用一句话介绍你自己' },
-        { label: '🧮 数学测试', message: '1+1等于几？' },
-        { label: '📝 写作测试', message: '用一句话描述人工智能' },
-        { label: '🗑️ 清空对话', action: 'clear' }
+        {label: '👋 打招呼', message: '你好，请用一句话介绍你自己'},
+        {label: '🧮 数学测试', message: '1+1等于几？'},
+        {label: '📝 写作测试', message: '用一句话描述人工智能'},
+        {label: '🗑️ 清空对话', action: 'clear'}
       ]
     };
   },
@@ -635,6 +634,26 @@ export default {
   },
 
   methods: {
+
+    /**
+     * 检查是否至少开启了一个匹配模式
+     */
+    checkMatchRule() {
+      const targetKeys = ['single_match', 'ai_chat_enable', 'complex_match'];
+
+// 收集目标字段的值
+      const targetValues = this.systemConfigs
+          .filter(item => targetKeys.includes(item.key))
+          .map(item => item.value);
+
+// 检查是否找到了所有目标字段，并且所有值都为 false
+      const allFalse = targetValues.length === targetKeys.length &&
+          targetValues.every(value => value === false);
+
+      console.log("检查结果", allFalse, targetValues)
+      return !allFalse;
+    },
+
     handleAiConfigChange(config) {
       this.sysConfigUpdate = true;
       // 如果是 ai_chat_enable 开关被改变，强制更新页面
@@ -734,7 +753,7 @@ export default {
         const response = await this.$checkLogin();
 
         if (response != null) {
-          console.log("resp = ",response)
+          console.log("resp = ", response)
           if (response.code === 200) {
             const data = response.data.data;
             this.userName = data.name;
@@ -829,16 +848,27 @@ export default {
     /**
      * 持久化配置
      */
-    saveConfig(){
+    saveConfig() {
       let standardConfig = {};
       this.systemConfigs.forEach(config => {
-        standardConfig[config.key]= config.value;
+        standardConfig[config.key] = config.value;
       });
-      localStorage.setItem("standardConfig",JSON.stringify(standardConfig))
+      localStorage.setItem("standardConfig", JSON.stringify(standardConfig))
     },
 
-
+    /**
+     * 提交配置修改
+     * @returns {Promise<void>}
+     */
     async updateConfigData() {
+
+
+      if (!this.checkMatchRule()) {
+
+        this.$message('三种匹配规则至少要开启一种，否则无法正常工作', 'error');
+        return;
+      }
+
 
       try {
 
@@ -935,14 +965,14 @@ export default {
 
         // 添加历史对话（排除当前正在发送的消息）
         this.testMessages
-          .slice(0, -1)
-          .forEach(msg => {
-            // role 已经是标准格式：user, assistant
-            messages.push({
-              role: msg.role,
-              content: msg.content
+            .slice(0, -1)
+            .forEach(msg => {
+              // role 已经是标准格式：user, assistant
+              messages.push({
+                role: msg.role,
+                content: msg.content
+              });
             });
-          });
 
         // 添加当前用户消息
         messages.push({
