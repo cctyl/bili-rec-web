@@ -2,12 +2,13 @@
 
   <!-- 主内容区 -->
   <div class="flex-1 p-8 overflow-y-auto">
-    <h2 class="text-2xl font-bold mb-8">黑名单管理</h2>
+    <h2 class="text-2xl font-bold mb-8">{{accessTypeName}}管理</h2>
 
     <!-- 信息提示 -->
     <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
       <i class="fas fa-exclamation-triangle mr-2"></i>
-      黑名单规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
+      {{accessTypeName}}规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
+      以下三中规则同时生效，任意一个匹配则视频被判定为{{accessTypeName}}
     </div>
     <!-- AI 提示词模块 -->
     <CollapsibleCard
@@ -60,11 +61,10 @@
     </CollapsibleCard>
 
 
-
     <!-- 单一匹配部分    -->
     <CollapsibleCard
         title="包含匹配"
-        desc="任意维度关键词匹配，打为黑名单"
+        :desc="'任意维度关键词匹配，打为'+accessTypeName"
         :collapsed="collapsibleStates.oneMatch"
         @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
     >
@@ -98,7 +98,7 @@
     <!-- 复合匹配部分    -->
     <CollapsibleCard
         title="复合包含匹配"
-        desc="任意维度关键词匹配，打为黑名单"
+        desc="复合规则内，三个以上规则匹配，则匹配成功"
         :collapsed="collapsibleStates.allMatch"
         @toggle="collapsibleStates.allMatch = !collapsibleStates.allMatch"
     >
@@ -109,75 +109,75 @@
 
     <!-- 忽略部分 - 暂时关闭    -->
     <!--  黑名单已经是精确匹配+复合匹配了，不需要再忽略，如果还出错，说明单一匹配太严格了   -->
-<!--
-    <CollapsibleCard
-        title="忽略匹配"
-        desc="这里面的关键词不会被匹配，防止误杀"
-        :collapsed="collapsibleStates.ignore"
-        @toggle="collapsibleStates.ignore = !collapsibleStates.ignore"
-    >
-
-
-      <CollapsibleCard
-          v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
-          :title="dictTypeDesc[dictTypeStr]"
-          desc=""
-          :collapsed="collapsibleStates[dictTypeStr]['IGNORE']"
-          @toggle="collapsibleStates[dictTypeStr]['IGNORE'] = !collapsibleStates[dictTypeStr]['IGNORE']"
-      >
-        <KeywordListComponent
-            hint="添加新关键词"
-            title=""
-            :keyword-list-prop="keywordListPropObj"
-            :on-submit="submitKeyword"
-            :access-type="accessType"
-            status="IGNORE"
-            :dict-type="dictTypeStr"
-            desc=""
-            :add="addKeyword"
-            :remove="removeKeyword"
+    <!--
+        <CollapsibleCard
+            title="忽略匹配"
+            desc="这里面的关键词不会被匹配，防止误杀"
+            :collapsed="collapsibleStates.ignore"
+            @toggle="collapsibleStates.ignore = !collapsibleStates.ignore"
         >
-        </KeywordListComponent>
-      </CollapsibleCard>
 
 
-    </CollapsibleCard>
--->
+          <CollapsibleCard
+              v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
+              :title="dictTypeDesc[dictTypeStr]"
+              desc=""
+              :collapsed="collapsibleStates[dictTypeStr]['IGNORE']"
+              @toggle="collapsibleStates[dictTypeStr]['IGNORE'] = !collapsibleStates[dictTypeStr]['IGNORE']"
+          >
+            <KeywordListComponent
+                hint="添加新关键词"
+                title=""
+                :keyword-list-prop="keywordListPropObj"
+                :on-submit="submitKeyword"
+                :access-type="accessType"
+                status="IGNORE"
+                :dict-type="dictTypeStr"
+                desc=""
+                :add="addKeyword"
+                :remove="removeKeyword"
+            >
+            </KeywordListComponent>
+          </CollapsibleCard>
+
+
+        </CollapsibleCard>
+    -->
 
 
     <!-- 筛选部分  - 暂时关闭  -->
-<!--
-    <CollapsibleCard
-        title="筛选新关键词"
-        desc="程序经过训练后产生的匹配关键词，你可以接受或者忽略"
-        :collapsed="collapsibleStates.selectTrain"
-        @toggle="collapsibleStates.selectTrain = !collapsibleStates.selectTrain"
-    >
+    <!--
+        <CollapsibleCard
+            title="筛选新关键词"
+            desc="程序经过训练后产生的匹配关键词，你可以接受或者忽略"
+            :collapsed="collapsibleStates.selectTrain"
+            @toggle="collapsibleStates.selectTrain = !collapsibleStates.selectTrain"
+        >
 
-      <CollapsibleCard
-          v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
-          :title="dictTypeDesc[dictTypeStr]"
-          desc=""
-          :collapsed="collapsibleStates[dictTypeStr]['CACHE']"
-          @toggle="collapsibleStates[dictTypeStr]['CACHE'] = !collapsibleStates[dictTypeStr]['CACHE']"
-      >
-
-
-        <Select :available-keywords-prop="keywordListPropObj"
-                :submit-keyword-selection="submitKeywordSelection"
-                title=""
-                :access-type="accessType"
-                status="CACHE"
-                :dict-type="dictTypeStr"
-                desc="">
-        </Select>
+          <CollapsibleCard
+              v-for="dictTypeStr in dictTypeEnum " :key="dictTypeStr"
+              :title="dictTypeDesc[dictTypeStr]"
+              desc=""
+              :collapsed="collapsibleStates[dictTypeStr]['CACHE']"
+              @toggle="collapsibleStates[dictTypeStr]['CACHE'] = !collapsibleStates[dictTypeStr]['CACHE']"
+          >
 
 
-      </CollapsibleCard>
+            <Select :available-keywords-prop="keywordListPropObj"
+                    :submit-keyword-selection="submitKeywordSelection"
+                    title=""
+                    :access-type="accessType"
+                    status="CACHE"
+                    :dict-type="dictTypeStr"
+                    desc="">
+            </Select>
 
-    </CollapsibleCard>
 
--->
+          </CollapsibleCard>
+
+        </CollapsibleCard>
+
+    -->
 
     <!--分区选择弹窗-->
     <PartitionDialog
@@ -256,10 +256,10 @@ export default {
       // 折叠状态,true 为折叠
       collapsibleStates: {
 
-        allMatch: true,//大分区，复合规则匹配
-        oneMatch: true,//大分区，单一匹配
-        ignore: true,//大分区,忽略
-        selectTrain: true,//大分区，选择训练出来的
+        allMatch: false,//大分区，复合规则匹配
+        oneMatch: false,//大分区，单一匹配
+        ignore: false,//大分区,忽略
+        selectTrain: false,//大分区，选择训练出来的
         aiPrompt: false,         // AI 提示词设置
       },
 
@@ -281,7 +281,18 @@ export default {
 
 
   },
-  computed: {},
+  computed: {
+    accessTypeName() {
+
+      if (this.accessType === 'BLACK') {
+        return "黑名单"
+      } else if (this.accessType === 'WHITE') {
+        return "白名单"
+      }else {
+        return "其他规则"
+      }
+    }
+  },
   methods: {
 
     initKeywordListPropObj() {
