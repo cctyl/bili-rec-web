@@ -63,7 +63,7 @@
 
     <!-- 单一匹配部分    -->
     <CollapsibleCard
-        title="包含匹配"
+        title="单一包含匹配"
         :desc="'任意维度关键词匹配，打为'+accessTypeName"
         :collapsed="collapsibleStates.oneMatch"
         @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
@@ -312,11 +312,16 @@ export default {
         aiPrompt: false,         // AI 提示词设置
       },
 
+      //系统配置
+      standardConfig: {},
     };
   },
   created() {
 
     this.dataInit();
+
+    this.standardConfig = JSON.parse(localStorage.getItem("standardConfig"));
+    console.log(this.standardConfig)
   },
 
   watch: {
@@ -344,6 +349,8 @@ export default {
         return "其他规则"
       }
     }
+  },
+  mounted() {
   },
   methods: {
 
@@ -465,7 +472,7 @@ export default {
       this.showTidModal = false;
       try {
         const response = await api.batchRemoveAndUpdate(this.accessType, 'TID', dictArr);
-        if (!response.code===200) {
+        if (!response.code === 200) {
           this.$message(response.message,
               'error'
           );
@@ -558,7 +565,7 @@ export default {
      * @param keywordItem
      * @returns {Promise<void>}
      */
-    async addKeyword(accessType, dictType, status,keywordItem) {
+    async addKeyword(accessType, dictType, status, keywordItem) {
       keywordItem.access_type = accessType;
       keywordItem.dict_type = dictType;
       try {
@@ -584,9 +591,9 @@ export default {
      * @param keywordItem
      * @returns {Promise<void>}
      */
-    async removeKeyword(accessType, dictType, status,keywordItem) {
+    async removeKeyword(accessType, dictType, status, keywordItem) {
       try {
-        this.keywordListPropObj[dictType][status] =  this.keywordListPropObj[dictType][status].filter(k => k !== keywordItem)
+        this.keywordListPropObj[dictType][status] = this.keywordListPropObj[dictType][status].filter(k => k !== keywordItem)
 
         const response = await api.delDictById(keywordItem.id);
         if (response.code !== 200) {

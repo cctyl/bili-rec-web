@@ -36,6 +36,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div v-for="config in filteredSystemConfigs" :key="config.key" class="bg-gray-800 p-4 rounded-lg">
         <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
+        <span class="block my-2 text-gray-400 text-sm">{{ config.description }}</span>
         <div class="flex items-center justify-between">
           <div v-if="config.type === 'switch'"
                class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -91,6 +92,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div v-for="config in filteredAiConfigs" :key="config.key" class="bg-gray-800 p-4 rounded-lg">
           <h3 class="text-lg font-semibold mb-2">{{ config.name }}</h3>
+          <span class="block my-2 text-gray-400 text-sm">{{ config.description }}</span>
           <div class="flex items-center justify-between">
             <div v-if="config.type === 'switch'"
                  class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -250,10 +252,12 @@
     </div>
 
 
+
+
     <!-- Cookie 列表 -->
 
     <!-- 新增按钮 -->
-    <div class="flex justify-between mb-4">
+    <div class="flex justify-between mb-4 border-t border-gray-700 pt-8 mb-12">
       <span class="text-2xl font-bold ">Cookie 和 请求头 列表</span>
 
       <button @click="showAddCookieModal = true"
@@ -420,33 +424,33 @@ export default {
           description: '对视频点赞时模拟播放的最短时长',
           editable: false
         },
-        {
-          id: null,
-          name: '百度ack',
-          key: 'baidu_accesskey',
-          value: '',
-          type: 'textpassword',
-          description: '百度图像识别的密钥',
-          editable: false
-        },
-        {
-          id: null,
-          name: '百度client_id',
-          key: 'baidu_client_id',
-          value: '',
-          type: 'textpassword',
-          description: '百度图像识别的client_id',
-          editable: false
-        },
-        {
-          id: null,
-          name: '百度client_secret',
-          key: 'baidu_client_secret',
-          value: '',
-          type: 'textpassword',
-          description: '百度图像识别的client_secret',
-          editable: false
-        },
+        // {
+        //   id: null,
+        //   name: '百度ack',
+        //   key: 'baidu_accesskey',
+        //   value: '',
+        //   type: 'textpassword',
+        //   description: '百度图像识别的密钥',
+        //   editable: false
+        // },
+        // {
+        //   id: null,
+        //   name: '百度client_id',
+        //   key: 'baidu_client_id',
+        //   value: '',
+        //   type: 'textpassword',
+        //   description: '百度图像识别的client_id',
+        //   editable: false
+        // },
+        // {
+        //   id: null,
+        //   name: '百度client_secret',
+        //   key: 'baidu_client_secret',
+        //   value: '',
+        //   type: 'textpassword',
+        //   description: '百度图像识别的client_secret',
+        //   editable: false
+        // },
         {
           id: null,
           name: '哔哩哔哩ack',
@@ -458,11 +462,29 @@ export default {
         },
         {
           id: null,
-          name: 'AI聊天功能',
+          name: 'AI匹配',
           key: 'ai_chat_enable',
           value: false,
           type: 'switch',
-          description: '开启AI聊天功能',
+          description: '将视频交给ai进行判断',
+          editable: false
+        },
+        {
+          id: null,
+          name: '单一包含匹配',
+          key: 'single_match',
+          value: false,
+          type: 'switch',
+          description: '根据单一包含规则进行判断',
+          editable: false
+        },
+        {
+          id: null,
+          name: '复合规则匹配',
+          key: 'complex_match',
+          value: false,
+          type: 'switch',
+          description: '根据复合规则进行判断',
           editable: false
         },
         {
@@ -489,7 +511,7 @@ export default {
           key: 'ai_model',
           value: '',
           type: 'text',
-          description: '使用的AI模型名称',
+          description: '使用的AI模型名称，比如glm-4-flash,kimi-xxx',
           editable: false
         },
         {
@@ -498,7 +520,7 @@ export default {
           key: 'ai_temperature',
           value: '0.7',
           type: 'text',
-          description: 'AI生成内容的随机性 (0-2)',
+          description: 'AI生成内容的随机性 (0-2)，默认即可',
           editable: false
         },
         {
@@ -507,28 +529,19 @@ export default {
           key: 'ai_max_tokens',
           value: '4096',
           type: 'text',
-          description: 'AI回复的最大Token数量',
+          description: 'AI回复的最大Token数量，默认即可',
           editable: false
         },
         {
           id: null,
           name: 'AI系统提示语',
           key: 'ai_system_prompt',
-          value: '你是一个专业、友好、有帮助的AI助手。请用简洁明了的语言回答用户的问题。',
+          value: '根据用户发送到视频相关信息，结合用户提供的判断依据，判断该视频是否符合黑/白名单规则',
           type: 'textarea',
-          description: 'AI助手的系统提示语',
+          description: 'AI的初始提示词',
           editable: false
         },
-        /*
-              {
-                  id: null,
-                  name: '定时任务',
-                  key: 'cron',
-                  value: false,
-                  type: 'switch',
-                  description: '开启首页推荐任务，热门排行榜任务，关键词任务等三个定时任务'
-                },
-        */
+
       ],
       showAddCookieModal: false,
       newCookie: {
@@ -791,6 +804,7 @@ export default {
         if (response.code === 200) {
           const data = response.data;
           //遍历systemConfigs，取出key，根据这个key到data中查找name=该key的对象，然后取出data中对象的value，设置到systemConfigs对象中的value
+
           this.systemConfigs.forEach(config => {
             const key = config.key;
             const target = data.find(item => item.name === key);
@@ -804,14 +818,31 @@ export default {
 
           });
 
+          this.saveConfig();
+
         }
       } catch (error) {
         console.error('获取配置列表失败:', error);
       }
     },
+
+    /**
+     * 持久化配置
+     */
+    saveConfig(){
+      let standardConfig = {};
+      this.systemConfigs.forEach(config => {
+        standardConfig[config.key]= config.value;
+      });
+      localStorage.setItem("standardConfig",JSON.stringify(standardConfig))
+    },
+
+
     async updateConfigData() {
 
       try {
+
+        this.saveConfig();
 
         const data = this.systemConfigs.map(config => ({
           id: config.id,

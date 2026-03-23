@@ -5,5 +5,6 @@
 export default {
 
     userInfo:'',//用户信息
+    standardConfig:'',//系统配置
 
 }
