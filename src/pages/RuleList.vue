@@ -2,13 +2,13 @@
 
   <!-- 主内容区 -->
   <div class="flex-1 p-8 overflow-y-auto">
-    <h2 class="text-2xl font-bold mb-8">{{accessTypeName}}管理</h2>
+    <h2 class="text-2xl font-bold mb-8">{{ accessTypeName }}管理</h2>
 
     <!-- 信息提示 -->
     <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
       <i class="fas fa-exclamation-triangle mr-2"></i>
-      {{accessTypeName}}规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
-      以下三中规则同时生效，任意一个匹配则视频被判定为{{accessTypeName}}
+      {{ accessTypeName }}规则用于自动点踩符合条件的内容。请谨慎设置以避免误判。
+      以下三中规则同时生效，任意一个匹配则视频被判定为{{ accessTypeName }}
     </div>
     <!-- AI 提示词模块 -->
     <CollapsibleCard
@@ -87,10 +87,57 @@
             desc=""
             :add="addKeyword"
             :remove="removeKeyword"
+            :ref="dictTypeStr+'Component'"
         >
+
+          <button
+              v-if="dictTypeStr==='MID'"
+              @click="urlAddMid"
+              class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+            <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
+          </button>
+
+
+          <button
+              v-if="dictTypeStr==='TID'"
+              @click="showTidModal = true  "
+              class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+            <i class="fas fa-plus mr-2"></i>从记录的分区中选择
+          </button>
+
         </KeywordListComponent>
+
+
       </CollapsibleCard>
 
+
+      <!--      <CollapsibleCard
+                title="包含匹配"
+                :desc="'任意维度关键词匹配，打为'+accessTypeName"
+                :collapsed="collapsibleStates.oneMatch"
+                @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
+            >
+              <KeywordListComponent
+                  hint="添加新关键词"
+                  title=""
+                  :keyword-list-prop="keywordListPropObj"
+                  :on-submit="submitKeyword"
+                  :access-type="accessType"
+                  status="NORMAL"
+                  dict-type="MID"
+                  desc=""
+                  :add="addKeyword"
+                  :remove="removeKeyword"
+                  ref="MIDComponent"
+              >
+
+                <button
+                    @click="urlAddMid"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap mr-4">
+                  <i class="fas fa-link mr-2"></i>使用对方个人主页url添加
+                </button>
+              </KeywordListComponent>
+            </CollapsibleCard>-->
 
     </CollapsibleCard>
 
@@ -205,9 +252,10 @@ export default {
     AssociateRule,
     KeywordListComponent,
   },
+  props: ['accessType'],
   data() {
     return {
-      accessType: 'BLACK',
+      // accessType: 'BLACK',
       newKeyword: '',
       newSectionId: '',
       newUploaderId: '',
@@ -266,35 +314,56 @@ export default {
     };
   },
   created() {
-    this.initKeywordListPropObj();
 
+    this.dataInit();
   },
-  mounted() {
 
-    for (let dictType of this.dictTypeEnum) {
-      for (const dictStatus of this.dictStatus) {
-        this.fetchData(dictType, dictStatus);
-      }
+  watch: {
+
+    // 或者监听 props 的变化（因为 accessType 是通过 props 传入的）
+    accessType: {
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.dataInit();
+        }
+      },
+      immediate: false
     }
-    // 获取 AI 提示词
-    this.fetchAiPromptData();
-
-
   },
   computed: {
+
+
     accessTypeName() {
 
       if (this.accessType === 'BLACK') {
         return "黑名单"
       } else if (this.accessType === 'WHITE') {
         return "白名单"
-      }else {
+      } else {
         return "其他规则"
       }
     }
   },
   methods: {
 
+
+    /**
+     * 初始化入口
+     */
+    dataInit() {
+      this.initKeywordListPropObj();
+      for (let dictType of this.dictTypeEnum) {
+        for (const dictStatus of this.dictStatus) {
+          this.fetchData(dictType, dictStatus);
+        }
+      }
+      // 获取 AI 提示词
+      this.fetchAiPromptData();
+    },
+
+    /**
+     * 给对象初始化空值
+     */
     initKeywordListPropObj() {
 
       for (let dictType of this.dictTypeEnum) {
@@ -316,7 +385,7 @@ export default {
      */
     async fetchAiPromptData() {
       try {
-        const response = await api.getDictList('BLACK', 'AI_JUDGMENT_PROMPT', 'NORMAL');
+        const response = await api.getDictList(this.accessType, 'AI_JUDGMENT_PROMPT', 'NORMAL');
         if (response.code === 200 && response.data.list.length > 0) {
           const aiPromptItem = response.data.list[0];
           this.aiPromptContent = aiPromptItem.value;
@@ -410,16 +479,27 @@ export default {
 
     },
     urlAddMid() {
-      let url = this.$refs.BLACKMIDKeywordListComponent.getNewKeyWord();
+
+      const refs = this.$refs.MIDComponent;
+
+      let comp = null;
+      if (Array.isArray(refs)) {
+        comp = refs[0];
+      } else if (refs) {
+        comp = refs;
+      }
+
+
+      let url = comp.getNewKeyWord();
       let xxxPart = this.$getMid(url);
       if (xxxPart) {
         // 创建一个新的URL对象
-        this.$refs.BLACKMIDKeywordListComponent.setNewKeyWord(xxxPart);
+        comp.setNewKeyWord(xxxPart);
 
 
         api.getUserNameByMid(xxxPart).then((response) => {
-          this.$refs.BLACKMIDKeywordListComponent.setNewDesc(response.data);
-          this.$refs.BLACKMIDKeywordListComponent.addKeyword();
+          comp.setNewDesc(response.data);
+          comp.addKeyword();
 
 
         }).catch((error) => {

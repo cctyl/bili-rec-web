@@ -118,6 +118,18 @@ export default {
       required: true
     },
   },
+  watch: {
+
+    // 或者监听 props 的变化（因为 accessType 是通过 props 传入的）
+    accessType: {
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.getAssociateRule()
+        }
+      },
+      immediate: false
+    }
+  },
   computed: {},
   data() {
     return {

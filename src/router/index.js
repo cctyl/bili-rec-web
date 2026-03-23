@@ -3,8 +3,7 @@ import VueRouter from 'vue-router'
 import Home from "@/pages/Home.vue";
 // 其他页面组件的导入
 import Tasks from "@/pages/Tasks.vue";
-import Whitelist from "@/pages/Whitelist.vue";
-import Blacklist from "@/pages/blacklist.vue";
+import RuleList from "@/pages/RuleList.vue";
 import Settings from "@/pages/Settings.vue";
 import OtherSetting from "@/pages/OtherSetting.vue";
 // import Analytics from "@/pages/Analytics.vue";
@@ -34,11 +33,17 @@ const router = new VueRouter({
         },
         {
             path: '/whitelist',
-            component: Whitelist,
+            component: RuleList,
+            props:{
+                accessType: 'WHITE',
+            }
         },
         {
             path: '/blacklist',
-            component: Blacklist,
+            component: RuleList,
+            props:{
+                accessType: 'BLACK',
+            }
         },
         {
             path: '/settings',
