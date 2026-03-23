@@ -159,7 +159,7 @@ export default {
      * @returns {Promise | Promise<unknown> | *}
      */
     getUserNameByMid(mid) {
-        return ajax(`/dict/getUserNameByMid/${mid}`);
+        return ajax(`/bili/getUserNameByMid/${mid}`);
     },
 
     /**
