@@ -231,6 +231,7 @@
         :showTidModalProp.sync="showTidModal"
         :dict-arr="keywordListPropObj['TID']['NORMAL']"
         :confirm="handleRegionConfirm"
+        :access-type="accessType"
     >
     </PartitionDialog>
 
@@ -464,7 +465,7 @@ export default {
       this.showTidModal = false;
       try {
         const response = await api.batchRemoveAndUpdate(this.accessType, 'TID', dictArr);
-        if (!response.success) {
+        if (!response.code===200) {
           this.$message(response.message,
               'error'
           );
@@ -557,7 +558,7 @@ export default {
      * @param keywordItem
      * @returns {Promise<void>}
      */
-    async addKeyword(accessType, dictType, keywordItem) {
+    async addKeyword(accessType, dictType, status,keywordItem) {
       keywordItem.access_type = accessType;
       keywordItem.dict_type = dictType;
       try {
@@ -569,6 +570,8 @@ export default {
           );
         } else {
           keywordItem.id = response.data;
+
+          this.keywordListPropObj[dictType][status].push(keywordItem)
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -581,8 +584,10 @@ export default {
      * @param keywordItem
      * @returns {Promise<void>}
      */
-    async removeKeyword(accessType, dictType, keywordItem) {
+    async removeKeyword(accessType, dictType, status,keywordItem) {
       try {
+        this.keywordListPropObj[dictType][status] =  this.keywordListPropObj[dictType][status].filter(k => k !== keywordItem)
+
         const response = await api.delDictById(keywordItem.id);
         if (response.code !== 200) {
           this.$message(response.message,

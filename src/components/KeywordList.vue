@@ -92,19 +92,19 @@ export default {
     addKeyword() {
       if (this.newKeyword && !this.keywordList.find(k => k.value === this.newKeyword)) {
         let newItem = {value: this.newKeyword, desc: this.newDesc, dict_type: this.dict_type, access_type: this.access_type,status: this.status};
-        this.keywordList.push(newItem); // 添加默认描述
+        // this.keywordList.push(newItem); // 不要从自己这里添加，要从父级修改，从而同步到这里
 
         this.newKeyword = '';
         this.newDesc = '';
         this.$message('添加成功', 'success');
-        this.add(this.accessType,this.dictType, newItem);
+        this.add(this.accessType,this.dictType,this.status, newItem);
       } else {
         this.$message('关键词已存在', 'warning');
       }
     },
     removeKeyword(keywordItem) {
-      this.keywordList = this.keywordList.filter(k => k !== keywordItem);
-      this.remove(this.accessType,this.dictType, keywordItem);
+      // this.keywordList = this.keywordList.filter(k => k !== keywordItem); // 不要从自己这里删除，要从父级修改，从而同步到这里
+      this.remove(this.accessType,this.dictType,this.status, keywordItem);
     },
     submit() {
       this.onSubmit(this.type, this.keywordList)

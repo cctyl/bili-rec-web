@@ -1,25 +1,10 @@
 <template>
   <Dialog :visible.sync="showTidModal" title="分区选择" :on-close="handleRegionConfirm">
-<!--    <div class="partition-dialog">
-      <input v-model="searchQuery" placeholder="搜索分区"
-             class="search-box bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-      <div class="partition-list">
-        <ul>
-          <li v-for="item in filteredPartitions" :key="item.id" class="partition-item">
-            <label>
-              <input type="checkbox" :value="item.tid" v-model="item.checked" class="custom-checkbox"
-                     @click="handlePartition(item)"
-              />
-              {{ item.name }}
-            </label>
-          </li>
-        </ul>
-      </div>
-    </div>-->
+
 
     <RegionComponent
-    :partitions="partitions"
-    :handle-partition="handlePartition"
+        :partitions="partitions"
+        :handle-partition="handlePartition"
     ></RegionComponent>
     <template v-slot:footer>
       <button @click="handleRegionConfirm"
@@ -71,11 +56,12 @@ export default {
     showTidModalProp: Boolean,
     dictArr: Array,
     confirm: Function,
+    accessType: String,
 
   },
   watch: {
     showTidModalProp(newValue) {
-      console.log("showTidModalProp change", newValue)
+      // console.log("showTidModalProp change", newValue)
       this.showTidModal = newValue;
 
       if (this.showTidModal === true) {
@@ -84,14 +70,17 @@ export default {
     },
 
     showTidModal(newValue) {
-      console.log('showTidModal change', newValue)
+      // console.log('showTidModal change', newValue)
       this.$emit('update:showTidModalProp', newValue);
-    }
+    },
+    // change(newVale){
+    //   console.log("change发生改变="+newVale)
+    // }
 
   },
   mounted() {
     this.showTidModal = this.showTidModalProp;
-    console.log('showTidModalProp', this.showTidModalProp)
+    // console.log('showTidModalProp', this.showTidModalProp)
 
     if (this.showTidModal === true) {
       this.handleRegionSelect();
@@ -111,12 +100,17 @@ export default {
         const dictArr = this.partitions.filter(item => item.checked)
             .map(item => {
               return {
-                value: item.tid,
-                desc: item.name
+                value: item.tid + '',
+                desc: item.name,
+                access_type: this.accessType,
+                dict_type: 'TID',
+                status: 'NORMAL'
+
+
               }
             });
 
-        console.log("最终选择的分区列表", dictArr)
+        this.change = false;
         this.confirm(dictArr);
       } else {
         console.log("未发生改变")
@@ -124,18 +118,24 @@ export default {
 
     },
 
+    /**
+     * 刷新分区勾选情况
+     * @returns {Promise<void>}
+     */
     async handleRegionSelect() {
+      console.log("刷新分区勾选情况")
+      console.log(this.dictArr.map(i=>i.value))
       await this.fetchRegionList();
-      const regionIdArr = this.partitions.map(item => item.tid+'');
+      const regionIdArr = this.partitions.map(item => item.tid );
       const notExistsTid = this.dictArr
           .filter(item => {
-                return !regionIdArr.includes(item.value)
+                return !regionIdArr.includes(item.value+'')
               }
           );
       if (notExistsTid.length > 0) {
         notExistsTid.forEach(item => {
           this.partitions.push({
-            tid: item.value+'',
+            tid: item.value + '',
             name: item.desc
           })
         })
@@ -151,6 +151,9 @@ export default {
       try {
         const response = await api.getRegionList();
         this.partitions = response.data;
+        for (const partition of this.partitions) {
+          partition.tid+='';
+        }
       } catch (error) {
         console.error('Failed to  fetchRegionList:', error);
       }

@@ -208,7 +208,7 @@ export default {
      * @returns {Promise | Promise<unknown> | *}
      */
     batchRemoveAndUpdate(accessType, dictType, dictArr) {
-        return ajax(`/dict/batchRemoveAndUpdate?accessType=${accessType}&dictType=${dictType}`, dictArr, 'POST')
+        return ajax(`/dict/batchRemoveAndUpdate?access_type=${accessType}&dict_type=${dictType}`, dictArr, 'POST')
     },
     /**
      * 查询任务列表
