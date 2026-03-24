@@ -423,33 +423,7 @@ export default {
           description: '对视频点赞时模拟播放的最短时长',
           editable: false
         },
-        // {
-        //   id: null,
-        //   name: '百度ack',
-        //   key: 'baidu_accesskey',
-        //   value: '',
-        //   type: 'textpassword',
-        //   description: '百度图像识别的密钥',
-        //   editable: false
-        // },
-        // {
-        //   id: null,
-        //   name: '百度client_id',
-        //   key: 'baidu_client_id',
-        //   value: '',
-        //   type: 'textpassword',
-        //   description: '百度图像识别的client_id',
-        //   editable: false
-        // },
-        // {
-        //   id: null,
-        //   name: '百度client_secret',
-        //   key: 'baidu_client_secret',
-        //   value: '',
-        //   type: 'textpassword',
-        //   description: '百度图像识别的client_secret',
-        //   editable: false
-        // },
+
         {
           id: null,
           name: '哔哩哔哩ack',

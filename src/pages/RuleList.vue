@@ -450,7 +450,7 @@ export default {
           value: this.aiPromptContent.trim(),
           desc: '',
           dict_type: 'AI_JUDGMENT_PROMPT',
-          access_type: 'BLACK',
+          access_type: this.accessType,
           status: 'NORMAL'
         };
 
