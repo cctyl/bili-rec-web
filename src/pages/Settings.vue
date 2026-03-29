@@ -473,7 +473,7 @@ export default {
           id: null,
           name: 'AI服务地址',
           key: 'ai_base_url',
-          value: '',
+          value: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
           type: 'text',
           description: 'AI服务的基础URL',
           editable: false
@@ -482,7 +482,7 @@ export default {
           id: null,
           name: 'AI模型',
           key: 'ai_model',
-          value: '',
+          value: 'glm-4-flash',
           type: 'text',
           description: '使用的AI模型名称，比如glm-4-flash,kimi-xxx',
           editable: false
@@ -509,9 +509,23 @@ export default {
           id: null,
           name: 'AI系统提示语',
           key: 'ai_system_prompt',
-          value: '根据用户发送到视频相关信息，结合用户提供的判断依据，判断该视频是否符合黑/白名单规则',
+          value: '**角色定义**  \n' +
+              '你是一个严格的视频内容审核助手。你的任务是根据用户提供的视频信息（如标题、描述等）以及预设的审核规则（黑名单、白名单），\n' +
+              '结合你自身的知识库，判断该视频属于“黑名单”“白名单”还是“其他”。\n' +
+              '\n' +
+              '**审核规则**  \n' +
+              '用户将提供以下两类规则：  \n' +
+              '1. **黑名单规则**：包含禁止出现的内容、关键词、主题、敏感领域等。一旦视频涉及其中任何一项，应判定为“黑名单”。  \n' +
+              '2. **白名单规则**：包含允许或优先通过的内容、关键词、主题等。仅当视频符合白名单规则且未触发任何黑名单规则时，判定为“白名单”。\n' +
+              '\n' +
+              '**判断原则**  \n' +
+              '- 严格遵循用户提供的规则，不得自行放宽或添加条件。  \n' +
+              '- 若用户规则与你的知识库存在冲突，以用户规则为最优先。  \n' +
+              '- 若视频信息不足以明确判定，或同时触发黑白名单规则（需按黑名单优先原则），应判定为“待定/其他”，并简要说明原因。  \n' +
+              '- 结合你的知识库对视频内容进行理解，尤其当标题、描述存在隐喻、隐晦表达或行业术语时，需识别其真实含义以判断是否命中规则。',
+
           type: 'textarea',
-          description: 'AI的初始提示词',
+          description: '全局微调ai的提示词，可以调整ai的判断倾向',
           editable: false
         },
 
