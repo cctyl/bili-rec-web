@@ -422,5 +422,15 @@ export default {
      */
     updateRule(currentItem) {
         return ajax(`/associate_rule`,currentItem,'PUT')
+    },
+
+    /**
+     * 测试ai对该视频的判断
+     * @param bvid
+     * @param accessType
+     * @returns {Promise | Promise<unknown> | *}
+     */
+    testAiRule(bvid,accessType){
+        return ajax(`/rule/testAiRule/${bvid}/${accessType}`,null,'POST')
     }
 };

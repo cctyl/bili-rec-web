@@ -1,5 +1,4 @@
 <template>
-
   <!-- 主内容区 -->
   <div class="flex-1 p-8 overflow-y-auto">
     <h2 class="text-2xl font-bold mb-8">{{ accessTypeName }}管理</h2>
@@ -18,6 +17,101 @@
       以下三中规则同时生效，任意一个匹配则视频被判定为{{ accessTypeName }}
     </div>
 
+    <!-- ==================== 新增测试组件区域 ==================== -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+      <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+        <i class="fas fa-vial mr-2 text-blue-400"></i>
+        规则测试工具
+      </h3>
+      <div class="flex flex-col space-y-4">
+        <div class="flex flex-col md:flex-row gap-4">
+          <input
+              v-model="testVideoUrl"
+              type="text"
+              placeholder="输入视频地址进行测试，例如：https://www.bilibili.com/video/BV1xx411c7mD"
+              class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button
+              @click="testAiRule"
+              :disabled="!testVideoUrl || aiTesting"
+              class="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <i class="fas fa-robot mr-2"></i>
+            {{ aiTesting ? '测试中...' : '测试AI规则' }}
+          </button>
+          <button
+              @click="testSingleMatch"
+              :disabled="!testVideoUrl || singleTesting"
+              class="bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <i class="fas fa-check-circle mr-2"></i>
+            {{ singleTesting ? '测试中...' : '测试单一包含匹配' }}
+          </button>
+          <button
+              @click="testComplexMatch"
+              :disabled="!testVideoUrl || complexTesting"
+              class="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <i class="fas fa-layer-group mr-2"></i>
+            {{ complexTesting ? '测试中...' : '测试复合包含匹配' }}
+          </button>
+        </div>
+
+        <!-- 测试结果展示区 -->
+        <div v-if="testResults.ai || testResults.single || testResults.complex" class="mt-4 border-t border-gray-700 pt-4">
+          <h4 class="text-md font-medium text-gray-300 mb-3 flex items-center">
+            <i class="fas fa-chalkboard-user mr-2 text-blue-400"></i>
+            测试结果
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- AI 规则测试结果 -->
+            <div v-if="testResults.ai !== null" class="bg-gray-700 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-300">🤖 AI 规则</span>
+                <span :class="testResults.ai.matched ? 'bg-red-500' : 'bg-green-500'"
+                      class="text-xs px-2 py-0.5 rounded-full text-white">
+                  {{ testResults.ai.matched ? '匹配' : '未匹配' }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-400 break-words">{{ testResults.ai.message || '无结果' }}</p>
+            </div>
+            <!-- 单一匹配测试结果 -->
+            <div v-if="testResults.single !== null" class="bg-gray-700 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-300">✅ 单一包含匹配</span>
+                <span :class="testResults.single.matched ? 'bg-red-500' : 'bg-green-500'"
+                      class="text-xs px-2 py-0.5 rounded-full text-white">
+                  {{ testResults.single.matched ? '匹配' : '未匹配' }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-400 break-words">{{ testResults.single.message || '无结果' }}</p>
+              <div v-if="testResults.single.details && testResults.single.details.length" class="mt-2 text-xs text-gray-500">
+                <span class="font-medium">匹配详情：</span>
+                <span>{{ testResults.single.details.join(', ') }}</span>
+              </div>
+            </div>
+            <!-- 复合匹配测试结果 -->
+            <div v-if="testResults.complex !== null" class="bg-gray-700 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-300">🔗 复合包含匹配</span>
+                <span :class="testResults.complex.matched ? 'bg-red-500' : 'bg-green-500'"
+                      class="text-xs px-2 py-0.5 rounded-full text-white">
+                  {{ testResults.complex.matched ? '匹配' : '未匹配' }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-400 break-words">{{ testResults.complex.message || '无结果' }}</p>
+              <div v-if="testResults.complex.details" class="mt-2 text-xs text-gray-500">
+                <span class="font-medium">匹配数量：</span>
+                <span>{{ testResults.complex.details.matchCount }}/{{ testResults.complex.details.requiredCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ==================== 测试组件结束 ==================== -->
 
     <!-- AI 提示词模块 -->
     <CollapsibleCard
@@ -68,6 +162,7 @@
             {{ aiPromptEditable ? '保存' : '编辑' }}
           </button>
         </div>
+
       </div>
     </CollapsibleCard>
 
@@ -329,6 +424,18 @@ export default {
 
       //系统配置
       standardConfig: {},
+      //用于测试的视频地址
+      testVideoUrl: '',
+      // 测试结果数据
+      testResults: {
+        ai: null,
+        single: null,
+        complex: null
+      },
+      // 测试加载状态
+      aiTesting: false,
+      singleTesting: false,
+      complexTesting: false
     };
   },
   created() {
@@ -346,9 +453,15 @@ export default {
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.dataInit();
+          // 切换时清空测试结果
+          this.clearTestResults();
         }
       },
       immediate: false
+    },
+    // 清空测试结果当输入框变化时
+    testVideoUrl() {
+      this.clearTestResults();
     }
   },
   computed: {
@@ -369,6 +482,154 @@ export default {
   },
   methods: {
 
+    /**
+     * 清空测试结果
+     */
+    clearTestResults() {
+      this.testResults = {
+        ai: null,
+        single: null,
+        complex: null
+      };
+    },
+
+
+
+    /**
+     * 测试AI规则
+     */
+    async testAiRule() {
+      if (!this.testVideoUrl) {
+        this.$message('请输入视频地址', 'warning');
+        return;
+      }
+
+      const videoId = this.$getBvid(this.testVideoUrl);
+      if (!videoId) {
+        this.$message('无法识别视频ID，请检查视频地址格式', 'error');
+        return;
+      }
+
+      this.aiTesting = true;
+      this.testResults.ai = null;
+
+      try {
+        // 调用AI测试接口
+        const response = await api.testAiRule(videoId, this.accessType);
+
+        console.log(response)
+        if (response.code === 200) {
+          this.testResults.ai = {
+            // todo
+          };
+        } else {
+          this.testResults.ai = {
+            matched: false,
+            message: response.message || 'AI规则测试失败'
+          };
+        }
+      } catch (error) {
+        console.error('AI规则测试失败:', error);
+        this.testResults.ai = {
+          matched: false,
+          message: '测试请求失败，请检查网络或后端服务'
+        };
+      } finally {
+        this.aiTesting = false;
+      }
+    },
+
+    /**
+     * 测试单一包含匹配
+     */
+    async testSingleMatch() {
+      if (!this.testVideoUrl) {
+        this.$message('请输入视频地址', 'warning');
+        return;
+      }
+
+      const videoId = this.$getBvid(this.testVideoUrl);
+      if (!videoId) {
+        this.$message('无法识别视频ID，请检查视频地址格式', 'error');
+        return;
+      }
+
+      this.singleTesting = true;
+      this.testResults.single = null;
+
+      try {
+
+
+        const response = await api.testSingleMatch({
+          videoId: videoId,
+          accessType: this.accessType,
+        });
+
+        if (response.code === 200) {
+          this.testResults.single = {
+            // todo
+          };
+        } else {
+          this.testResults.single = {
+            matched: false,
+            message: response.message || '单一匹配测试失败'
+          };
+        }
+      } catch (error) {
+        console.error('单一匹配测试失败:', error);
+        this.testResults.single = {
+          matched: false,
+          message: '测试请求失败，请检查网络或后端服务'
+        };
+      } finally {
+        this.singleTesting = false;
+      }
+    },
+
+    /**
+     * 测试复合包含匹配
+     */
+    async testComplexMatch() {
+      if (!this.testVideoUrl) {
+        this.$message('请输入视频地址', 'warning');
+        return;
+      }
+
+      const videoId = this.$getBvid(this.testVideoUrl);
+      if (!videoId) {
+        this.$message('无法识别视频ID，请检查视频地址格式', 'error');
+        return;
+      }
+
+      this.complexTesting = true;
+      this.testResults.complex = null;
+
+      try {
+        const response = await api.testComplexMatch({
+          videoId: videoId,
+          accessType: this.accessType
+        });
+
+        if (response.code === 200) {
+          this.testResults.complex = {
+            // todo
+          };
+        } else {
+          this.testResults.complex = {
+            matched: false,
+            message: response.message || '复合匹配测试失败'
+          };
+        }
+      } catch (error) {
+        console.error('复合匹配测试失败:', error);
+        this.testResults.complex = {
+          matched: false,
+          message: '测试请求失败，请检查网络或后端服务'
+        };
+      } finally {
+        this.complexTesting = false;
+      }
+    },
 
     /**
      * 初始化入口
@@ -710,6 +971,7 @@ input[type=number] {
   position: relative;
   margin-right: 2px;
 }
+
 
 .custom-checkbox:checked {
   background-color: #3B82F6;
