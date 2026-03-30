@@ -18,6 +18,7 @@
     </div>
 
     <!-- ==================== 新增测试组件区域 ==================== -->
+    <!-- 测试组件区域 -->
     <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
       <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
         <i class="fas fa-vial mr-2 text-blue-400"></i>
@@ -66,50 +67,128 @@
             <i class="fas fa-chalkboard-user mr-2 text-blue-400"></i>
             测试结果
           </h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- AI 规则测试结果 -->
-            <div v-if="testResults.ai !== null" class="bg-gray-700 rounded-lg p-3">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-300">🤖 AI 规则</span>
-                <span :class="testResults.ai.matched ? 'bg-red-500' : 'bg-green-500'"
-                      class="text-xs px-2 py-0.5 rounded-full text-white">
-                  {{ testResults.ai.matched ? '匹配' : '未匹配' }}
-                </span>
+
+          <!-- AI 匹配结果 -->
+          <div v-if="testResults.ai" class="bg-gray-700 rounded-lg p-4 mb-3">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <i class="fas fa-robot mr-2 text-purple-400"></i>
+                <span class="text-md font-medium text-white">AI 匹配</span>
               </div>
-              <p class="text-sm text-gray-400 break-words">{{ testResults.ai.message || '无结果' }}</p>
+              <span :class="getMatchTypeClass(testResults.ai.match_type)"
+                    class="text-xs px-3 py-1 rounded-full text-white font-medium">
+            {{ getMatchTypeText(testResults.ai.match_type) }}
+          </span>
             </div>
-            <!-- 单一匹配测试结果 -->
-            <div v-if="testResults.single !== null" class="bg-gray-700 rounded-lg p-3">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-300">✅ 单一包含匹配</span>
-                <span :class="testResults.single.matched ? 'bg-red-500' : 'bg-green-500'"
-                      class="text-xs px-2 py-0.5 rounded-full text-white">
-                  {{ testResults.single.matched ? '匹配' : '未匹配' }}
-                </span>
+
+            <div v-if="testResults.ai.reason" class="bg-gray-800 rounded p-3">
+              <span class="text-gray-400 text-sm">判断理由：</span>
+              <p class="text-gray-200 mt-1 text-sm leading-relaxed">{{ testResults.ai.reason }}</p>
+            </div>
+          </div>
+
+          <!-- 单一匹配结果 -->
+          <div v-if="testResults.single" class="bg-gray-700 rounded-lg p-4 mb-3">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2 text-green-400"></i>
+                <span class="text-md font-medium text-white">单一包含匹配</span>
               </div>
-              <p class="text-sm text-gray-400 break-words">{{ testResults.single.message || '无结果' }}</p>
-              <div v-if="testResults.single.details && testResults.single.details.length"
-                   class="mt-2 text-xs text-gray-500">
-                <span class="font-medium">匹配详情：</span>
-                <span>{{ testResults.single.details.join(', ') }}</span>
+              <span :class="getMatchTypeClass(testResults.single.match_type)"
+                    class="text-xs px-3 py-1 rounded-full text-white font-medium">
+            {{ getMatchTypeText(testResults.single.match_type) }}
+          </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div v-if="testResults.single.tag && testResults.single.tag.length">
+                <span class="text-gray-400">标签匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.tag.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.single.title && testResults.single.title.length">
+                <span class="text-gray-400">标题匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.title.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.single.desc && testResults.single.desc.length">
+                <span class="text-gray-400">简介匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.desc.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.single.cover && testResults.single.cover.length">
+                <span class="text-gray-400">封面匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.cover.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.single.mid && testResults.single.mid.length">
+                <span class="text-gray-400">UP主ID匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.mid.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.single.tid && testResults.single.tid.length">
+                <span class="text-gray-400">分区ID匹配：</span>
+                <span class="text-blue-300">{{ testResults.single.tid.join(', ') }}</span>
               </div>
             </div>
-            <!-- 复合匹配测试结果 -->
-            <div v-if="testResults.complex !== null" class="bg-gray-700 rounded-lg p-3">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-300">🔗 复合包含匹配</span>
-                <span :class="testResults.complex.matched ? 'bg-red-500' : 'bg-green-500'"
-                      class="text-xs px-2 py-0.5 rounded-full text-white">
-                  {{ testResults.complex.matched ? '匹配' : '未匹配' }}
-                </span>
+
+            <div v-if="testResults.single.match_count" class="mt-3 pt-2 border-t border-gray-600">
+              <span class="text-gray-400 text-sm">匹配总数：</span>
+              <span class="text-yellow-300 font-medium">{{ testResults.single.match_count }}</span>
+            </div>
+          </div>
+
+          <!-- 复合匹配结果 -->
+          <div v-if="testResults.complex" class="bg-gray-700 rounded-lg p-4 mb-3">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <i class="fas fa-layer-group mr-2 text-orange-400"></i>
+                <span class="text-md font-medium text-white">复合包含匹配</span>
               </div>
-              <p class="text-sm text-gray-400 break-words">{{ testResults.complex.message || '无结果' }}</p>
-              <div v-if="testResults.complex.details" class="mt-2 text-xs text-gray-500">
-                <span class="font-medium">匹配数量：</span>
-                <span>{{ testResults.complex.details.matchCount }}/{{
-                    testResults.complex.details.requiredCount
-                  }}</span>
+              <span :class="getMatchTypeClass(testResults.complex.match_type)"
+                    class="text-xs px-3 py-1 rounded-full text-white font-medium">
+            {{ getMatchTypeText(testResults.complex.match_type) }}
+          </span>
+            </div>
+
+            <div v-if="testResults.complex.rule_name" class="mb-2">
+              <span class="text-gray-400 text-sm">匹配规则：</span>
+              <span class="text-purple-300">{{ testResults.complex.rule_name }}</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div v-if="testResults.complex.tag && testResults.complex.tag.length">
+                <span class="text-gray-400">标签匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.tag.join(', ') }}</span>
               </div>
+              <div v-if="testResults.complex.title && testResults.complex.title.length">
+                <span class="text-gray-400">标题匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.title.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.complex.desc && testResults.complex.desc.length">
+                <span class="text-gray-400">简介匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.desc.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.complex.cover && testResults.complex.cover.length">
+                <span class="text-gray-400">封面匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.cover.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.complex.mid && testResults.complex.mid.length">
+                <span class="text-gray-400">UP主ID匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.mid.join(', ') }}</span>
+              </div>
+              <div v-if="testResults.complex.tid && testResults.complex.tid.length">
+                <span class="text-gray-400">分区ID匹配：</span>
+                <span class="text-blue-300">{{ testResults.complex.tid.join(', ') }}</span>
+              </div>
+            </div>
+
+            <div v-if="testResults.complex.match_count" class="mt-3 pt-2 border-t border-gray-600">
+              <span class="text-gray-400 text-sm">匹配总数：</span>
+              <span class="text-yellow-300 font-medium">{{ testResults.complex.match_count }}</span>
+            </div>
+          </div>
+
+          <!-- 用户处理原因 -->
+          <div v-if="userHandleReason" class="bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-3">
+            <div class="flex items-center">
+              <i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>
+              <span class="text-gray-300 text-sm">{{ userHandleReason }}</span>
             </div>
           </div>
         </div>
@@ -429,17 +508,21 @@ export default {
       //系统配置
       standardConfig: {},
       //用于测试的视频地址
-      testVideoUrl: '',
       // 测试结果数据
-      testResults: {
-        ai: null,
-        single: null,
-        complex: null
-      },
+
       // 测试加载状态
+
+      // 测试相关
+      testVideoUrl: '',
       aiTesting: false,
       singleTesting: false,
-      complexTesting: false
+      complexTesting: false,
+      testResults: {
+        ai: null,      // 存储 AiMatch 对象
+        single: null,  // 存储 SingleMatch 对象
+        complex: null  // 存储 ComplexMatch 对象
+      },
+      userHandleReason: null  // 存储用户处理原因
     };
   },
   created() {
@@ -452,19 +535,14 @@ export default {
 
   watch: {
 
-    // 或者监听 props 的变化（因为 accessType 是通过 props 传入的）
-    accessType: {
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.dataInit();
-          // 切换时清空测试结果
-          this.clearTestResults();
-        }
-      },
-      immediate: false
-    },
-    // 清空测试结果当输入框变化时
+
+    // 当输入框变化时清空测试结果
     testVideoUrl() {
+      this.clearTestResults();
+    },
+
+    // 切换黑白名单时清空测试结果
+    accessType() {
       this.clearTestResults();
     }
   },
@@ -485,19 +563,6 @@ export default {
   mounted() {
   },
   methods: {
-
-    /**
-     * 清空测试结果
-     */
-    clearTestResults() {
-      this.testResults = {
-        ai: null,
-        single: null,
-        complex: null
-      };
-    },
-
-
     /**
      * 测试AI规则
      */
@@ -515,6 +580,7 @@ export default {
 
       this.aiTesting = true;
       this.testResults.ai = null;
+      this.userHandleReason = null;
 
       try {
         // 调用AI测试接口
@@ -526,22 +592,22 @@ export default {
         });
 
         console.log(response)
-        if (response.code === 200) {
-          this.testResults.ai = {
-            // todo
-          };
+        if (response.code === 200 && response.data) {
+          // 响应数据就是 MatchResult 格式
+          if (response.data.ai_match) {
+            this.testResults.ai = response.data.ai_match;
+          } else {
+            this.testResults.ai = { match_type: null, reason: '无匹配结果' };
+          }
+          if (response.data.user_handle_reason) {
+            this.userHandleReason = response.data.user_handle_reason;
+          }
         } else {
-          this.testResults.ai = {
-            matched: false,
-            message: response.message || 'AI规则测试失败'
-          };
+          this.$message(response.message || 'AI规则测试失败', 'error');
         }
       } catch (error) {
         console.error('AI规则测试失败:', error);
-        this.testResults.ai = {
-          matched: false,
-          message: '测试请求失败，请检查网络或后端服务'
-        };
+        this.$message('测试请求失败，请检查网络或后端服务', 'error');
       } finally {
         this.aiTesting = false;
       }
@@ -564,10 +630,9 @@ export default {
 
       this.singleTesting = true;
       this.testResults.single = null;
+      this.userHandleReason = null;
 
       try {
-
-
         // 调用AI测试接口
         const response = await api.testRule({
           bvid: videoId,
@@ -577,23 +642,21 @@ export default {
         });
 
         console.log(response)
-
-        if (response.code === 200) {
-          this.testResults.single = {
-            // todo
-          };
+        if (response.code === 200 && response.data) {
+          if (response.data.single_match) {
+            this.testResults.single = response.data.single_match;
+          } else {
+            this.testResults.single = { match_type: null, match_count: 0 };
+          }
+          if (response.data.user_handle_reason) {
+            this.userHandleReason = response.data.user_handle_reason;
+          }
         } else {
-          this.testResults.single = {
-            matched: false,
-            message: response.message || '单一匹配测试失败'
-          };
+          this.$message(response.message || '单一匹配测试失败', 'error');
         }
       } catch (error) {
         console.error('单一匹配测试失败:', error);
-        this.testResults.single = {
-          matched: false,
-          message: '测试请求失败，请检查网络或后端服务'
-        };
+        this.$message('测试请求失败，请检查网络或后端服务', 'error');
       } finally {
         this.singleTesting = false;
       }
@@ -616,6 +679,7 @@ export default {
 
       this.complexTesting = true;
       this.testResults.complex = null;
+      this.userHandleReason = null;
 
       try {
         // 调用AI测试接口
@@ -627,27 +691,68 @@ export default {
         });
 
         console.log(response)
-
-        if (response.code === 200) {
-          this.testResults.complex = {
-            // todo
-          };
+        if (response.code === 200 && response.data) {
+          if (response.data.complex_match) {
+            this.testResults.complex = response.data.complex_match;
+          } else {
+            this.testResults.complex = { match_type: null, match_count: 0 };
+          }
+          if (response.data.user_handle_reason) {
+            this.userHandleReason = response.data.user_handle_reason;
+          }
         } else {
-          this.testResults.complex = {
-            matched: false,
-            message: response.message || '复合匹配测试失败'
-          };
+          this.$message(response.message || '复合匹配测试失败', 'error');
         }
       } catch (error) {
         console.error('复合匹配测试失败:', error);
-        this.testResults.complex = {
-          matched: false,
-          message: '测试请求失败，请检查网络或后端服务'
-        };
+        this.$message('测试请求失败，请检查网络或后端服务', 'error');
       } finally {
         this.complexTesting = false;
       }
     },
+    /**
+     * 获取匹配类型的样式类
+     */
+    getMatchTypeClass(matchType) {
+      if (!matchType) return 'bg-gray-500';
+      switch (matchType) {
+        case 'BLACK':
+          return 'bg-red-500';
+        case 'WHITE':
+          return 'bg-green-500';
+        default:
+          return 'bg-gray-500';
+      }
+    },
+
+    /**
+     * 获取匹配类型的显示文本
+     */
+    getMatchTypeText(matchType) {
+      if (!matchType) return '未匹配';
+      switch (matchType) {
+        case 'BLACK':
+          return '黑名单匹配';
+        case 'WHITE':
+          return '白名单匹配';
+        default:
+          return matchType;
+      }
+    },
+
+    /**
+     * 清空测试结果
+     */
+    clearTestResults() {
+      this.testResults = {
+        ai: null,
+        single: null,
+        complex: null
+      };
+      this.userHandleReason = null;
+    },
+
+
 
     /**
      * 初始化入口
