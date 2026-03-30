@@ -430,7 +430,7 @@ export default {
      * @param accessType
      * @returns {Promise | Promise<unknown> | *}
      */
-    testAiRule(bvid,accessType){
-        return ajax(`/rule/testAiRule/${bvid}/${accessType}`,null,'POST')
+    testRule(data){
+        return ajax(`/rule/testRule`,data,'POST')
     }
 };

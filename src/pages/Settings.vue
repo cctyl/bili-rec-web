@@ -473,9 +473,9 @@ export default {
           id: null,
           name: 'AI服务地址',
           key: 'ai_base_url',
-          value: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+          value: 'https://open.bigmodel.cn/api/paas/v4',
           type: 'text',
-          description: 'AI服务的基础URL',
+          description: 'AI服务的 BaseUrl',
           editable: false
         },
         {

@@ -60,7 +60,8 @@
         </div>
 
         <!-- 测试结果展示区 -->
-        <div v-if="testResults.ai || testResults.single || testResults.complex" class="mt-4 border-t border-gray-700 pt-4">
+        <div v-if="testResults.ai || testResults.single || testResults.complex"
+             class="mt-4 border-t border-gray-700 pt-4">
           <h4 class="text-md font-medium text-gray-300 mb-3 flex items-center">
             <i class="fas fa-chalkboard-user mr-2 text-blue-400"></i>
             测试结果
@@ -87,7 +88,8 @@
                 </span>
               </div>
               <p class="text-sm text-gray-400 break-words">{{ testResults.single.message || '无结果' }}</p>
-              <div v-if="testResults.single.details && testResults.single.details.length" class="mt-2 text-xs text-gray-500">
+              <div v-if="testResults.single.details && testResults.single.details.length"
+                   class="mt-2 text-xs text-gray-500">
                 <span class="font-medium">匹配详情：</span>
                 <span>{{ testResults.single.details.join(', ') }}</span>
               </div>
@@ -104,7 +106,9 @@
               <p class="text-sm text-gray-400 break-words">{{ testResults.complex.message || '无结果' }}</p>
               <div v-if="testResults.complex.details" class="mt-2 text-xs text-gray-500">
                 <span class="font-medium">匹配数量：</span>
-                <span>{{ testResults.complex.details.matchCount }}/{{ testResults.complex.details.requiredCount }}</span>
+                <span>{{ testResults.complex.details.matchCount }}/{{
+                    testResults.complex.details.requiredCount
+                  }}</span>
               </div>
             </div>
           </div>
@@ -494,7 +498,6 @@ export default {
     },
 
 
-
     /**
      * 测试AI规则
      */
@@ -515,7 +518,12 @@ export default {
 
       try {
         // 调用AI测试接口
-        const response = await api.testAiRule(videoId, this.accessType);
+        const response = await api.testRule({
+          bvid: videoId,
+          ai_chat_enable: true,
+          single_match_enable: false,
+          complex_match_enable: false,
+        });
 
         console.log(response)
         if (response.code === 200) {
@@ -560,10 +568,15 @@ export default {
       try {
 
 
-        const response = await api.testSingleMatch({
-          videoId: videoId,
-          accessType: this.accessType,
+        // 调用AI测试接口
+        const response = await api.testRule({
+          bvid: videoId,
+          ai_chat_enable: false,
+          single_match_enable: true,
+          complex_match_enable: false,
         });
+
+        console.log(response)
 
         if (response.code === 200) {
           this.testResults.single = {
@@ -605,10 +618,15 @@ export default {
       this.testResults.complex = null;
 
       try {
-        const response = await api.testComplexMatch({
-          videoId: videoId,
-          accessType: this.accessType
+        // 调用AI测试接口
+        const response = await api.testRule({
+          bvid: videoId,
+          ai_chat_enable: false,
+          single_match_enable: false,
+          complex_match_enable: true,
         });
+
+        console.log(response)
 
         if (response.code === 200) {
           this.testResults.complex = {
