@@ -199,7 +199,7 @@
     <!-- AI 提示词模块 -->
     <CollapsibleCard
         title="AI 匹配"
-        :desc="  '用自然语言，向 ai 描述视频的特征，比如：' + (accessType==='BLACK'?'不':'') +'喜欢王者荣耀'  "
+        :desc="  '用自然语言，向 ai 描述视频的特征，比如：' + (accessType==='BLACK'?'不':'') +'喜欢王者荣耀。匹配优先级最低'  "
         :collapsed="collapsibleStates.aiPrompt"
         @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
         :disabled="!standardConfig.ai_chat_enable"
@@ -253,7 +253,7 @@
     <!-- 单一匹配部分    -->
     <CollapsibleCard
         title="单一包含匹配"
-        :desc="'任意维度关键词匹配，打为'+accessTypeName"
+        :desc="'任意维度关键词匹配，打为'+accessTypeName+'。匹配优先级最高'"
         :collapsed="collapsibleStates.oneMatch"
         @toggle="collapsibleStates.oneMatch = !collapsibleStates.oneMatch"
         :disabled="!standardConfig.single_match"
@@ -336,7 +336,7 @@
     <!-- 复合匹配部分    -->
     <CollapsibleCard
         title="复合包含匹配"
-        desc="复合规则内，三个以上规则匹配，则匹配成功"
+        desc="复合规则内，三个以上规则匹配，则匹配成功。匹配优先级第二"
         :collapsed="collapsibleStates.allMatch"
         @toggle="collapsibleStates.allMatch = !collapsibleStates.allMatch"
         :disabled="!standardConfig.complex_match"
@@ -530,12 +530,16 @@ export default {
     this.dataInit();
 
     this.standardConfig = JSON.parse(localStorage.getItem("standardConfig"));
-    console.log(this.standardConfig)
   },
 
   watch: {
 
-
+    $route: {
+      immediate: true,
+      handler() {
+        this.dataInit();
+      }
+    },
     // 当输入框变化时清空测试结果
     testVideoUrl() {
       this.clearTestResults();
@@ -692,7 +696,7 @@ export default {
 
         console.log(response)
         if (response.code === 200 && response.data) {
-          if (response.data.complex_match) {
+          if (response.data.complex_match ) {
             this.testResults.complex = response.data.complex_match;
           } else {
             this.testResults.complex = { match_type: null, match_count: 0 };
@@ -758,7 +762,9 @@ export default {
      * 初始化入口
      */
     dataInit() {
+
       this.initKeywordListPropObj();
+
       for (let dictType of this.dictTypeEnum) {
         for (const dictStatus of this.dictStatus) {
           this.fetchData(dictType, dictStatus);
@@ -766,6 +772,7 @@ export default {
       }
       // 获取 AI 提示词
       this.fetchAiPromptData();
+      this.clearTestResults();
     },
 
     /**
