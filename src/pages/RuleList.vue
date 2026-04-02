@@ -199,7 +199,7 @@
     <!-- AI 提示词模块 -->
     <CollapsibleCard
         title="AI 匹配"
-        :desc="  '用自然语言，向 ai 描述视频的特征，比如：' + (accessType==='BLACK'?'不':'') +'喜欢王者荣耀。匹配优先级最低'  "
+        :desc="  '用自然语言，向 ai 描述视频的特征，比如：' + (accessType==='BLACK'?'不':'') +'喜欢王者荣耀。匹配优先级最低。注意token消耗'  "
         :collapsed="collapsibleStates.aiPrompt"
         @toggle="collapsibleStates.aiPrompt = !collapsibleStates.aiPrompt"
         :disabled="!standardConfig.ai_chat_enable"
