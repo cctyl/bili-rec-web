@@ -150,7 +150,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
       <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.dislikeByTid')"
+          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByTid')"
           title="对指定分区的 排行榜、热门视频进行点踩"
           :trigger="thumbDown"
           img="fas fa-ban"
@@ -244,9 +244,9 @@
       </SimpleCard>
 
       <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.dislikeByUserId')"
+          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByUserId')"
           title="对指定用户的视频进行点踩"
-          :trigger="dislikeUserVideo"
+          :trigger="BLACKUserVideo"
           img="fas fa-thumbs-down"
           desc="输入对方的主页地址，对指定用户的视频进行点踩"
       >
@@ -609,11 +609,11 @@ export default {
      * 点踩用户视频
      * @returns {Promise<void>}
      */
-    async dislikeUserVideo() {
+    async BLACKUserVideo() {
       const mid = this.$getMid(this.blackSpaceUrl);
       if (mid) {
         try {
-          const response = await api.dislikeUserVideo(mid, this.blackSpaceTrain);
+          const response = await api.BLACKUserVideo(mid, this.blackSpaceTrain);
           if (response.success) {
             this.$message(response.message, 'success');
           }

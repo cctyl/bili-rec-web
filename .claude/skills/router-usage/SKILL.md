@@ -398,22 +398,22 @@ export default {
 
 ```javascript
 export default {
-  watch: {
-    '$route'(to, from) {
-      // 路由变化时执行
-      console.log('从', from.path, '到', to.path);
-      this.fetchData();
-    }
-  },
+    watch: {
+        '$route'(to, from) {
+            // 路由变化时执行
+            console.log('从', from.path, '到', to.path);
+            this.getSearchKeyword();
+        }
+    },
 
-  // 或者监听特定参数
-  watch: {
-    '$route.query.id'(newId, oldId) {
-      if (newId !== oldId) {
-        this.fetchDetail(newId);
-      }
+    // 或者监听特定参数
+    watch: {
+        '$route.query.id'(newId, oldId) {
+            if (newId !== oldId) {
+                this.fetchDetail(newId);
+            }
+        }
     }
-  }
 };
 ```
 
@@ -574,39 +574,39 @@ export default {
 
 ```javascript
 export default {
-  // 在渲染该组件的对应路由被 confirm 前调用
-  beforeRouteEnter(to, from, next) {
-    // 不能获取组件实例 `this`
-    // 因为当守卫执行前，组件实例还没被创建
+    // 在渲染该组件的对应路由被 confirm 前调用
+    beforeRouteEnter(to, from, next) {
+        // 不能获取组件实例 `this`
+        // 因为当守卫执行前，组件实例还没被创建
 
-    // 可以通过传一个回调给 next 来访问组件实例
-    next(vm => {
-      // 通过 `vm` 访问组件实例
-      vm.fetchData();
-    })
-  },
+        // 可以通过传一个回调给 next 来访问组件实例
+        next(vm => {
+            // 通过 `vm` 访问组件实例
+            vm.getSearchKeyword();
+        })
+    },
 
-  // 在当前路由改变，但是该组件被复用时调用
-  beforeRouteUpdate(to, from, next) {
-    // 可以访问组件实例 `this`
-    this.fetchData(to.params.id);
-    next()
-  },
+    // 在当前路由改变，但是该组件被复用时调用
+    beforeRouteUpdate(to, from, next) {
+        // 可以访问组件实例 `this`
+        this.getSearchKeyword(to.params.id);
+        next()
+    },
 
-  // 导航离开该组件的对应路由时调用
-  beforeRouteLeave(to, from, next) {
-    // 可以访问组件实例 `this`
+    // 导航离开该组件的对应路由时调用
+    beforeRouteLeave(to, from, next) {
+        // 可以访问组件实例 `this`
 
-    // 防止未保存的更改
-    if (this.hasUnsavedChanges) {
-      const answer = window.confirm('确定要离开吗？未保存的更改将丢失。');
-      if (!answer) {
-        return next(false);
-      }
+        // 防止未保存的更改
+        if (this.hasUnsavedChanges) {
+            const answer = window.confirm('确定要离开吗？未保存的更改将丢失。');
+            if (!answer) {
+                return next(false);
+            }
+        }
+
+        next()
     }
-
-    next()
-  }
 };
 ```
 

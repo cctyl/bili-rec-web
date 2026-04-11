@@ -189,7 +189,7 @@ export default {
 ```javascript
 // 场景1：路径参数
 async
-fetchData(page, limit)
+getSearchKeyword(page, limit)
 {
     try {
         const response = await api.getCookieList(page, limit);
@@ -205,7 +205,7 @@ fetchData(page, limit)
 
 // 场景2：查询参数
 async
-fetchData(accessType, accessType, status)
+getSearchKeyword(accessType, accessType, status)
 {
     try {
         const response = await api.getDictList(accessType, accessType, status);
@@ -249,7 +249,7 @@ deleteItem(id)
         }
         this.$message('删除成功', 'success');
         // 刷新列表
-        this.fetchData();
+        this.getSearchKeyword();
     } catch (error) {
         console.error('Failed to delete item:', error);
     }
@@ -263,49 +263,53 @@ deleteItem(id)
  * 批量删除并重新添加字典
  * @param {Array} dictArr 字典数组
  */
-async batchUpdate(dictArr) {
-  try {
-    const response = await api.batchRemoveAndUpdate('WHITE', 'TID', dictArr);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+async
+batchUpdate(dictArr)
+{
+    try {
+        const response = await api.batchRemoveAndUpdate('WHITE', 'TID', dictArr);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+        this.$message('批量更新成功', 'success');
+        // 刷新相关数据
+        this.getSearchKeyword('WHITE,TID,NORMAL');
+    } catch (error) {
+        console.error('Failed to batch update:', error);
     }
-    this.$message('批量更新成功', 'success');
-    // 刷新相关数据
-    this.fetchData('WHITE,TID,NORMAL');
-  } catch (error) {
-    console.error('Failed to batch update:', error);
-  }
 }
 
 /**
  * 从 URL 提取 MID 并添加到字典
  */
-async urlAddMid() {
-  const url = this.$refs.someComponent.getNewKeyWord();
-  const mid = this.$getMid(url);
+async
+urlAddMid()
+{
+    const url = this.$refs.someComponent.getNewKeyWord();
+    const mid = this.$getMid(url);
 
-  if (!mid) {
-    alert("请输入正确的url,如:https://space.bilibili.com/123456");
-    return;
-  }
-
-  this.$refs.someComponent.setNewKeyWord(mid);
-
-  try {
-    // 先获取用户名
-    const response = await api.getUserNameByMid(mid);
-    if (response.code !== 200) {
-      this.$message(response.message, 'error');
-      return;
+    if (!mid) {
+        alert("请输入正确的url,如:https://space.bilibili.com/123456");
+        return;
     }
 
-    // 设置描述并添加
-    this.$refs.someComponent.setNewDesc(response.data);
-    this.$refs.someComponent.addKeyword();
-  } catch (error) {
-    console.error('Failed to fetch user name:', error);
-  }
+    this.$refs.someComponent.setNewKeyWord(mid);
+
+    try {
+        // 先获取用户名
+        const response = await api.getUserNameByMid(mid);
+        if (response.code !== 200) {
+            this.$message(response.message, 'error');
+            return;
+        }
+
+        // 设置描述并添加
+        this.$refs.someComponent.setNewDesc(response.data);
+        this.$refs.someComponent.addKeyword();
+    } catch (error) {
+        console.error('Failed to fetch user name:', error);
+    }
 }
 ```
 
@@ -541,22 +545,26 @@ ajax('/api/user', userData, 'GET')
 
 ```javascript
 // ✅ 正确：使用 async/await
-async fetchData() {
-  const response = await api.getData();
-  // 处理数据
+async
+getSearchKeyword()
+{
+    const response = await api.getData();
+    // 处理数据
 }
 
 // ✅ 正确：使用 Promise
-fetchData() {
-  api.getData().then(response => {
-    // 处理数据
-  });
+getSearchKeyword()
+{
+    api.getData().then(response => {
+        // 处理数据
+    });
 }
 
 // ❌ 错误：不处理异步
-fetchData() {
-  const response = api.getData(); // response 是 Promise，不是数据
-  this.data = response.data; // 错误！
+getSearchKeyword()
+{
+    const response = api.getData(); // response 是 Promise，不是数据
+    this.data = response.data; // 错误！
 }
 ```
 

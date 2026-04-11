@@ -48,17 +48,17 @@
           >
             <div class="relative" @click="goToBilibili(video)">
               <img
-                  :src="$getPic(video.coverUrl)"
+                  :src="$getPic(video.pic)"
                   :class="[
                   'w-full h-48 object-cover rounded-lg',
-                  video.handleType === 'DISLIKE' ? 'blur-cover' : ''
+                  video.handleType === 'BLACK' ? 'blur-cover' : ''
                 ]"
                   :alt="video.title"
               >
               <span :class="[
                 'absolute top-2 right-2 px-2 py-1 text-xs !rounded-button',
-                `tag-${video.handleType.toLowerCase()}`
-              ]">{{ getHandleTypeLabel(video.handleType) }}</span>
+                `tag-${video.handle_type.toLowerCase()}`
+              ]">{{ getHandleTypeLabel(video.handle_type) }}</span>
             </div>
             <div class="mt-4">
               <h3 class="text-lg font-medium text-white line-clamp-2">{{ video.title }}</h3>
@@ -71,8 +71,8 @@
               <div v-if="shouldShowReason(video)" class="mt-2 text-sm">
                 <span class="text-gray-400">原因：</span>
                 <span :class="{
-                  'text-green-400': video.handleType === 'THUMB_UP',
-                  'text-red-400': video.handleType === 'DISLIKE'
+                  'text-green-400': video.handle_type === 'WHITE',
+                  'text-red-400': video.handle_type === 'BLACK'
                 }" v-html="getReasonText(video)">
 
                 </span>
@@ -81,42 +81,42 @@
                 <div class="flex space-x-2">
                   <button
                       :disabled="video.processed"
-                      @click.stop="handleVideo(video, 'THUMB_UP')"
+                      @click.stop="handleVideo(video, 'WHITE')"
                       :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'THUMB_UP' 
+                      video.handle_type === 'WHITE'
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
                         : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
                     ]"
                   >
                     <i class="fas fa-thumbs-up mr-2"></i>
-                    {{ video.handleType === 'THUMB_UP' ? '确认点赞' : '点赞' }}
+                    {{ video.handle_type === 'WHITE' ? '确认点赞' : '点赞' }}
                   </button>
                   <button
                       :disabled="video.processed"
-                      @click.stop="handleVideo(video, 'DISLIKE')"
+                      @click.stop="handleVideo(video, 'BLACK')"
                       :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'DISLIKE' 
+                      video.handle_type === 'BLACK'
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
                         : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
                     ]"
                   >
                     <i class="fas fa-thumbs-down mr-2"></i>
-                    {{ video.handleType === 'DISLIKE' ? '确认点踩' : '点踩' }}
+                    {{ video.handle_type === 'BLACK' ? '确认点踩' : '点踩' }}
                   </button>
                   <button
                       :disabled="video.processed"
                       @click.stop="handleVideo(video, 'OTHER')"
                       :class="[
                       'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handleType === 'OTHER' 
+                      video.handle_type === 'OTHER'
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
                         : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
                     ]"
                   >
                     <i class="fas fa-question-circle mr-2"></i>
-                    {{ video.handleType === 'OTHER' ? '确认其他' : '其他' }}
+                    {{ video.handle_type === 'OTHER' ? '确认其他' : '其他' }}
                   </button>
                   <button
                       @click.stop="recheck(video)"
@@ -285,12 +285,13 @@ export default {
   data() {
     return {
       handleTypes: [
-        {value: 'ALL', label: '全部'},
-        {value: 'THUMB_UP', label: '待点赞'},
-        {value: 'DISLIKE', label: '待点踩'},
+
+        {value: 'WHITE', label: '已点赞'},
+        {value: 'BLACK', label: '已点踩'},
+        {value: '', label: '全部'},
         {value: 'OTHER', label: '其他'}
       ],
-      currentType: 'ALL',
+      currentType: '',
       videoList: [],
       currentPage: 1,
       pageSize: 10,
@@ -357,11 +358,13 @@ export default {
       try {
         const params = {
           page: this.currentPage,
-          size: this.pageSize,
-          handleType: this.currentType === 'ALL' ? '' : this.currentType
+          limit: this.pageSize,
+          handleType:  this.currentType,
+          search: '',
+          handle_step: 1,
         }
-        const response = await api.getReady2HandleVideo(params)
-        // const response = await api.getAlreadyHandleVideo(params)
+        const response = await api.getAlreadyHandleVideo(params)
+        console.log(response)
         if (response.data) {
           this.videoList = response.data.records
           this.total = response.data.total
@@ -383,8 +386,8 @@ export default {
     },
     getHandleTypeLabel(type) {
       const typeMap = {
-        'THUMB_UP': '待点赞',
-        'DISLIKE': '待点踩',
+        'WHITE': '待点赞',
+        'BLACK': '待点踩',
         'OTHER': '待处理'
       }
       return typeMap[type] || '待处理'
@@ -420,7 +423,7 @@ export default {
 
     async handleVideo(video, newHandleType) {
       try {
-        const reason = video.handleType !== newHandleType ? '用户修改为' + newHandleType : undefined;
+        const reason = video.handle_type !== newHandleType ? '用户修改为' + newHandleType : undefined;
         await api.processVideo(video.id, newHandleType, reason, false);
 
 
@@ -458,7 +461,7 @@ export default {
         const unprocessedVideos = this.videoList.filter(v => !v.processed);
 
         for (const video of unprocessedVideos) {
-          await this.handleVideo(video, video.handleType);
+          await this.handleVideo(video, video.handle_type);
         }
 
         this.$message('批量处理完成', 'success');
@@ -469,14 +472,14 @@ export default {
       }
     },
     shouldShowReason(video) {
-      return (video.handleType === 'THUMB_UP' && video.thumbUpReason) ||
-          (video.handleType === 'DISLIKE' && video.blackReason);
+      return (video.handle_type === 'WHITE' && video.thumbUpReason) ||
+          (video.handle_type === 'BLACK' && video.blackReason);
     },
 
     getReasonText(video) {
-      if (video.handleType === 'THUMB_UP') {
+      if (video.handle_type === 'WHITE') {
         return video.thumbUpReason;
-      } else if (video.handleType === 'DISLIKE') {
+      } else if (video.handle_type === 'BLACK') {
         return video.blackReason;
       }
       return '';

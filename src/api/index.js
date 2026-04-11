@@ -284,7 +284,7 @@ export default {
      * @param mid
      * @param train Boolean
      */
-    dislikeUserVideo(mid,train){
+    BLACKUserVideo(mid,train){
         return ajax(`/black-rule/disklike-by-uid?train=${train}`,[mid], 'POST');
     },
 
@@ -310,7 +310,7 @@ export default {
      * @param {number} params.page 页码
      * @param {number} params.size 每页数量
      * @param {string} params.sort 排序
-     * @param {string} params.handleType 处理类型 (THUMB_UP/DISLIKE/OTHER)
+     * @param {string} params.handleType 处理类型 (WHITE/BLACK/OTHER)
      * @returns {Promise<unknown>}
      */
     getReady2HandleVideo(params) {
@@ -322,19 +322,19 @@ export default {
      * @param {Object} params 查询参数
      * @param {number} params.page 页码
      * @param {number} params.size 每页数量
-     * @param {string} params.sort 排序
-     * @param {string} params.handleType 处理类型 (THUMB_UP/DISLIKE/OTHER)
+     * @param {string} params.handle_step 处理进度
+     * @param {string} params.handleType 处理类型 (WHITE/BLACK/OTHER)
      * @returns {Promise<unknown>}
      */
     getAlreadyHandleVideo(params) {
-        return ajax(`/task/already-handle?page=${params.page}&size=${params.size}&sort=${params.sort || ''}&handleType=${params.handleType}&search=${params.search}`);
+        return ajax(`/task/already-handle?page=${params.page}&limit=${params.limit}&handle_type=${params.handleType}&search=${params.search}&handle_step=${params.handle_step}`);
     },
 
 
     /**
      * 处理单条视频数据
      * @param {string} id - 视频ID
-     * @param {string} handleType - 处理类型(THUMB_UP/DISLIKE/OTHER)
+     * @param {string} handleType - 处理类型(WHITE/BLACK/OTHER)
      * @param {string} [reason] - 修改原因
      * @param reHandle 是否重复处理
      * @returns {Promise<unknown>}

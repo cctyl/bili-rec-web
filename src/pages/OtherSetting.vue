@@ -4,15 +4,28 @@
   <div class="flex-1 p-8 overflow-y-auto">
 
     <!--  搜索的关键词 -->
-    <KeywordListComponent
-        hint="添加新关键词"
-        title="搜索关键词"
-        :keyword-list-prop="arrData"
-        type="OTHER,SEARCH_KEYWORD"
-        desc="搜索任务的数据源,  下列关键词将会被搜索任务使用.  也就是说这部分关键词会被拿去搜索视频,  被搜索的视频会根据规则决定点踩或点赞"
-        :add="addKeyword"
-        :remove="removeKeyword"
-    >
+<!--    <KeywordListComponent-->
+<!--        hint="添加新关键词"-->
+<!--        title="搜索关键词"-->
+<!--        :keyword-list-prop="searchKeyword"-->
+<!--        type="OTHER,SEARCH_KEYWORD"-->
+<!--        desc="搜索任务的数据源,  下列关键词将会被搜索任务使用.  也就是说这部分关键词会被拿去搜索视频,  被搜索的视频会根据规则决定点踩或点赞"-->
+<!--        :add="addKeyword"-->
+<!--        :remove="removeKeyword"-->
+<!--    >-->
+
+
+      <KeywordListComponent
+          hint="添加新关键词"
+          title="搜索关键词"
+          :keyword-list-prop="keywordListPropObj"
+          access-type="OTHER"
+          status="NORMAL"
+          dict-type="SEARCH_KEYWORD"
+          desc="搜索任务的数据源,  下列关键词将会被搜索任务使用.  也就是说这部分关键词会被拿去搜索视频,  被搜索的视频会根据规则决定点踩或点赞"
+          :add="addKeyword"
+          :remove="removeKeyword"
+      >
 
     </KeywordListComponent>
 
@@ -31,17 +44,18 @@ export default {
   components: {KeywordListComponent},
   data() {
     return {
-      arrData: {
-        'OTHER,SEARCH_KEYWORD': [],
 
-      },
+      keywordListPropObj:{
+        SEARCH_KEYWORD: {
+          NORMAL:[]
+        },
+      }
+
     };
   },
   mounted() {
 
-    for (let key in this.arrData) {
-      this.fetchData(key);
-    }
+      this.getSearchKeyword();
 
   },
   computed: {
@@ -87,11 +101,15 @@ export default {
         console.error('Failed to  addKeyword', error);
       }
     },
-    async fetchData(type) {
+
+    /**
+     * 获取搜索关键词
+     * @returns {Promise<void>}
+     */
+    async getSearchKeyword() {
       try {
-        const [accessType, dictType] = type.split(',');
-        const response = await api.getDictList(accessType, dictType);
-        this.arrData[type] = response.data.list;
+        const response = await api.getDictList('OTHER', 'SEARCH_KEYWORD','NORMAL');
+        this.keywordListPropObj .SEARCH_KEYWORD.NORMAL = response.data.list;
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
       }
