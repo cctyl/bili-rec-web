@@ -16,14 +16,14 @@
             <!-- 将 img 标签替换为 FontAwesome 图标 -->
             <i :class="task.img" class="w-16 h-16 rounded-full text-4xl"></i>
           </div>
-          <h3 class="text-lg font-semibold text-center mb-2">{{ task.taskName }}</h3>
+          <h3 class="text-lg font-semibold text-center mb-2">{{ task.task_name }}</h3>
           <p class="text-sm text-gray-400 text-center mb-4">{{ task.description }}</p>
         </div>
 
         <div class="task-details">
           <div class="flex justify-center mb-2">
-            <span :class="statusClass(task.currentRunStatus)" class="px-2 py-1 text-xs font-semibold rounded-full">
-              {{ getStatus(task.currentRunStatus) }}
+            <span :class="statusClass(task.current_run_status)" class="px-2 py-1 text-xs font-semibold rounded-full">
+              {{ getStatus(task.current_run_status) }}
             </span>
 
           </div>
@@ -33,21 +33,21 @@
                 <i class="fas fa-tasks"></i>
                 <span>总运行次数</span>
               </div>
-              <div class="task-info-value">{{ task.totalRunCount }}</div>
+              <div class="task-info-value">{{ task.total_run_count }}</div>
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
                 <i class="fas fa-stopwatch"></i>
                 <span>上次运行耗时</span>
               </div>
-              <div class="task-info-value">{{ task.lastRunDuration }}秒</div>
+              <div class="task-info-value">{{ task.last_run_duration }}秒</div>
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
                 <i class="fas fa-clock"></i>
                 <span>上次运行时间</span>
               </div>
-              <div class="task-info-value">{{ task.lastRunTime }}</div>
+              <div class="task-info-value">{{ $parseIsoDateStr( task.last_run_time )}}</div>
             </div>
             <div class="task-info-item">
               <div class="task-info-label">
@@ -56,7 +56,7 @@
               </div>
               <div class="task-info-value">
                 <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                  <input type="checkbox" :id="'task-status-toggle'+task.id" v-model="task.isEnabled"
+                  <input type="checkbox" :id="'task-status-toggle'+task.id" v-model="task.is_enabled"
                          @click="handleTaskStatusChange(task)"
                          class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
                   <label :for="'task-status-toggle'+task.id"
@@ -64,7 +64,7 @@
                 </div>
               </div>
             </div>
-            <div class="task-info-item" v-if="task.isEnabled">
+            <div class="task-info-item" v-if="task.is_enabled">
               <div class="task-info-label">
                 <i class="fas fa-clock"></i>
                 <span>定时运行时间</span>
@@ -72,7 +72,7 @@
 
               <template v-if="task.editScheduledHour">
                 <select
-                    v-model="task.scheduledHour"
+                    v-model="task.scheduled_hour"
                     class="bg-gray-700 text-white rounded px-2 py-1 text-sm"
                     @change="changeScheduledTime(task)"
                     @blur="task.editScheduledHour=false"
@@ -88,29 +88,29 @@
               </template>
               <template v-else>
                 <span @click="task.editScheduledHour=true" class="cursor-pointer hover:text-blue-400">
-                  {{ task.scheduledHour }}:00
+                  {{ task.scheduled_hour }}:00
                 </span>
               </template>
 
-              <!--              <div class="task-info-value">{{ task.scheduledHour }}:00</div>-->
+              <!--              <div class="task-info-value">{{ task.scheduled_hour }}:00</div>-->
             </div>
-            <div class="task-info-item" v-if="task.isEnabled">
+            <div class="task-info-item" v-if="task.is_enabled">
               <div class="task-info-label">
                 <i class="fas fa-hourglass-half"></i>
                 <span>预计下次运行</span>
               </div>
-              <div class="task-info-value">{{ getNextRunTime(task.scheduledHour) }}小时后</div>
+              <div class="task-info-value">{{ getNextRunTime(task.scheduled_hour) }}小时后</div>
             </div>
           </div>
           <!-- 在 task-info-grid div 下方添加以下代码 -->
           <div class="mt-4 flex justify-center">
             <button
                 @click.stop="triggerTask(task)"
-                :disabled="! (task.currentRunStatus ==='STOPPED')"
+                :disabled="! (task.current_run_status ==='STOPPED')"
                 class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <i class="fas fa-play mr-2"></i>
-              <span>{{ task.currentRunStatus === 'STOPPED' ? '手动触发' : '执行中...' }}</span>
+              <span>{{ task.current_run_status === 'STOPPED' ? '手动触发' : '执行中...' }}</span>
             </button>
           </div>
         </div>
@@ -166,82 +166,7 @@
       </SimpleCard>
 
 
-      <SimpleCard
-          :status="getTaskStatus('RUNNING')"
-          title="判断指定视频是否符合黑名单"
-          :trigger="isBlack"
-          img="fas fa-exclamation-triangle"
-          desc="输入视频链接，判断指定视频是否符合黑名单"
-      >
 
-        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
-               v-model="isBlackUrl"
-               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <div slot="other" v-if="blackRes">
-
-
-          <div class="task-info-item ">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>视频：</span>
-            </div>
-            <div class="">{{ blackRes.videoDetail.title }}</div>
-          </div>
-          <div class="task-info-item " :style="blackRes.total ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>结论</span>
-            </div>
-            <div class="task-info-value">{{ blackRes.total === true ? '黑名单' : '不属于黑名单' }}</div>
-          </div>
-          <div class="task-info-item " v-if="blackRes.total===true"
-               :style="blackRes.total ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>黑名单原因</span>
-            </div>
-            <div class="" v-html="blackRes.blackReason"></div>
-          </div>
-          <div class="task-info-item" :style="blackRes.midMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>用户id是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="blackRes.tidMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>分区是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="blackRes.coverMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>封面是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="blackRes.tagMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>标签是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="blackRes.titleMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>标题是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="blackRes.descMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>描述是否匹配</span>
-            </div>
-          </div>
-        </div>
-
-      </SimpleCard>
 
       <SimpleCard
           :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByUserId')"
@@ -283,61 +208,6 @@
     <!-- 任务瀑布流布局 -->
     <div class="flex flex-wrap gap-6">
 
-      <SimpleCard
-          :status="getTaskStatus('RUNNING')"
-          class="flex-grow basis-[300px]"
-          title="判断指定视频是否符合白名单"
-          :trigger="isWhite"
-          img="fas fa-exclamation-triangle"
-          desc="输入视频链接，判断指定视频是否符合白名单"
-      >
-
-        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
-               v-model="isWhiteUrl"
-               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <div slot="other" v-if="whiteRes">
-
-
-          <div class="task-info-item ">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>视频：</span>
-            </div>
-            <div class="">{{ whiteRes.videoDetail.title }}</div>
-          </div>
-          <div class="task-info-item " :style="whiteRes.total ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>结论</span>
-            </div>
-            <div class="task-info-value">{{ whiteRes.total === true ? '白名单' : '不属于白名单' }}</div>
-          </div>
-          <div class="task-info-item " v-if="whiteRes.total===true"
-               :style="whiteRes.total ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>白名单原因</span>
-            </div>
-            <div class="" v-html="whiteRes.thumbUpReason"></div>
-          </div>
-          <div class="task-info-item" :style="whiteRes.midMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>用户id是否匹配</span>
-            </div>
-          </div>
-          <div class="task-info-item" :style="whiteRes.tidMatch ?'background-color: #3864ed;':''">
-            <div class="task-info-label">
-              <i class="fas fa-tasks"></i>
-              <span>分区是否匹配</span>
-            </div>
-          </div>
-
-
-        </div>
-
-      </SimpleCard>
 
       <SimpleCard
           :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.thumbUpUserAllVideo')"
@@ -351,105 +221,7 @@
                v-model="whiteSpaceUrl"
                class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
       </SimpleCard>
-      <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.addTrain')"
-          class="flex-grow basis-[600px]"
 
-          title="根据用户视频/视频列表训练白名单规则"
-          :trigger="trainWhiteRule"
-          img="fas fa-list-check"
-          desc="输入用户主页地址，或者一批视频列表，根据这些视频提供的信息，补充白名单规则。<br>注意,只有出现了三次以上的关键词才会被采纳，如果没有关键词被采纳，规则将不会被生成。<br>
-                为了避免这种尴尬的事情发生，，请保证提供较多的相同类型的视频"
-      >
-        <div class="block w-full">
-          <!-- 开关控制器 -->
-          <div class="flex items-center justify-between mb-4">
-            <span
-                class="mr-2 text-sm px-2 py-1 bg-gray-700 rounded"
-                style="color:#9CA3AF"
-            >{{ useTagInput ? '根据指定的视频进行训练' : '根据指定用户投稿的视频进行训练' }}</span>
-            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-              <input type="checkbox"
-                     v-model="useTagInput"
-                     :id="'mode-toggle'"
-                     class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-              <label :for="'mode-toggle'"
-                     class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer">
-              </label>
-            </div>
-          </div>
-
-          <!-- 条件渲染两种输入方式 -->
-          <template v-if="!useTagInput">
-            <div class="mb-2">up主个人主页链接</div>
-            <input
-                placeholder="https://space.bilibili.com/123456"
-                v-model="whiteSpaceTrainUrl"
-                class="w-full bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </template>
-          <TagInput
-              v-else
-              label="BV号"
-              :tags="tagObj"
-              type="bvTag"
-              :on-add="addTag"
-              :on-remove="removeTag"
-          />
-        </div>
-
-        <!-- 白名单列表 -->
-        <div slot="other" class="bg-gray-800 rounded-lg overflow-hidden mb-6 mt-6 pr-4">
-
-          <div class="flex justify-between items-center mb-8">
-            <h5 class="text-2xl font-bold">选择一个规则用于训练</h5>
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <input type="text" v-model="searchQuery" placeholder="搜索白名单..."
-                       class="bg-gray-700 text-white px-4 py-2 rounded-full !rounded-button focus:outline-none focus:ring-2  text-sm">
-                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-              </div>
-            </div>
-            <!-- 新增清除按钮 -->
-            <button
-
-                @click="selectRuleId = null"
-                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm flex items-center"
-            >
-              <i class="fas fa-times mr-2"></i>
-              清除选择
-            </button>
-
-          </div>
-          <table class="w-full whitelist-management__table">
-            <thead>
-            <tr class="bg-gray-700">
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">#</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">规则名称</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">标签关键词</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">标题关键词</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">封面关键词</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">描述关键词</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-700">
-            <tr v-for="item in filteredWhitelist" :key="item.id" class="hover:bg-gray-750">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <input type="radio" v-model="selectRuleId" :value="item.id" name="rid">
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ item.info }}</td>
-              <td class="px-6 py-4">{{ item.tagNameList.join(', ') }}</td>
-              <td class="px-6 py-4">{{ item.titleKeyWordList.join(', ') }}</td>
-              <td class="px-6 py-4">{{ item.coverKeyword.join(', ') }}</td>
-              <td class="px-6 py-4">{{ item.descKeyWordList.join(', ') }}</td>
-
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-
-      </SimpleCard>
 
 
     </div>
@@ -462,13 +234,11 @@
 import api from "@/api";
 import SimpleCard from "@/components/SimpleCard.vue";
 import RegionComponent from "@/components/Region.vue";
-import TagInput from "@/components/TagInput.vue";
 
 
 export default {
   name: "home-view",
   components: {
-    TagInput,
     RegionComponent,
     SimpleCard
   },
@@ -513,7 +283,6 @@ export default {
   },
   mounted() {
 
-    this.fetchWhitelist();
     this.fetchTaskData();
     this.fetchRegionList();
   },
@@ -536,7 +305,7 @@ export default {
     },
     filterTaskList() {
       return this.tasks.filter(task => {
-        return task.taskName;
+        return task.task_name;
       });
     },
   },
@@ -769,7 +538,7 @@ export default {
       return 24 + hour - now;
     },
     handleTaskStatusChange(task) {
-      task.isEnabled = !task.isEnabled;
+      task.is_enabled = !task.is_enabled;
       api.updateTaskEnabled(task);
 
     },
@@ -811,11 +580,14 @@ export default {
     async fetchTaskData() {
       try {
         const response = await api.getTaskList();
+        console.log(  response)
         response.data.forEach(task => {
           task.editScheduledHour = false
         })
         this.tasks = response.data;
 
+
+        console.log(this.tasks)
       } catch (error) {
         console.error('Failed to  fetchTaskData:', error);
       }
