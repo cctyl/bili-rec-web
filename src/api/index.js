@@ -231,10 +231,10 @@ export default {
      * @param paramArr
      * @returns {Promise | Promise<unknown> | *}
      */
-    triggerTask(classAndMethodName, paramArr = []) {
+    triggerTask(classAndMethodName) {
 
-        const result = paramArr.join(',');
-        return ajax(`/task/common-trigger-task?classAndMethodName=${classAndMethodName}&paramArr=${result}`);
+        // const result = paramArr.join(',');
+        return ajax(`/task/common-trigger-task?name=${classAndMethodName}`);
     },
 
     /**

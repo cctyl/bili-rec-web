@@ -119,11 +119,12 @@
     </div>
 
 
-    <!-- 其他可触发操作 -->
+<!--
+    &lt;!&ndash; 其他可触发操作 &ndash;&gt;
     <div class="flex justify-between items-center mb-8 mt-8">
       <h2 class="text-2xl font-bold">其他可触发操作</h2>
     </div>
-    <!-- 任务瀑布流布局 -->
+    &lt;!&ndash; 任务瀑布流布局 &ndash;&gt;
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
 
 
@@ -141,6 +142,7 @@
       </SimpleCard>
     </div>
 
+-->
 
     <!-- 黑名单操作 -->
     <div class="flex justify-between items-center mb-8 mt-8">
@@ -557,7 +559,7 @@ export default {
     async triggerTask(task) {
       try {
         task.currentRunStatus = 'WAITING';
-        const response = await api.triggerTask(task.classMethodName);
+        const response = await api.triggerTask(task.class_method_name);
         if (!response.success) {
           this.$message(response.message, 'error');
         } else {
@@ -611,7 +613,7 @@ export default {
     getTaskStatus(classMethodName) {
 
       const arr = this.tasks.filter((item) => {
-        return item.classMethodName === classMethodName
+        return item.class_method_name === classMethodName
       })
       if (arr.length > 0) {
         return arr[0].currentRunStatus
