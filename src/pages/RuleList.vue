@@ -506,7 +506,9 @@ export default {
       },
 
       //系统配置
-      standardConfig: {},
+      standardConfig: {
+        ai_chat_enable:false
+      },
       //用于测试的视频地址
       // 测试结果数据
 
@@ -530,6 +532,11 @@ export default {
     this.dataInit();
 
     this.standardConfig = JSON.parse(localStorage.getItem("standardConfig"));
+    if (!this.standardConfig) {
+      this.standardConfig = {
+        ai_chat_enable:false
+      }
+    }
   },
 
   watch: {
