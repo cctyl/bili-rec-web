@@ -399,8 +399,13 @@ export default {
     async recheck(video) {
       try {
         // 同时调用白名单和黑名单检查
-        const resp = await api.checkVideo(video.bvid)
-
+        // const resp = await api.checkVideo(video.bvid)
+        const resp = await api.testRule({
+          bvid: video.bvid,
+          ai_chat_enable: true,
+          single_match_enable: false,
+          complex_match_enable: false,
+        });
         if ( resp.code === 200) {
           // 更新视频的检查结果
           this.$set(video, 'recheckResult', true);

@@ -340,14 +340,12 @@ export default {
      * @returns {Promise<unknown>}
      */
     processVideo(id, handleType, reason,reHandle=false) {
-        const params = new URLSearchParams();
-        params.append('id', id);
-        params.append('handleType', handleType);
-        params.append('reHandle', reHandle);
-        if (reason) {
-            params.append('reason', reason);
-        }
-        return ajax(`/task/process?${params.toString()}`, null, 'PUT');
+        return ajax(`/task/second-process`, {
+             id: id,
+             handle_type: handleType,
+             user_handle_reason: reason,
+            re_handle:reHandle
+        }, 'POST');
     },
 
     /**
