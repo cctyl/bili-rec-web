@@ -5,9 +5,12 @@
       "mcp__chrome-devtools__take_snapshot",
       "Bash(find:*)",
       "Bash(wc:*)",
-      "Bash(npx @anthropic-ai/claude-code plugin install:*)"
+      "Bash(npx @anthropic-ai/claude-code plugin install:*)",
+      "Bash(npm run:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": []
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ]
 }
