@@ -275,7 +275,7 @@ export default {
      * @param mid
      */
     thumbUpUserVideo(mid){
-        return ajax(`/white-rule/thumb-up-all/${mid}`,null, 'POST');
+        return ajax(`/task/thumb-up-all?mid=${mid}&keyword=希望`,null, 'POST');
     },
 
 

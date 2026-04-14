@@ -207,8 +207,7 @@
     <div class="flex justify-between items-center mb-8 mt-8">
       <h2 class="text-2xl font-bold">白名单操作</h2>
     </div>
-<!--
-    &lt;!&ndash; 任务瀑布流布局 &ndash;&gt;
+    <!-- 任务瀑布流布局 -->
     <div class="flex flex-wrap gap-6">
 
 
@@ -228,7 +227,6 @@
 
 
     </div>
--->
 
   </div>
 
@@ -409,7 +407,7 @@ export default {
       const mid = this.$getMid(this.whiteSpaceUrl);
       if (mid) {
         try {
-          const response = await api.thumbUpUserVideo(mid);
+          const response = await api.thumbUpUserVideo(mid*1);
           if (response.success) {
             this.$message(response.message, 'success');
           }
