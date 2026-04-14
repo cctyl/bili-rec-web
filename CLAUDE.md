@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是一个基于 Vue 2 的前端项目，用于管理B站视频的黑白名单规则、任务管理和视频审核。项目使用 Vuex 进行状态管理，Vue Router 进行路由管理，Axios 进行 API 调用。
+这是一个基于 Vue 2 的前端项目，用于管理B站视频的黑白名单规则、任务管理和视频审核。项目使用 Vuex 进行状态管理，Vue Router 进行路由管理，Axios 进行 API �调用。
 
 ## 开发命令
 
@@ -35,7 +35,7 @@ npm run lint
 - **状态管理**: Vuex 3.6.2
 - **路由管理**: Vue Router 3.6.5
 - **HTTP 客户端**: Axios 1.7.9
-- **UI 框架**: TailwindCSS 3.4.17
+- **UI 框架**: TailwindCSS 3.4.。17
 - **图标库**: Font Awesome
 - **图表库**: ECharts 5.6.0
 - **二维码生成**: QRCode 1.5.4
@@ -63,23 +63,27 @@ src/
 7. **UP主观察 (WatchUploaderList)**: 监控特定UP主
 
 ### API 接口结构
-- **认证相关**: `checkAccessKey()`, `getWebQrCode()`, `checkScanResult()`
+所有 API 调用统一使用 `src/api/index.js` 中的方法：
+
+- **认证相关**: `checkAccessKey()`, `getWebQrCode()`, `checkScanResult()`, `checkTvScanResult()`, `getTvQrCode()`
 - **配置管理**: `getConfigList()`, `addOrUpdateConfig()`
-- **字典管理**: `getDictList()`, `addDict()`, `delDictById()`
+- **字典管理**: `getDictList()`, `addDict()`, `delDictById()`, `batchRemoveAndUpdate()`
 - **黑白名单**: `getWhiteRuleList()`, `getBlackKeyWordList()`, `trainWhiteRule()`
 - **任务管理**: `getTaskList()`, `updateTaskEnabled()`, `triggerTask()`
-- **视频处理**: `getReady2HandleVideo()`, `processVideo()`, `watchVideo()`
+- **视频处理**: `getReady2HandleVideo()`, `getAlreadyHandleVideo()`, `processVideo()`, `watchVideo()`, `testRule()`
+- **复合规则**: `getAssociateRule()`, `addAssociateRule()`, `updateRule()`, `delAssociateRule()`
+- **AI 聊天**: `testAiChat()`
 
 ### 状态管理
-使用 Vuex 管理全局状态，包括：
-- 用户认证状态
-- 系统配置数据
-- 任务列表状态
-- 黑白名单规则缓存
+使用 Vuex 管理全局状态，位于 `src/store/` 目录：
+- **state.js**: 存储全局状态（userInfo, standardConfig）
+- **actions.js**: 异步操作方法
+- **mutations.js**: 同步状态修改方法
+- **getters.js**: 计算属性
 
 ### 自定义插件
-- **MessagePlugin**: 全局消息提示组件
-- **Utils**: 通用工具函数
+- **MessagePlugin** (`src/plugins/message.js`): 全局消息提示组件，通过 `this.$message(message, type)` 调用
+- **Utils** (`src/plugins/utils.js`): 通用工具函数
 - **增强的 console.log**: 在 main.js 中重写了 console.log，自动添加文件名和行号信息
 
 ### 路由配置
@@ -87,22 +91,37 @@ src/
 - `/` -> 重定向到 `/home`
 - `/home` - 总览页面
 - `/tasks` - 任务管理
-- `/whitelist` - 白名单管理
-- `/blacklist` - 黑名单管理
+- `/whitelist` - 白名单管理（RuleList 组件，accessType: 'WHITE'）
+- `/blacklist` - 黑名单管理（RuleList 组件，accessType: 'BLACK'）
 - `/review` - 视频审核
 - `/history-video` - 历史记录
 - `/watch-uploader-list` - UP主观察
 - `/settings` - 系统设置
 - `/other-setting` - 其他设置
 
-### 开发注意事项
-0. ui风格和样式要保持一致，色调：primary: '#3B82F6',secondary: '#10B981'。
-1. **API 调用**: 所有 API 调用统一使用 `src/api/index.js` 中的方法
+
+
+### UI/UX 规范
+1. **色调**：保持一致的颜色风格
+   - Primary: `#3B82F6` (blue-600)
+   - Secondary: `#10B981` (green-600)
+   - 其他参考 TailwindCSS 颜色规范
+
+2. **组件样式**：使用 TailwindCSS 工具类优先，避免自定义 CSS（除非必要）
+
+3. **消息提示**：使用全局 `this.$message(message, type)` 方法显示提示消息
+
+### 开发规范
+1. **API 调用**: 所有 API 调kt统一使用 `src/api/index.js` 中的方法
 2. **状态更新**: 通过 Vuex actions 和 mutations 管理状态
-3. **组件复用**: common components 位于 `src/components/` 目录
-4. **样式**: 使用 TailwindCSS，样式类遵循工具类优先原则
-5. **错误处理**: API 调用错误统一在组件中处理
-6. **权限验证**: 在 App.vue 中进行登录状态检查
+3. **组件复用**: 通用组件位于 `src/components/` 目录
+4. **错误处理**: API 调用错误统一在组件中处理
+5. **权限验证**: 在 App.vue 中进行登录状态检查
+
+### TODO
+根据 README.md，以下是待办事项：
+1. 视频审核界面，当前页数据都处理完毕后自动刷新
+2. 视频审核界面，历史审核界面，增加观看历史记录
 
 ## Skills 索引
 
@@ -128,5 +147,3 @@ src/
 ### Skill 目录
 
 所有 Skill 定义在 `.claude/skills/` 目录下，每个 Skill 是一个独立的文件夹，包含 `SKILL.md` 文件。
-
-
