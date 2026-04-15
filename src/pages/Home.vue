@@ -23,7 +23,7 @@
           <h3 class="text-lg">当前运行任务数</h3>
           <i class="fas fa-tasks text-2xl text-primary"></i>
         </div>
-        <p class="text-3xl font-bold text-primary mb-1">{{ overview.runningTaskCount }}</p>
+        <p class="text-3xl font-bold text-primary mb-1">{{ overview.running_task_count }}</p>
         <p class="text-sm text-gray-400">活跃任务总数</p>
       </div>
 
@@ -32,7 +32,7 @@
           <h3 class="text-lg">黑名单规则数</h3>
           <i class="fas fa-ban text-2xl text-red-400"></i>
         </div>
-        <p class="text-3xl font-bold text-red-400 mb-1">{{ overview.blackRuleCount }}</p>
+        <p class="text-3xl font-bold text-red-400 mb-1">{{ overview.black_rule_count }}</p>
         <p class="text-sm text-gray-400">已设置的判断规则字典数（总计）</p>
       </div>
       <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
@@ -40,7 +40,7 @@
           <h3 class="text-lg">待筛选的黑名单关键词数</h3>
           <i class="fas fa-ban text-2xl text-orange-300"></i>
         </div>
-        <p class="text-3xl font-bold text-orange-300 mb-1">{{ overview.blackCacheCount }}</p>
+        <p class="text-3xl font-bold text-orange-300 mb-1">{{ overview.black_cache_count }}</p>
         <p class="text-sm text-gray-400">需要用户在黑名单管理页面底部去筛选的关键词</p>
       </div>
 
@@ -50,7 +50,7 @@
           <h3 class="text-lg">白名单规则数</h3>
           <i class="fas fa-check-circle text-2xl text-green-400"></i>
         </div>
-        <p class="text-3xl font-bold text-green-400">{{ overview.whiteRuleCount }}</p>
+        <p class="text-3xl font-bold text-green-400">{{ overview.white_rule_count }}</p>
         <p class="text-sm text-gray-400">已设置的判断规则字典数（总计）</p>
       </div>
       <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
@@ -58,7 +58,7 @@
           <h3 class="text-lg">搜索关键词数</h3>
           <i class="fas fa-search text-2xl text-pink-400"></i>
         </div>
-        <p class="text-3xl font-bold text-pink-400">{{ overview.searchKeywordCount }}</p>
+        <p class="text-3xl font-bold text-pink-400">{{ overview.search_keyword_count }}</p>
         <p class="text-sm text-gray-400 mt-2">用于搜索的关键词</p>
       </div>
       <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
@@ -66,7 +66,7 @@
           <h3 class="text-lg">已运行天数</h3>
           <i class="fas fa-calendar text-2xl text-yellow-400"></i>
         </div>
-        <p class="text-3xl font-bold text-yellow-400">{{ overview.runDays }}</p>
+        <p class="text-3xl font-bold text-yellow-400">{{ overview.run_days }}</p>
         <p class="text-sm text-gray-400 mt-2">稳定运行中</p>
       </div>
 
@@ -75,7 +75,7 @@
           <h3 class="text-lg">历史点赞数</h3>
           <i class="fas fa-thumbs-up text-2xl text-blue-400"></i>
         </div>
-        <p class="text-3xl font-bold text-blue-400">{{ overview.likeVideoCount }}</p>
+        <p class="text-3xl font-bold text-blue-400">{{ overview.like_video_count }}</p>
         <p class="text-sm text-gray-400 mt-2">历史点赞的视频总数</p>
       </div>
 
@@ -84,7 +84,7 @@
           <h3 class="text-lg">历史点踩数</h3>
           <i class="fas fa-thumbs-down text-2xl text-purple-400"></i>
         </div>
-        <p class="text-3xl font-bold text-purple-400">{{ overview.hateVideoCount }}</p>
+        <p class="text-3xl font-bold text-purple-400">{{ overview.hate_video_count }}</p>
         <p class="text-sm text-gray-400 mt-2">历史点踩的视频总数</p>
       </div>
     </div>
@@ -101,7 +101,7 @@
         </div>
         <div class="mt-4">
           <div class="flex items-baseline">
-            <span class="text-3xl font-bold">{{ overview.secondHandleCount }}</span>
+            <span class="text-3xl font-bold">{{ overview.second_handle_count }}</span>
             <span class="ml-2 text-sm text-gray-400">条</span>
           </div>
           <p class="mt-2 text-sm text-gray-400">等待二次处理的数据，即左侧的视频审核菜单</p>
@@ -118,7 +118,7 @@
         </div>
         <div class="mt-4">
           <div class="flex items-baseline">
-            <span class="text-3xl font-bold">{{ overview.thirdHandleCount }}</span>
+            <span class="text-3xl font-bold">{{ overview.third_handle_count }}</span>
             <span class="ml-2 text-sm text-gray-400">条</span>
           </div>
           <p class="mt-2 text-sm text-gray-400">等待三次处理的数据</p>
@@ -151,7 +151,7 @@
       <h2 class="text-xl font-bold mb-4">任务信息</h2>
 
       <!-- 任务列表为空时的提示 -->
-      <div v-if="!overview.taskList || overview.taskList.length === 0"
+      <div v-if="!overview.task_list || overview.task_list.length === 0"
            class="flex flex-col items-center justify-center py-8">
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-12 w-12 text-gray-500 mb-4"
@@ -169,28 +169,30 @@
 
       <!-- 任务列表内容 -->
       <div v-else class="space-y-4">
-        <div v-for="(task, index) in overview.taskList"
+        <div v-for="(task, index) in overview.task_list"
              :key="task.id"
              class="bg-gray-700 p-4 rounded-lg"
              :class="{
-            'border-l-4 border-green-500 bg-gray-600': task.currentRunStatus === 'RUNNING',
-            'border-l-4 border-yellow-400': task.currentRunStatus === 'WAITING'
+            'border-l-4 border-green-500 bg-gray-600': task.current_run_status === 'RUNNING',
+            'border-l-4 border-yellow-400': task.current_run_status === 'WAITING'
         }">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center">
-              <span class="font-semibold">{{ task.taskName }}</span>
-              <span v-if="task.currentRunStatus === 'RUNNING'"
+              <span class="font-semibold">{{ task.task_name }}</span>
+              <span v-if="task.current_run_status === 'RUNNING'"
                     class="ml-2 px-2 py-1 text-xs bg-green-500 text-white rounded">运行中</span>
               <span v-if="index === 1"
                     class="ml-2 px-2 py-1 text-xs bg-yellow-400 text-black rounded">下一个</span>
             </div>
-            <span class="text-sm text-gray-400">上次运行: {{ task.lastRunTime }}</span>
+            <span class="text-sm text-gray-400">上次运行: {{ formatTime(task.last_run_time) }}</span>
           </div>
 
-          <p class="text-sm text-gray-400 mb-2">{{ task.description }}</p>
+          <p class="text-sm text-gray-400 mb-2">{{ task.class_method_name }}</p>
 
           <div class="flex flex-wrap gap-4 text-sm text-gray-300">
-            <span>状态: {{getStatus(task.currentRunStatus)}}</span>
+            <span>状态: {{ getStatus(task.current_run_status) }}</span>
+            <span>总运行次数: {{ task.total_run_count }}</span>
+            <span>上次运行时长: {{ formatDuration(task.last_run_duration) }}</span>
           </div>
         </div>
       </div>
@@ -208,20 +210,20 @@ export default {
     return {
       chart: null,
       overview: {
-        "runningTaskCount": 0,
-        "blackRuleCount": 0,
-        "whiteRuleCount": 0,
-        "runDays": 0,
-        "whiteHistory": [
-        ],
-        "blackHistory": [
-        ],
-        "otherHistory": [
-        ],
-        "secondHandleCount": 0,
-        "thirdHandleCount": 0,
-        taskList: [
-        ]
+        "running_task_count": 0,
+        "black_rule_count": 0,
+        "white_rule_count": 0,
+        "run_days": 0,
+        "white_history": [],
+        "black_history": [],
+        "other_history": [],
+        "second_handle_count": 0,
+        "third_handle_count": 0,
+        "search_keyword_count": 0,
+        "black_cache_count": 0,
+        "like_video_count": 0,
+        "hate_video_count": 0,
+        "task_list": []
       },
       selectedYear: new Date().getFullYear(), // 默认当前年份
 
@@ -241,15 +243,14 @@ export default {
       this.chart = echarts.init(this.$refs.chartContainer)
       const processData = (data) => {
         return data.reduce((acc, item) => {
-          const [[date, value]] = Object.entries(item)
-          acc.dates.push(date)
-          acc.values.push(value)
+          acc.dates.push(item.date)
+          acc.values.push(item.count)
           return acc
         }, {dates: [], values: []})
       }
-      const whiteData = processData(this.overview.whiteHistory)
-      const blackData = processData(this.overview.blackHistory)
-      const otherData = processData(this.overview.otherHistory)
+      const whiteData = processData(this.overview.white_history)
+      const blackData = processData(this.overview.black_history)
+      const otherData = processData(this.overview.other_history)
 
       const option = {
         backgroundColor: 'transparent',
@@ -368,6 +369,17 @@ export default {
           return str;
       }
     },
+    formatTime(timeStr) {
+      if (!timeStr) return '无';
+      const date = new Date(timeStr);
+      return date.toLocaleString('zh-CN');
+    },
+    formatDuration(ms) {
+      if (!ms) return '无';
+      if (ms < 1000) return `${ms}ms`;
+      if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+      return `${(ms / 60000).toFixed(2)}min`;
+    }
   },
   mounted() {
     // this. initChart()
