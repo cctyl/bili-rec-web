@@ -130,7 +130,7 @@
     <div class="grid grid-cols-1 gap-6 mb-6">
       <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
         <h3 class="text-lg mb-4">历史处理数据统计</h3>
-        <div class="relative">
+        <div class="relative mb-4">
           <select
               @change="handleYearChange"
               v-model="selectedYear"
@@ -141,7 +141,9 @@
             </option>
           </select>
         </div>
-        <div ref="chartContainer" style="height: 400px;"></div>
+        <div ref="chartCard" style="max-height: 800px; overflow-y: auto; overflow-x: hidden;" class="custom-scrollbar">
+          <div ref="chartContainer" style="height: 400px; min-height: 400px;"></div>
+        </div>
       </div>
     </div>
 
@@ -252,6 +254,16 @@ export default {
       const blackData = processData(this.overview.black_history)
       const otherData = processData(this.overview.other_history)
 
+      // 获取所有日期并排序
+      const allDates = [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort()
+
+      // 动态计算图表高度：每天 22px + 边距
+      const chartHeight = Math.max(400, allDates.length * 22 + 100)
+
+      // 更新图表容器高度
+      this.$refs.chartContainer.style.height = `${chartHeight}px`
+      this.chart.resize()
+
       const option = {
         backgroundColor: 'transparent',
         tooltip: {
@@ -267,29 +279,13 @@ export default {
           }
         },
         grid: {
-          left: '3%',
+          left: '10%',
           right: '4%',
+          top: '10%',
           bottom: '3%',
           containLabel: true
         },
         xAxis: {
-          type: 'category',
-          data: [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort(),
-          axisLine: {
-            lineStyle: {
-              color: '#4B5563'
-            }
-          },
-          axisLabel: {
-            color: '#9CA3AF',
-            interval: 0,
-            rotate: 45
-          },
-          splitLine: {
-            show: false
-          }
-        },
-        yAxis: {
           type: 'value',
           axisLine: {
             lineStyle: {
@@ -306,35 +302,51 @@ export default {
             }
           }
         },
+        yAxis: {
+          type: 'category',
+          data: allDates,
+          axisLine: {
+            lineStyle: {
+              color: '#4B5563'
+            }
+          },
+          axisLabel: {
+            color: '#9CA3AF',
+            interval: 0
+          },
+          splitLine: {
+            show: false
+          }
+        },
         series: [
           {
             name: '点赞',
             type: 'bar',
-            barWidth: '20%',
+            barWidth: 15,
             data: whiteData.values,
             itemStyle: {
               color: '#10B981',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [0, 4, 4, 0]
             }
           },
           {
             name: '点踩',
             type: 'bar',
-            barWidth: '20%',
+            barWidth: 15,
             data: blackData.values,
             itemStyle: {
               color: '#EF4444',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [0, 4, 4, 0]
             }
           },
           {
             name: '其他',
             type: 'bar',
-            barWidth: '20%',
+            barWidth: 15,
             data: otherData.values,
             itemStyle: {
               color: '#F59E0B',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [0, 4, 4, 0]
             }
           }
         ]
