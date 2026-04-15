@@ -254,8 +254,33 @@ export default {
       const blackData = processData(this.overview.black_history)
       const otherData = processData(this.overview.other_history)
 
-      // 获取所有日期并排序
-      const allDates = [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort()
+      // 创建日期到值的映射
+      const createValueMap = (dates, values) => {
+        const map = {}
+        dates.forEach((date, index) => {
+          map[date] = values[index]
+        })
+        return map
+      }
+
+      const whiteValueMap = createValueMap(whiteData.dates, whiteData.values)
+      const blackValueMap = createValueMap(blackData.dates, blackData.values)
+      const otherValueMap = createValueMap(otherData.dates, otherData.values)
+
+      // 获取所有日期并排序（从小到大）
+      const allDatesSorted = [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort()
+
+      // 反转日期数组，让最新的日期显示在顶部
+      const allDates = [...allDatesSorted].reverse()
+
+      // 根数据值也按照反转后的日期顺序重新排列
+      const getReversedValues = (valueMap, sortedDates) => {
+        return [...sortedDates].reverse().map(date => valueMap[date] || 0)
+      }
+
+      const whiteReversedValues = getReversedValues(whiteValueMap, allDatesSorted)
+      const blackReversedValues = getReversedValues(blackValueMap, allDatesSorted)
+      const otherReversedValues = getReversedValues(otherValueMap, allDatesSorted)
 
       // 动态计算图表高度：每天 22px + 边距
       const chartHeight = Math.max(400, allDates.length * 22 + 100)
@@ -323,7 +348,7 @@ export default {
             name: '点赞',
             type: 'bar',
             barWidth: 15,
-            data: whiteData.values,
+            data: whiteReversedValues,
             itemStyle: {
               color: '#10B981',
               borderRadius: [0, 4, 4, 0]
@@ -333,7 +358,7 @@ export default {
             name: '点踩',
             type: 'bar',
             barWidth: 15,
-            data: blackData.values,
+            data: blackReversedValues,
             itemStyle: {
               color: '#EF4444',
               borderRadius: [0, 4, 4, 0]
@@ -343,7 +368,7 @@ export default {
             name: '其他',
             type: 'bar',
             barWidth: 15,
-            data: otherData.values,
+            data: otherReversedValues,
             itemStyle: {
               color: '#F59E0B',
               borderRadius: [0, 4, 4, 0]
