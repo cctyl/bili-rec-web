@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiliRec - Apple macOS 风格预览</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Apple System Colors
+                        'system-blue': '#007AFF',
+                        'system-green': '#34C759',
+                        'system-orange': '#FF9500',
+                        'system-red': '#FF3B30',
+                        'system-purple': '#AF52DE',
+                        'system-teal': '#5AC8FA',
+                        'system-yellow': '#FFCC00',
+                        'system-pink': '#FF2D55',
+                        'system-indigo': '#5856D6',
+                        // Semantic Colors (Light Mode)
+                        'label': '#000000',
+                        'secondary-label': 'rgba(0,0,0,0.5)',
+                        'tertiary-label': 'rgba(0,0,0,0.25)',
+                        'quaternary-label': 'rgba(0,0,0,0.1)',
+                        'separator': 'rgba(0,0,0,0.1)',
+                        'background': '#FFFFFF',
+                        'secondary-bg': '#F5F5F7',
+                        'tertiary-bg': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'apple': '5px',
+                        'apple-lg': '7px',
+                        'apple-xl': '10px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+        }
+        
+        body {
+            background-color: #F5F5F7;
+            color: #000000;
+        }
+        
+        /* Apple 风格卡片 - 平铺式，微弱阴影 */
+        .apple-card {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.06);
+            transition: all 0.15s ease-out;
+        }
+        
+        .apple-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        /* Apple Sidebar */
+        .apple-sidebar {
+            width: 240px;
+            background-color: #E8E8ED;
+            border-right: 1px solid rgba(0,0,0,0.08);
+        }
+        
+        .apple-nav-item {
+            height: 28px;
+            padding: 0 12px;
+            margin: 2px 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(0,0,0,0.85);
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+        }
+        
+        .apple-nav-item:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .apple-nav-item.active {
+            background-color: #007AFF;
+            color: #FFFFFF;
+        }
+        
+        /* Apple Section Header */
+        .apple-section-header {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.4);
+            text-transform: none;
+            letter-spacing: 0;
+            padding: 8px 12px 4px;
+        }
+        
+        /* Apple Buttons */
+        .apple-btn {
+            height: 22px;
+            padding: 0 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+            border: none;
+        }
+        
+        .apple-btn-primary {
+            background-color: #007AFF;
+            color: #FFFFFF;
+        }
+        
+        .apple-btn-primary:hover {
+            background-color: #0066CC;
+        }
+        
+        .apple-btn-secondary {
+            background-color: rgba(0,0,0,0.05);
+            color: #000000;
+        }
+        
+        .apple-btn-secondary:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .apple-btn-large {
+            height: 28px;
+            padding: 0 16px;
+            border-radius: 7px;
+        }
+        
+        /* Apple Segmented Control */
+        .apple-segmented {
+            background-color: #E8E8ED;
+            padding: 3px;
+            border-radius: 7px;
+            display: inline-flex;
+            gap: 2px;
+        }
+        
+        .apple-segment {
+            height: 20px;
+            padding: 0 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(0,0,0,0.5);
+            transition: all 0.15s ease-out;
+            flex: 1;
+        }
+        
+        .apple-segment:hover {
+            color: rgba(0,0,0,0.75);
+        }
+        
+        .apple-segment.active {
+            background-color: #FFFFFF;
+            color: #1D1D1F;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.12);
+        }
+        
+        /* Apple Switch */
+        .apple-switch {
+            width: 34px;
+            height: 20px;
+            background-color: #E8E8ED;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+        }
+        
+        .apple-switch.active {
+            background-color: #34C759;
+        }
+        
+        .apple-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.15s ease-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .apple-switch.active::after {
+            transform: translateX(14px);
+        }
+        
+        /* Apple List Item */
+        .apple-list-item {
+            height: 40px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: background-color 0.1s ease-out;
+        }
+        
+        .apple-list-item:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        .apple-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Apple Typography */
+        .apple-large-title { font-size: 26px; font-weight: 700; line-height: 32px; }
+        .apple-title-1 { font-size: 22px; font-weight: 400; line-height: 28px; }
+        .apple-title-2 { font-size: 17px; font-weight: 400; line-height: 22px; }
+        .apple-headline { font-size: 15px; font-weight: 600; line-height: 20px; }
+        .apple-body { font-size: 13px; font-weight: 400; line-height: 18px; }
+        .apple-callout { font-size: 12px; font-weight: 400; line-height: 16px; }
+        .apple-subheadline { font-size: 11px; font-weight: 400; line-height: 14px; }
+        .apple-footnote { font-size: 10px; font-weight: 400; line-height: 13px; }
+        .apple-caption { font-size: 10px; font-weight: 400; line-height: 13px; }
+        
+        /* Apple Status Badge */
+        .apple-badge {
+            height: 16px;
+            padding: 0 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .apple-badge-success {
+            background-color: rgba(52, 199, 89, 0.15);
+            color: #248A3D;
+        }
+        
+        .apple-badge-warning {
+            background-color: rgba(255, 149, 0, 0.15);
+            color: #B76D00;
+        }
+        
+        .apple-badge-error {
+            background-color: rgba(255, 59, 48, 0.15);
+            color: #C41C14;
+        }
+        
+        /* Apple Toolbar */
+        .apple-toolbar {
+            height: 52px;
+            background-color: #E8E8ED;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+        
+        /* Apple Window Controls */
+        .apple-window-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .apple-window-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .apple-close { background-color: #FF5F57; }
+        .apple-minimize { background-color: #FFBD2E; }
+        .apple-maximize { background-color: #28CA41; }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.25);
+        }
+        
+        /* Focus Ring */
+        .apple-focus:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Apple Sidebar -->
+        <aside class="apple-sidebar flex flex-col">
+            <!-- Window Controls (macOS style) -->
+            <div class="h-12 flex items-center px-4">
+                <div class="apple-window-controls">
+                    <div class="apple-window-btn apple-close"></div>
+                    <div class="apple-window-btn apple-minimize"></div>
+                    <div class="apple-window-btn apple-maximize"></div>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="px-3 mb-2">
+                <div class="h-22px bg-white rounded-apple flex items-center px-3 gap-2 shadow-sm">
+                    <i class="fas fa-search text-xs text-black/40"></i>
+                    <input type="text" placeholder="搜索" class="bg-transparent text-13px outline-none w-full py-1">
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-auto py-2">
+                <div class="apple-section-header">概览</div>
+                <div class="apple-nav-item active">
+                    <i class="fas fa-chart-line w-4 text-center"></i>
+                    <span>总览</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-tasks w-4 text-center"></i>
+                    <span>任务管理</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-eye w-4 text-center"></i>
+                    <span>视频审核</span>
+                    <span class="ml-auto apple-badge apple-badge-warning">12</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-history w-4 text-center"></i>
+                    <span>历史记录</span>
+                </div>
+                
+                <div class="apple-section-header">配置</div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-wrench w-4 text-center"></i>
+                    <span>其他配置</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-check-circle w-4 text-center"></i>
+                    <span>白名单</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-ban w-4 text-center"></i>
+                    <span>黑名单</span>
+                </div>
+                <div class="apple-nav-item">
+                    <i class="fas fa-cog w-4 text-center"></i>
+                    <span>系统配置</span>
+                </div>
+            </nav>
+            
+            <!-- User -->
+            <div class="p-3 border-t border-black/5">
+                <div class="apple-nav-item">
+                    <div class="w-4 h-4 rounded-full bg-system-blue flex items-center justify-center">
+                        <i class="fas fa-user text-white text-8px"></i>
+                    </div>
+                    <span>管理员</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Toolbar -->
+            <header class="apple-toolbar">
+                <div class="flex-1">
+                    <h1 class="apple-headline">总览</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="apple-segmented">
+                        <div class="apple-segment active">今日</div>
+                        <div class="apple-segment">本周</div>
+                        <div class="apple-segment">本月</div>
+                    </div>
+                    <button class="apple-btn apple-btn-primary">
+                        <i class="fas fa-sync-alt text-xs"></i>
+                        <span>刷新</span>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="flex-1 overflow-auto p-5">
+                <!-- Stats Grid - 平铺式布局 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+                    <!-- Stat 1 -->
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.05s">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-8 h-8 rounded-apple bg-system-blue/10 flex items-center justify-center">
+                                <i class="fas fa-tasks text-system-blue text-sm"></i>
+                            </div>
+                            <span class="apple-badge apple-badge-success">运行中</span>
+                        </div>
+                        <p class="apple-title-1">8</p>
+                        <p class="apple-callout text-black/50">当前运行任务数</p>
+                    </div>
+                    
+                    <!-- Stat 2 -->
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.1s">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-8 h-8 rounded-apple bg-system-red/10 flex items-center justify-center">
+                                <i class="fas fa-ban text-system-red text-sm"></i>
+                            </div>
+                            <span class="apple-footnote text-black/40">已设置</span>
+                        </div>
+                        <p class="apple-title-1">156</p>
+                        <p class="apple-callout text-black/50">黑名单规则数</p>
+                    </div>
+                    
+                    <!-- Stat 3 -->
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.15s">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-8 h-8 rounded-apple bg-system-green/10 flex items-center justify-center">
+                                <i class="fas fa-check-circle text-system-green text-sm"></i>
+                            </div>
+                            <span class="apple-footnote text-black/40">已设置</span>
+                        </div>
+                        <p class="apple-title-1">89</p>
+                        <p class="apple-callout text-black/50">白名单规则数</p>
+                    </div>
+                    
+                    <!-- Stat 4 -->
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.2s">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-8 h-8 rounded-apple bg-system-orange/10 flex items-center justify-center">
+                                <i class="fas fa-calendar text-system-orange text-sm"></i>
+                            </div>
+                            <span class="apple-footnote text-black/40">稳定运行</span>
+                        </div>
+                        <p class="apple-title-1">128</p>
+                        <p class="apple-callout text-black/50">已运行天数</p>
+                    </div>
+                </div>
+                
+                <!-- Secondary Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.25s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="apple-callout text-black/50">待审核视频</p>
+                                <p class="apple-title-2 mt-1">12</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-apple-lg bg-system-blue/10 flex items-center justify-center">
+                                <i class="fas fa-video text-system-blue"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="apple-footnote text-system-green">
+                                <i class="fas fa-arrow-up mr-1"></i>23%
+                            </span>
+                            <span class="apple-footnote text-black/40">较昨日</span>
+                        </div>
+                    </div>
+                    
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.3s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="apple-callout text-black/50">历史点赞</p>
+                                <p class="apple-title-2 mt-1">3,456</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-apple-lg bg-system-green/10 flex items-center justify-center">
+                                <i class="fas fa-thumbs-up text-system-green"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="apple-footnote text-system-green">
+                                <i class="fas fa-arrow-up mr-1"></i>156
+                            </span>
+                            <span class="apple-footnote text-black/40">今日新增</span>
+                        </div>
+                    </div>
+                    
+                    <div class="apple-card p-4 animate-fade-in" style="animation-delay: 0.35s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="apple-callout text-black/50">历史点踩</p>
+                                <p class="apple-title-2 mt-1">892</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-apple-lg bg-system-red/10 flex items-center justify-center">
+                                <i class="fas fa-thumbs-down text-system-red"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="apple-footnote text-system-red">
+                                <i class="fas fa-arrow-up mr-1"></i>42
+                            </span>
+                            <span class="apple-footnote text-black/40">今日新增</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart Section -->
+                <div class="apple-card p-5 mb-5 animate-fade-in" style="animation-delay: 0.4s">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="apple-headline">历史处理数据统计</h3>
+                        <select class="apple-body bg-secondary-bg border border-black/10 rounded-apple px-3 py-1 outline-none focus:border-system-blue">
+                            <option>2026年</option>
+                            <option>2025年</option>
+                            <option>2024年</option>
+                        </select>
+                    </div>
+                    <div class="h-48 flex items-end justify-around gap-1">
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 60%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 30%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 10%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">1月</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 75%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 25%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 15%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">2月</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 50%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 40%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 20%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">3月</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 80%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 20%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 12%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">4月</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 65%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 35%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 18%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">5月</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 gap-2">
+                            <div class="w-full flex gap-0.5 justify-center" style="height: 120px;">
+                                <div class="w-1.5 bg-system-green/60 rounded-t" style="height: 70%"></div>
+                                <div class="w-1.5 bg-system-red/60 rounded-t" style="height: 28%"></div>
+                                <div class="w-1.5 bg-system-orange/60 rounded-t" style="height: 22%"></div>
+                            </div>
+                            <span class="apple-footnote text-black/40">6月</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-6 mt-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-system-green/60 rounded-sm"></div>
+                            <span class="apple-callout text-black/50">点赞</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-system-red/60 rounded-sm"></div>
+                            <span class="apple-callout text-black/50">点踩</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-system-orange/60 rounded-sm"></div>
+                            <span class="apple-callout text-black/50">其他</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Task List -->
+                <div class="apple-card animate-fade-in" style="animation-delay: 0.45s">
+                    <div class="px-4 py-3 border-b border-black/5">
+                        <h3 class="apple-headline">任务信息</h3>
+                    </div>
+                    <div>
+                        <div class="apple-list-item">
+                            <div class="w-7 h-7 rounded-apple bg-system-green/10 flex items-center justify-center">
+                                <i class="fas fa-sync-alt text-system-green text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="apple-body truncate">自动点赞任务</p>
+                                <p class="apple-footnote text-black/40 truncate">io.github.cctyl.controller.Task</p>
+                            </div>
+                            <span class="apple-badge apple-badge-success mr-3">运行中</span>
+                            <div class="apple-switch active"></div>
+                        </div>
+                        
+                        <div class="apple-list-item">
+                            <div class="w-7 h-7 rounded-apple bg-system-orange/10 flex items-center justify-center">
+                                <i class="fas fa-clock text-system-orange text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="apple-body truncate">定时扫描任务</p>
+                                <p class="apple-footnote text-black/40 truncate">io.github.cctyl.controller.ScanTask</p>
+                            </div>
+                            <div class="flex items-center gap-2 mr-3">
+                                <span class="apple-badge apple-badge-warning">排队中</span>
+                                <span class="apple-footnote text-system-blue">下一个</span>
+                            </div>
+                            <div class="apple-switch active"></div>
+                        </div>
+                        
+                        <div class="apple-list-item">
+                            <div class="w-7 h-7 rounded-apple bg-black/5 flex items-center justify-center">
+                                <i class="fas fa-pause text-black/40 text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="apple-body truncate">数据清理任务</p>
+                                <p class="apple-footnote text-black/40 truncate">io.github.cctyl.controller.CleanTask</p>
+                            </div>
+                            <span class="apple-badge bg-black/5 text-black/50 mr-3">已停止</span>
+                            <div class="apple-switch"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video Review Preview -->
+                <div class="mt-5">
+                    <h3 class="apple-headline mb-3">视频审核预览</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Video Card 1 -->
+                        <div class="apple-card overflow-hidden animate-fade-in" style="animation-delay: 0.5s">
+                            <div class="relative h-40 overflow-hidden">
+                                <img src="https://picsum.photos/seed/video1/400/225" alt="视频封面" class="w-full h-full object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <span class="apple-badge apple-badge-success">待点赞</span>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded">
+                                    <span class="apple-footnote text-white">
+                                        <i class="fas fa-play mr-1"></i>12:34
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="apple-body font-medium truncate mb-1">这是一个示例视频标题，展示 Apple 风格设计</h4>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-5 h-5 rounded-full bg-system-blue flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-8px"></i>
+                                    </div>
+                                    <span class="apple-callout text-black/50">UP主名称</span>
+                                </div>
+                                <p class="apple-callout text-black/40 truncate mb-3">视频描述内容...</p>
+                                <div class="flex gap-2">
+                                    <button class="apple-btn apple-btn-primary flex-1 apple-focus">
+                                        <i class="fas fa-thumbs-up text-xs"></i>
+                                        <span>确认点赞</span>
+                                    </button>
+                                    <button class="apple-btn apple-btn-secondary flex-1 apple-focus">
+                                        <i class="fas fa-thumbs-down text-xs"></i>
+                                        <span>点踩</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Video Card 2 -->
+                        <div class="apple-card overflow-hidden animate-fade-in" style="animation-delay: 0.55s">
+                            <div class="relative h-40 overflow-hidden">
+                                <img src="https://picsum.photos/seed/video2/400/225" alt="视频封面" class="w-full h-full object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <span class="apple-badge apple-badge-warning">待点踩</span>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded">
+                                    <span class="apple-footnote text-white">
+                                        <i class="fas fa-play mr-1"></i>08:52
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="apple-body font-medium truncate mb-1">另一个示例视频，展示不同的状态样式</h4>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-5 h-5 rounded-full bg-system-purple flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-8px"></i>
+                                    </div>
+                                    <span class="apple-callout text-black/50">另一个UP主</span>
+                                </div>
+                                <p class="apple-callout text-black/40 truncate mb-3">另一个视频的描述内容...</p>
+                                <div class="flex gap-2">
+                                    <button class="apple-btn apple-btn-secondary flex-1 apple-focus">
+                                        <i class="fas fa-thumbs-up text-xs"></i>
+                                        <span>点赞</span>
+                                    </button>
+                                    <button class="apple-btn apple-btn-primary flex-1 apple-focus">
+                                        <i class="fas fa-thumbs-down text-xs"></i>
+                                        <span>确认点踩</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <footer class="mt-8 text-center">
+                    <p class="apple-footnote text-black/30">BiliRec © 2026 - 智能视频管理系统</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Switch toggle
+        document.querySelectorAll('.apple-switch').forEach(switchEl => {
+            switchEl.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+        
+        // Nav item click
+        document.querySelectorAll('.apple-nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.apple-nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Segmented control
+        document.querySelectorAll('.apple-segment').forEach(segment => {
+            segment.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.apple-segment').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
