@@ -1,47 +1,43 @@
 <template>
   <div
-      class="collapsible-card rounded-xl mb-6 overflow-hidden border"
+      class="collapsible-card rounded-xl mb-6 overflow-hidden"
       :class="[
       disabled 
-        ? 'bg-gray-800 border-gray-600 opacity-70' 
-        : 'bg-gray-800 border-gray-700 elevation-1'
+        ? 'bg-surface-container/50 opacity-70' 
+        : 'bg-surface-container elevation-1 hover:elevation-2 transition-all duration-200'
     ]"
   >
     <!-- 卡片头部 -->
     <div
         @click="handleToggle"
-        class="card-header flex items-center justify-between p-5 transition-all duration-200"
-        :class="[
-        disabled
-          ? 'cursor-not-allowed'
-          : 'cursor-pointer hover:bg-gray-750'
-      ]"
+        class="card-header flex items-center justify-between p-5 cursor-pointer hover:bg-surface-container-high transition-all duration-200"
+        :class="{ 'cursor-not-allowed': disabled }"
     >
       <div class="flex-1">
-        <h3 class="text-title-medium font-medium text-white flex items-center">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 transition-all duration-200"
-            :class="disabled ? 'bg-gray-700' : 'bg-blue-600'">
+        <h3 class="text-base font-medium text-on-surface flex items-center">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-all duration-200"
+            :class="disabled ? 'bg-surface-container-highest' : 'bg-primary-container'">
             <i :class="[
-              'fas text-sm transition-transform duration-200',
+              'fas text-lg transition-transform duration-200',
               disabled
-                ? 'fa-ban text-gray-400'
-                : (collapsed ? 'fa-chevron-right text-white' : 'fa-chevron-down text-white')
+                ? 'fa-ban text-on-surface-variant'
+                : (collapsed ? 'fa-chevron-right text-on-primary-container' : 'fa-chevron-down text-on-primary-container')
             ]"></i>
           </div>
           {{ title }}
           <!-- 禁用提示标签 -->
-          <span v-if="disabled" class="ml-3 text-label-small text-gray-400 bg-gray-700 px-2.5 py-1 rounded-full">
+          <span v-if="disabled" class="ml-3 text-xs text-on-surface-variant bg-surface-container-highest px-2.5 py-1 rounded-full">
             已禁用
           </span>
         </h3>
-        <p class="text-body-medium text-gray-400 mt-2 ml-11">{{ desc }}</p>
+        <p class="text-sm text-on-surface-variant mt-2 ml-13">{{ desc }}</p>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-label-medium" :class="disabled ? 'text-gray-500' : 'text-gray-400'">
+        <span class="text-xs" :class="disabled ? 'text-on-surface-variant/50' : 'text-on-surface-variant'">
           {{ getActionText }}
         </span>
         <i :class="[
-          'fas transition-transform duration-200 text-gray-400',
+          'fas transition-transform duration-200 text-on-surface-variant',
           disabled
             ? 'fa-ban'
             : (collapsed ? 'fa-chevron-right' : 'fa-chevron-down')
@@ -49,15 +45,15 @@
       </div>
     </div>
 
-    <!-- 禁用提示条（可选，更明显的提示） -->
-    <div v-if="disabled" class="bg-red-900/30 px-5 py-3 border-t border-gray-600">
-      <p class="text-body-small text-gray-300 flex items-center">
-        <i class="fas fa-info-circle mr-2 text-red-400"></i>
+    <!-- 禁用提示条 -->
+    <div v-if="disabled" class="bg-error-container/30 px-5 py-3 border-t border-outline-variant">
+      <p class="text-sm text-on-surface-variant flex items-center">
+        <i class="fas fa-info-circle mr-2 text-error"></i>
         {{ disabledTip }}
       </p>
     </div>
 
-    <div v-show="!collapsed && !disabled" class="card-content p-5 border-t border-gray-700">
+    <div v-show="!collapsed && !disabled" class="card-content p-5 border-t border-outline-variant">
       <slot></slot>
     </div>
   </div>
@@ -97,19 +93,10 @@ export default {
   methods: {
     handleToggle() {
       if (this.disabled) {
-        // 发出禁用点击事件，父组件可以监听并做进一步处理（如显示 toast）
         this.$emit('disabled-click');
         return;
       }
       this.$emit('toggle');
-    },
-    startTransition(el) {
-      el.style.height = '0';
-      el.style.overflow = 'hidden';
-    },
-    endTransition(el) {
-      el.style.height = '';
-      el.style.overflow = '';
     }
   }
 };
@@ -124,64 +111,15 @@ export default {
   user-select: none;
 }
 
-/* Material Typography - Title Medium */
-.text-title-medium {
-  font-size: 1rem;
-  line-height: 1.5rem;
-  letter-spacing: 0.015rem;
+.ml-13 {
+  margin-left: 3.25rem;
 }
 
-/* Material Typography - Body Medium */
-.text-body-medium {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  letter-spacing: 0.025rem;
-}
-
-/* Material Typography - Body Small */
-.text-body-small {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  letter-spacing: 0.025rem;
-}
-
-/* Material Typography - Label Small */
-.text-label-small {
-  font-size: 0.688rem;
-  line-height: 1rem;
-  letter-spacing: 0.031rem;
-  font-weight: 500;
-}
-
-/* Material Typography - Label Medium */
-.text-label-medium {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  letter-spacing: 0.031rem;
-  font-weight: 500;
-}
-
-/* Elevation */
 .elevation-1 {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
-/* 折叠动画 */
-.collapse-enter-active,
-.collapse-leave-active {
-  transition: height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
-  overflow: hidden;
-}
-
-.collapse-enter-from,
-.collapse-leave-to {
-  height: 0;
-  opacity: 0;
-}
-
-.collapse-enter-to,
-.collapse-leave-from {
-  height: auto;
-  opacity: 1;
+.elevation-2 {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 </style>
