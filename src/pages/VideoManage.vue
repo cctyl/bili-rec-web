@@ -408,9 +408,30 @@ export default {
     }
   },
   created() {
-    this.fetchVideoList()
+    this.initPageData()
+  },
+  watch: {
+    '$route.path'(newPath, oldPath) {
+      // 当在 /review 和 /history-video 之间切换时，重新初始化页面数据
+      if ((newPath === '/review' && oldPath === '/history-video') ||
+          (newPath === '/history-video' && oldPath === '/review')) {
+        this.initPageData()
+      }
+    }
   },
   methods: {
+    initPageData() {
+      // 重置页面状态
+      this.currentPage = 1
+      this.currentType = 'WHITE'
+      this.search = ''
+      this.processedVideos = new Set()
+      this.pendingCount = 0
+      this.confirmedCount = 0
+      this.videoList = []
+      this.total = 0
+      this.fetchVideoList()
+    },
     async fetchVideoList() {
       try {
         const params = {
