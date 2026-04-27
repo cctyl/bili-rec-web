@@ -314,7 +314,7 @@ export default {
       this.showTidModal = false;
       try {
         const response = await api.batchRemoveAndUpdate('WHITE', 'TID', dictArr);
-        if (!response.success) {
+        if (!response.code ===200) {
           this.$message(response.message,
               'error'
           );
@@ -405,7 +405,7 @@ export default {
       );
       if (confirmed) {
         const response = await api.delWhiteRuleById(item.id);
-        if (response.success) {
+        if (response.code ===200) {
           this.$message('删除成功',
               'success'
           );
@@ -456,7 +456,7 @@ export default {
 
 
       const response = await api.addOrUpdateWhiteRule(newItem);
-      if (response.success) {
+      if (response.code ===200) {
         this.$message('保存成功',
             'success'
         );

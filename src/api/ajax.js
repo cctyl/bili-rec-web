@@ -13,13 +13,10 @@ export default function ajax(url, data = {}, type = "GET") {
             withCredentials:false
         }).then(response => {
             response = response.data;
-            if (response.code!==200) {
-                // 对于非200响应，显示后端返回的message
-                vm.$message(response.message || '请求失败','error');
-            }
+            // 业务错误（code !== 200）由组件处理，避免重复弹窗
             resolve(response)
         }).catch(reason => {
-            // 处理错误响应
+            // 处理HTTP错误响应
             let errorMessage = '请求失败';
 
             // 尝试从响应中提取错误信息

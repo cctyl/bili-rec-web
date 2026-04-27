@@ -4,17 +4,7 @@
 export default {
 
 
-    /**
-     * 设置用户信息
-     * @param state
-     * @param value
-     * @constructor
-     */
-    SET_USER_INFO(state,value){
 
-        //修改state
-        state.userInfo=value
-    },
 
 
     /**

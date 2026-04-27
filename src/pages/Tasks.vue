@@ -319,7 +319,7 @@ export default {
 
           console.log(params);
           const response = await api.trainWhiteRule(params);
-          if (response.success) {
+          if (response.code ===200) {
             this.$message('训练任务已提交', 'success');
           } else {
             this.$message(response.message || '训练失败', 'error');
@@ -350,8 +350,10 @@ export default {
       if (mid) {
         try {
           const response = await api.BLACKUserVideo(mid, this.blackSpaceTrain);
-          if (response.success) {
+          if (response.code ===200) {
             this.$message(response.message, 'success');
+          } else {
+            this.$message(response.message || '操作失败', 'error');
           }
         } catch (error) {
           console.error('Failed to  saveVideoComment', error);
@@ -367,8 +369,10 @@ export default {
       if (mid) {
         try {
           const response = await api.thumbUpUserVideo(mid * 1);
-          if (response.success) {
+          if (response.code ===200) {
             this.$message(response.message, 'success');
+          } else {
+            this.$message(response.message || '操作失败', 'error');
           }
         } catch (error) {
           console.error('Failed to  saveVideoComment', error);
@@ -443,8 +447,10 @@ export default {
 
         try {
           const response = await api.disklikeByTid(tidArr);
-          if (response.success) {
-            this.$message(response.message, '任务已开始');
+          if (response.code ===200) {
+            this.$message(response.message, 'success');
+          } else {
+            this.$message(response.message || '操作失败', 'error');
           }
           this.fetchRegionList()
         } catch (error) {
@@ -458,8 +464,10 @@ export default {
       if (bvId) {
         try {
           const response = await api.saveVideoComment(bvId);
-          if (response.success) {
-            this.$message(response.message, '任务已开始');
+          if (response.code ===200) {
+            this.$message(response.message, 'success');
+          } else {
+            this.$message(response.message || '操作失败', 'error');
           }
         } catch (error) {
           console.error('Failed to  saveVideoComment', error);
@@ -501,7 +509,7 @@ export default {
       try {
         task.currentRunStatus = 'WAITING';
         const response = await api.triggerTask(task.class_method_name);
-        if (!response.success) {
+        if (!response.code ===200) {
           this.$message(response.message, 'error');
         } else {
           this.$message(response.message, 'success');

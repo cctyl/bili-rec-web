@@ -71,11 +71,10 @@ export default {
     async addKeyword(accessType, dictType, keywordItem) {
       try {
         const response = await api.addDict(keywordItem);
-        if (!response.success) {
-          this.$message(
-            response.message,
-           'error'
-          );
+        if (response.code ===200) {
+          this.$message(response.message || '添加成功', 'success');
+        } else {
+          this.$message(response.message || '添加失败', 'error');
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
@@ -92,10 +91,10 @@ export default {
 
       try {
         const response = await api.delDictById(keywordItem.id);
-        if (!response.success) {
-          this.$message(response.message,
-             'error'
-          );
+        if (response.code ===200) {
+          this.$message(response.message || '删除成功', 'success');
+        } else {
+          this.$message(response.message || '删除失败', 'error');
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
