@@ -1,469 +1,344 @@
 <template>
-  <div class="min-h-screen overflow-y-auto bg-gray-900" style="width: 100%">
-    <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-2rem)]">
-      <div class="mb-8 flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-white">待审核视频</h1>
-          <div class="flex space-x-2">
-            <span
-                v-for="type in handleTypes"
-                :key="type.value"
-                :class="[
-                'px-3 py-1 text-sm !rounded-button cursor-pointer',
-                currentType === type.value ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-              ]"
-                @click="handleTypeChange(type.value)"
-            >{{ type.label }}</span>
+  <div class="flex-1 p-6 overflow-y-auto custom-scrollbar">
+    <!-- Header Section -->
+    <header class="flex justify-between items-center mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+          <i class="fas fa-clipboard-check text-xl text-on-primary-container"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl font-medium text-on-surface">视频审核</h1>
+          <p class="text-sm text-on-surface-variant mt-1">审核待处理的视频内容</p>
+        </div>
+      </div>
+      
+      <!-- 统计信息 -->
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-full">
+          <div class="w-8 h-8 rounded-full bg-tertiary-container flex items-center justify-center">
+            <i class="fas fa-clock text-sm text-on-tertiary-container"></i>
+          </div>
+          <div>
+            <p class="text-xs text-on-surface-variant">待处理</p>
+            <p class="text-lg font-medium text-tertiary">{{ pendingCount }}</p>
           </div>
         </div>
-        <!-- 移除原一键处理按钮，只保留计数器 -->
-        <div class="flex items-center space-x-6">
-          <div class="flex items-center">
-            <span class="text-yellow-500">
-              <i class="fas fa-clock mr-2"></i>
-              待处理:
-            </span>
-            <span class="ml-2 text-xl font-bold text-yellow-400">{{ pendingCount }}</span>
+        <div class="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-full">
+          <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
+            <i class="fas fa-check-circle text-sm text-on-secondary-container"></i>
           </div>
-          <div class="flex items-center">
-            <span class="text-green-500">
-              <i class="fas fa-check-circle mr-2"></i>
-              已确认:
-            </span>
-            <span class="ml-2 text-xl font-bold text-green-400">{{ confirmedCount }}</span>
+          <div>
+            <p class="text-xs text-on-surface-variant">已确认</p>
+            <p class="text-lg font-medium text-secondary">{{ confirmedCount }}</p>
           </div>
         </div>
       </div>
+    </header>
 
-      <div class="flex-1 w-full flex flex-col">
-        <div v-if="videoList.length > 0" class="grid grid-cols-2 gap-6">
-          <div
-              v-for="video in videoList"
-              :key="video.bvid"
-              :class="[
-              'bg-gray-800 p-4 rounded-lg shadow-sm transition-all duration-500 video-card cursor-pointer',
-              video.processed ? 'opacity-50 processed-card' : ''
-            ]"
+    <!-- 分类标签 -->
+    <div class="flex gap-2 mb-6">
+      <button
+        v-for="type in handleTypes"
+        :key="type.value"
+        @click="handleTypeChange(type.value)"
+        class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
+        :class="currentType === type.value 
+          ? 'bg-secondary-container text-on-secondary-container' 
+          : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'"
+      >
+        {{ type.label }}
+      </button>
+    </div>
 
-          >
-            <div class="relative" @click="goToBilibili(video)">
-              <img
-                  :src="$getPic(video.pic)"
-                  :class="[
-                  'w-full h-48 object-cover rounded-lg',
-                  video.handleType === 'BLACK' ? 'blur-cover' : ''
-                ]"
-                  :alt="video.title"
-              >
-              <span :class="[
-                'absolute top-2 right-2 px-2 py-1 text-xs !rounded-button',
-                `tag-${video.handle_type.toLowerCase()}`
-              ]">{{ getHandleTypeLabel(video.handle_type) }}</span>
+    <!-- 视频列表 -->
+    <div class="flex-1 w-full flex flex-col">
+      <div v-if="videoList.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div
+          v-for="video in videoList"
+          :key="video.bvid"
+          class="bg-surface-container rounded-2xl overflow-hidden elevation-1 transition-all duration-300 border border-outline-variant/30"
+          :class="video.processed ? 'opacity-60 processed-card' : 'hover:elevation-2 hover:-translate-y-1'"
+        >
+          <!-- 视频封面区域 -->
+          <div class="relative overflow-hidden cursor-pointer group" @click="goToBilibili(video)">
+            <img
+              :src="$getPic(video.pic)"
+              class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+              :class="video.handleType === 'BLACK' ? 'blur-cover' : ''"
+              :alt="video.title"
+            >
+            <!-- 渐变遮罩 -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+            
+            <!-- 状态标签 - 左上角 -->
+            <span 
+              class="absolute top-4 left-4 px-4 py-1.5 text-xs font-medium rounded-full elevation-1"
+              :class="getHandleTypeClass(video.handle_type)"
+            >
+              {{ getHandleTypeLabel(video.handle_type) }}
+            </span>
+            
+            <!-- 播放图标 -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div class="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center elevation-2">
+                <i class="fas fa-play text-2xl text-on-primary ml-1"></i>
+              </div>
             </div>
-            <div class="mt-4">
-              <h3 class="text-lg font-medium text-white line-clamp-2">{{ video.title }}</h3>
-              <div class="mt-2 flex items-center text-sm text-gray-400">
-                <img :src="$getPic(video.owner?.face)" class="w-6 h-6 rounded-full" :alt="video.owner?.name">
-                <span class="ml-2">{{ video.owner?.name }}</span>
+          </div>
+
+          <!-- 视频信息区域 -->
+          <div class="p-5">
+            <!-- 标题 -->
+            <h3 class="text-lg font-medium text-on-surface line-clamp-2 mb-3 leading-snug">{{ video.title }}</h3>
+            
+            <!-- UP主信息 - Material 3 List Item 风格 -->
+            <div class="flex items-center gap-3 mb-4 p-3 bg-surface-container-high rounded-xl">
+              <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-outline-variant/50">
+                <template v-if="video.owner?.face">
+                  <img :src="$getPic(video.owner.face)" class="w-full h-full object-cover" :alt="video.owner?.name || 'UP主'">
+                </template>
+                <template v-else>
+                  <i class="fas fa-user text-lg text-on-surface-variant"></i>
+                </template>
               </div>
-              <p class="mt-2 text-sm text-gray-400 line-clamp-2">{{ video.desc }}</p>
-              <!-- 添加显示原因的部分 -->
-              <div v-if="shouldShowReason(video)" class="mt-2 text-sm">
-                <span class="text-gray-400">原因：</span>
-                <span :class="{
-                  'text-green-400': video.handle_type === 'WHITE',
-                  'text-red-400': video.handle_type === 'BLACK'
-                }" v-html="getReasonText(video)">
-
-                </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-on-surface truncate">{{ video.owner?.name || '-' }}</p>
+                <p class="text-xs text-on-surface-variant">UP主</p>
               </div>
-              <div class="mt-4 flex items-center justify-between">
-                <div class="flex space-x-2">
-                  <button
-                      :disabled="video.processed"
-                      @click.stop="handleVideo(video, 'WHITE')"
-                      :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handle_type === 'WHITE'
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
-                    ]"
-                  >
-                    <i class="fas fa-thumbs-up mr-2"></i>
-                    {{ video.handle_type === 'WHITE' ? '确认点赞' : '点赞' }}
-                  </button>
-                  <button
-                      :disabled="video.processed"
-                      @click.stop="handleVideo(video, 'BLACK')"
-                      :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handle_type === 'BLACK'
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
-                    ]"
-                  >
-                    <i class="fas fa-thumbs-down mr-2"></i>
-                    {{ video.handle_type === 'BLACK' ? '确认点踩' : '点踩' }}
-                  </button>
-                  <button
-                      :disabled="video.processed"
-                      @click.stop="handleVideo(video, 'OTHER')"
-                      :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
-                      video.handle_type === 'OTHER'
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
-                    ]"
-                  >
-                    <i class="fas fa-question-circle mr-2"></i>
-                    {{ video.handle_type === 'OTHER' ? '确认其他' : '其他' }}
-                  </button>
-                  <button
-                      @click.stop="recheck(video)"
-                      :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap relative',
-                      'bg-purple-500 text-white hover:bg-purple-600' // 改为紫色系
-                    ]"
-                  >
-                    <i class="fas fa-sync-alt mr-2"></i> <!-- 同时将图标改为同步图标 -->
-                    重新核验
-                    <!-- 添加 tooltip -->
-                    <div v-if="video.recheckResult"
-                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96"
-                         style="pointer-events: auto;"
-                    >
-                      <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm border border-gray-700">
-                        <!-- AI 匹配结果 -->
-                        <div v-if="video.matchResult.ai_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-robot mr-2" style="color: #8B5CF6;"></i>
-                            <span class="font-medium">AI 识别结果</span>
-                          </div>
-                          <div class="flex items-center text-gray-300 mb-1">
-                            <span class="text-gray-400 mr-2">类型：</span>
-                            <span>{{ getAccessTypeLabel(video.matchResult.ai_match.match_type) }}</span>
-                          </div>
-                          <div class="flex items-start text-gray-300">
-                            <span class="text-gray-400 mr-2 mt-0.5">原因：</span>
-                            <span>{{ video.matchResult.ai_match.reason }}</span>
-                          </div>
-                        </div>
-
-                        <!-- 单次匹配结果 -->
-                        <div v-if="video.matchResult.single_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-crosshairs mr-2" style="color: #3B82F6;"></i>
-                            <span class="font-medium">单次规则匹配</span>
-                            <span v-if="video.matchResult.single_match.match_type" class="ml-2 px-2 py-0.5 text-xs rounded" :class="{
-                              'bg-green-600 text-white': video.matchResult.single_match.match_type === 'WHITE',
-                              'bg-red-600 text-white': video.matchResult.single_match.match_type === 'BLACK'
-                            }">
-                              {{ getAccessTypeLabel(video.matchResult.single_match.match_type) }}
-                            </span>
-                          </div>
-                          <div class="space-y-1 text-gray-300">
-                            <div v-if="video.matchResult.single_match.mid && video.matchResult.single_match.mid.length > 0">
-                              <span class="text-gray-400 mr-2">UP主：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.mid) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.tid && video.matchResult.single_match.tid.length > 0">
-                              <span class="text-gray-400 mr-2">分区：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.tid) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.title && video.matchResult.single_match.title.length > 0">
-                              <span class="text-gray-400 mr-2">标题：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.title) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.desc && video.matchResult.single_match.desc.length > 0">
-                              <span class="text-gray-400 mr-2">描述：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.desc) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.tag && video.matchResult.single_match.tag.length > 0">
-                              <span class="text-gray-400 mr-2">标签：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.tag) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.cover && video.matchResult.single_match.cover.length > 0">
-                              <span class="text-gray-400 mr-2">封面：</span>
-                              <span>{{ formatArray(video.matchResult.single_match.cover) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.single_match.match_count !== undefined">
-                              <span class="text-gray-400 mr-2">匹配数：</span>
-                              <span>{{ video.matchResult.single_match.match_count }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 复杂匹配结果 -->
-                        <div v-if="video.matchResult.complex_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-project-diagram mr-2" style="color: #10B981;"></i>
-                            <span class="font-medium">复杂规则匹配</span>
-                            <span v-if="video.matchResult.complex_match.match_type" class="ml-2 px-2 py-0.5 text-xs rounded" :class="{
-                              'bg-green-600 text-white': video.matchResult.complex_match.match_type === 'WHITE',
-                              'bg-red-600 text-white': video.matchResult.complex_match.match_type === 'BLACK'
-                            }">
-                              {{ getAccessTypeLabel(video.matchResult.complex_match.match_type) }}
-                            </span>
-                          </div>
-                          <div class="space-y-1 text-gray-300">
-                            <div v-if="video.matchResult.complex_match.list_rule && video.matchResult.complex_match.list_rule.length > 0">
-                              <span class="text-gray-400 mr-2">联合规则：</span>
-                              <span>{{ formatArray(video.matchResult.complex_match.list_rule) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.complex_match.title_or_desc && video.matchResult.complex_match.title_or_desc.length > 0">
-                              <span class="text-gray-400 mr-2">标题或描述：</span>
-                              <span>{{ formatArray(video.matchResult.complex_match.title_or_desc) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.complex_match.tag_or_desc && video.matchResult.complex_match.tag_or_desc.length > 0">
-                              <span class="text-gray-400 mr-2">标签或描述：</span>
-                              <span>{{ formatArray(video.matchResult.complex_match.tag_or_desc) }}</span>
-                            </div>
-                            <div v-if="video.matchResult.complex_match.match_count !== undefined">
-                              <span class="text-gray-400 mr-2">匹配数：</span>
-                              <span>{{ video.matchResult.complex_match.match_count }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 用户处理原因 -->
-                        <div v-if="video.matchResult.user_handle_reason" class="text-gray-300">
-                          <div class="flex items-start">
-                            <i class="fas fa-user-edit mr-2 mt-0.5" style="color: #F59E0B;"></i>
-                            <div>
-                              <span class="text-gray-400 mr-2">处理原因：</span>
-                              <span>{{ video.matchResult.user_handle_reason }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 无匹配结果提示 -->
-                        <div v-if="!video.matchResult.ai_match && !video.matchResult.single_match && !video.matchResult.complex_match && !video.matchResult.user_handle_reason" class="text-gray-400">
-                          <i class="fas fa-info-circle mr-2"></i>未匹配任何规则
-                        </div>
-                      </div>
-                      <div class="tooltip-arrow"></div>
-                    </div>
-                  </button>
-                  <!-- 查看处理原因按钮 -->
-                  <button
-                      @click.stop="showHandleReasonDetail(video)"
-                      :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap relative',
-                      'bg-orange-500 text-white hover:bg-orange-600'
-                    ]"
-                  >
-                    <i class="fas fa-info-circle mr-2"></i>
-                    处理原因
-                    <!-- 处理原因详情 tooltip -->
-                    <div v-if="video.showingHandleReason"
-                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96"
-                         style="pointer-events: auto;"
-                    >
-                      <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm border border-gray-700">
-                        <!-- AI 匹配结果 -->
-                        <div v-if="video.handleReasonData?.ai_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-robot mr-2" style="color: #8B5CF6;"></i>
-                            <span class="font-medium">AI 识别结果</span>
-                          </div>
-                          <div class="flex items-center text-gray-300 mb-1">
-                            <span class="text-gray-400 mr-2">类型：</span>
-                            <span>{{ getAccessTypeLabel(video.handleReasonData.ai_match.match_type) }}</span>
-                          </div>
-                          <div class="flex items-start text-gray-300">
-                            <span class="text-gray-400 mr-2 mt-0.5">原因：</span>
-                            <span>{{ video.handleReasonData.ai_match.reason }}</span>
-                          </div>
-                        </div>
-
-                        <!-- 单次匹配结果 -->
-                        <div v-if="video.handleReasonData?.single_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-crosshairs mr-2" style="color: #3B82F6;"></i>
-                            <span class="font-medium">单次规则匹配</span>
-                            <span v-if="video.handleReasonData.single_match.match_type" class="ml-2 px-2 py-0.5 text-xs rounded" :class="{
-                              'bg-green-600 text-white': video.handleReasonData.single_match.match_type === 'WHITE',
-                              'bg-red-600 text-white': video.handleReasonData.single_match.match_type === 'BLACK'
-                            }">
-                              {{ getAccessTypeLabel(video.handleReasonData.single_match.match_type) }}
-                            </span>
-                          </div>
-                          <div class="space-y-1 text-gray-300">
-                            <div v-if="video.handleReasonData.single_match.mid && video.handleReasonData.single_match.mid.length > 0">
-                              <span class="text-gray-400 mr-2">UP主：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.mid) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.tid && video.handleReasonData.single_match.tid.length > 0">
-                              <span class="text-gray-400 mr-2">分区：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.tid) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.title && video.handleReasonData.single_match.title.length > 0">
-                              <span class="text-gray-400 mr-2">标题：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.title) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.desc && video.handleReasonData.single_match.desc.length > 0">
-                              <span class="text-gray-400 mr-2">描述：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.desc) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.tag && video.handleReasonData.single_match.tag.length > 0">
-                              <span class="text-gray-400 mr-2">标签：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.tag) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.cover && video.handleReasonData.single_match.cover.length > 0">
-                              <span class="text-gray-400 mr-2">封面：</span>
-                              <span>{{ formatArray(video.handleReasonData.single_match.cover) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.single_match.match_count !== undefined">
-                              <span class="text-gray-400 mr-2">匹配数：</span>
-                              <span>{{ video.handleReasonData.single_match.match_count }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 复杂匹配结果 -->
-                        <div v-if="video.handleReasonData?.complex_match" class="mb-3 pb-3 border-b border-gray-700">
-                          <div class="flex items-center mb-2">
-                            <i class="fas fa-project-diagram mr-2" style="color: #10B981;"></i>
-                            <span class="font-medium">复杂规则匹配</span>
-                            <span v-if="video.handleReasonData.complex_match.match_type" class="ml-2 px-2 py-0.5 text-xs rounded" :class="{
-                              'bg-green-600 text-white': video.handleReasonData.complex_match.match_type === 'WHITE',
-                              'bg-red-600 text-white': video.handleReasonData.complex_match.match_type === 'BLACK'
-                            }">
-                              {{ getAccessTypeLabel(video.handleReasonData.complex_match.match_type) }}
-                            </span>
-                          </div>
-                          <div class="space-y-1 text-gray-300">
-                            <div v-if="video.handleReasonData.complex_match.rule_name">
-                              <span class="text-gray-400 mr-2">规则名称：</span>
-                              <span>{{ video.handleReasonData.complex_match.rule_name }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.list_rule && video.handleReasonData.complex_match.list_rule.length > 0">
-                              <span class="text-gray-400 mr-2">联合规则：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.list_rule) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.title_or_desc && video.handleReasonData.complex_match.title_or_desc.length > 0">
-                              <span class="text-gray-400 mr-2">标题或描述：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.title_or_desc) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.tag_or_desc && video.handleReasonData.complex_match.tag_or_desc.length > 0">
-                              <span class="text-gray-400 mr-2">标签或描述：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.tag_or_desc) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.mid && video.handleReasonData.complex_match.mid.length > 0">
-                              <span class="text-gray-400 mr-2">UP主：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.mid) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.tid && video.handleReasonData.complex_match.tid.length > 0">
-                              <span class="text-gray-400 mr-2">分区：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.tid) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.title && video.handleReasonData.complex_match.title.length > 0">
-                              <span class="text-gray-400 mr-2">标题：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.title) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.desc && video.handleReasonData.complex_match.desc.length > 0">
-                              <span class="text-gray-400 mr-2">描述：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.desc) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.tag && video.handleReasonData.complex_match.tag.length > 0">
-                              <span class="text-gray-400 mr-2">标签：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.tag) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.cover && video.handleReasonData.complex_match.cover.length > 0">
-                              <span class="text-gray-400 mr-2">封面：</span>
-                              <span>{{ formatArray(video.handleReasonData.complex_match.cover) }}</span>
-                            </div>
-                            <div v-if="video.handleReasonData.complex_match.match_count !== undefined">
-                              <span class="text-gray-400 mr-2">匹配数：</span>
-                              <span>{{ video.handleReasonData.complex_match.match_count }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 用户处理原因 -->
-                        <div v-if="video.handleReasonData?.user_handle_reason" class="text-gray-300">
-                          <div class="flex items-start">
-                            <i class="fas fa-user-edit mr-2 mt-0.5" style="color: #F59E0B;"></i>
-                            <div>
-                              <span class="text-gray-400 mr-2">处理原因：</span>
-                              <span>{{ video.handleReasonData.user_handle_reason }}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 无处理原因提示 -->
-                        <div v-if="!video.handleReasonData?.ai_match && !video.handleReasonData?.single_match && !video.handleReasonData?.complex_match && !video.handleReasonData?.user_handle_reason" class="text-gray-400">
-                          <i class="fas fa-info-circle mr-2"></i>暂无原因
-                        </div>
-                      </div>
-                      <div class="tooltip-arrow"></div>
-                    </div>
-                  </button>
+            </div>
+            
+            <!-- 描述 -->
+            <p class="text-sm text-on-surface-variant line-clamp-2 mb-4 leading-relaxed">{{ video.desc }}</p>
+            
+            <!-- 原因显示 - Material 3 Banner 风格 -->
+            <div v-if="shouldShowReason(video)" class="mb-4 p-4 rounded-xl border-l-4"
+              :class="video.handle_type === 'WHITE' ? 'bg-secondary-container/50 border-secondary' : 'bg-error-container/50 border-error'"
+            >
+              <div class="flex items-start gap-2">
+                <i class="fas mt-0.5 text-sm" :class="video.handle_type === 'WHITE' ? 'fa-check-circle text-secondary' : 'fa-exclamation-circle text-error'"></i>
+                <div>
+                  <span class="text-xs font-medium text-on-surface-variant block mb-1">匹配原因</span>
+                  <span 
+                    class="text-sm text-on-surface"
+                    v-html="getReasonText(video)"
+                  ></span>
                 </div>
-                <span v-if="video.processed" class="text-green-500">
-                  <i class="fas fa-check-circle mr-1"></i>已处理
-                </span>
+              </div>
+            </div>
+
+            <!-- 操作按钮 - Material 3 Segmented Button 风格 -->
+            <div class="flex gap-2 mb-3">
+              <!-- 主操作按钮组 -->
+              <div class="flex-1 flex bg-surface-container-high rounded-full p-1">
+                <button
+                  :disabled="video.processed"
+                  @click.stop="handleVideo(video, 'WHITE')"
+                  class="flex-1 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  :class="video.handle_type === 'WHITE' && !video.processed
+                    ? 'bg-secondary text-on-secondary elevation-1' 
+                    : 'text-on-surface-variant hover:bg-surface-container-highest'"
+                >
+                  <i class="fas fa-thumbs-up"></i>
+                  <span>{{ video.handle_type === 'WHITE' ? '确认' : '点赞' }}</span>
+                </button>
+                <button
+                  :disabled="video.processed"
+                  @click.stop="handleVideo(video, 'BLACK')"
+                  class="flex-1 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  :class="video.handle_type === 'BLACK' && !video.processed
+                    ? 'bg-error text-on-error elevation-1' 
+                    : 'text-on-surface-variant hover:bg-surface-container-highest'"
+                >
+                  <i class="fas fa-thumbs-down"></i>
+                  <span>{{ video.handle_type === 'BLACK' ? '确认' : '点踩' }}</span>
+                </button>
+                <button
+                  :disabled="video.processed"
+                  @click.stop="handleVideo(video, 'OTHER')"
+                  class="flex-1 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  :class="video.handle_type === 'OTHER' && !video.processed
+                    ? 'bg-primary text-on-primary elevation-1' 
+                    : 'text-on-surface-variant hover:bg-surface-container-highest'"
+                >
+                  <i class="fas fa-question-circle"></i>
+                  <span>{{ video.handle_type === 'OTHER' ? '确认' : '其他' }}</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- 辅助操作按钮 -->
+            <div class="flex gap-2">
+              <button
+                @click.stop="recheck(video)"
+                class="flex-1 px-4 py-2.5 rounded-full text-sm font-medium bg-tertiary-container text-on-tertiary-container hover:bg-tertiary-container/80 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-sync-alt"></i>
+                <span>核验</span>
+              </button>
+              <button
+                @click.stop="showHandleReasonDetail(video)"
+                class="flex-1 px-4 py-2.5 rounded-full text-sm font-medium bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-info-circle"></i>
+                <span>原因</span>
+              </button>
+            </div>
+
+            <!-- 已处理标记 - Material 3 Chip 风格 -->
+            <div v-if="video.processed" class="mt-4 flex items-center justify-center">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container">
+                <i class="fas fa-check-circle"></i>
+                <span class="text-sm font-medium">已处理</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div v-else class="flex-1 w-full flex flex-col items-center justify-center">
-          <i class="fas fa-inbox text-6xl text-gray-600 mb-4"></i>
-          <p class="text-gray-400 text-lg">暂无待处理的视频</p>
-          <p class="text-gray-500 mt-2">请稍后再来查看或切换其他分类</p>
+      <!-- 空状态 -->
+      <div v-else class="flex-1 w-full flex flex-col items-center justify-center py-20">
+        <div class="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center mb-4">
+          <i class="fas fa-inbox text-3xl text-on-surface-variant"></i>
         </div>
+        <p class="text-on-surface-variant text-lg font-medium">暂无待处理的视频</p>
+        <p class="text-on-surface-variant/70 text-sm mt-1">请稍后再来查看或切换其他分类</p>
+      </div>
 
-        <div class="w-full mt-8">
-          <nav class="flex justify-center items-center space-x-2">
+      <!-- 分页 -->
+      <div v-if="totalPages > 1" class="w-full mt-8">
+        <nav class="flex justify-center items-center gap-2">
+          <button
+            class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
+            :class="currentPage === 1 
+              ? 'bg-surface-container-high text-on-surface-variant/50 cursor-not-allowed' 
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'"
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <template v-for="(item, index) in displayedPages">
+            <span
+              v-if="item === '...'"
+              :key="'ellipsis' + index"
+              class="px-3 py-2 text-on-surface-variant"
+            >...</span>
             <button
-                class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
-                :disabled="currentPage === 1"
-                @click="changePage(currentPage - 1)"
+              v-else
+              :key="item"
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 text-sm font-medium"
+              :class="currentPage === item 
+                ? 'bg-secondary-container text-on-secondary-container' 
+                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'"
+              @click="changePage(item)"
             >
-              <i class="fas fa-chevron-left"></i>
+              {{ item }}
             </button>
-            <template v-for="(item, index) in displayedPages">
-              <span
-                  v-if="item === '...'"
-                  :key="'ellipsis' + index"
-                  class="px-3 py-2 text-gray-500"
-              >...</span>
-              <button
-                  v-else
-                  :key="item"
-                  :class="[
-                  'px-3 py-2 !rounded-button',
-                  currentPage === item ? 'bg-blue-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-700'
-                ]"
-                  @click="changePage(item)"
-              >{{ item }}
-              </button>
-            </template>
-            <button
-                class="px-3 py-2 border border-gray-600 text-gray-300 !rounded-button hover:bg-gray-700"
-                :disabled="currentPage === totalPages"
-                @click="changePage(currentPage + 1)"
-            >
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </nav>
+          </template>
+          <button
+            class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
+            :class="currentPage === totalPages 
+              ? 'bg-surface-container-high text-on-surface-variant/50 cursor-not-allowed' 
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'"
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 一键处理悬浮按钮 -->
+    <button
+      @click="handleAllVideos"
+      :disabled="!videoList.length || isProcessing"
+      class="fixed right-6 bottom-6 px-6 py-3 rounded-full bg-primary text-on-primary font-medium elevation-2 hover:elevation-3 transition-all duration-300 flex items-center gap-2 z-50"
+      :class="(!videoList.length || isProcessing) ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'"
+    >
+      <i class="fas" :class="isProcessing ? 'fa-circle-notch fa-spin' : 'fa-magic'"></i>
+      <span>{{ isProcessing ? '处理中...' : '一键处理' }}</span>
+    </button>
+
+    <!-- Tooltip Modal for Recheck -->
+    <div v-if="activeTooltip" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="closeTooltip">
+      <div class="absolute inset-0 bg-black/50" @click="closeTooltip"></div>
+      <div class="bg-surface-container p-6 rounded-2xl elevation-3 max-w-lg w-full max-h-[80vh] overflow-y-auto relative">
+        <button @click="closeTooltip" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3 class="text-lg font-medium text-on-surface mb-4">核验结果</h3>
+        <!-- AI 匹配结果 -->
+        <div v-if="activeTooltip?.ai_match" class="mb-4 p-4 bg-surface-container-high rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-tertiary-container flex items-center justify-center">
+              <i class="fas fa-robot text-on-tertiary-container"></i>
+            </div>
+            <span class="font-medium text-on-surface">AI 识别结果</span>
+          </div>
+          <div class="text-sm text-on-surface-variant">
+            <p>类型：{{ getAccessTypeLabel(activeTooltip.ai_match.match_type) }}</p>
+            <p>原因：{{ activeTooltip.ai_match.reason }}</p>
+          </div>
+        </div>
+        <!-- 单次匹配结果 -->
+        <div v-if="activeTooltip?.single_match" class="mb-4 p-4 bg-surface-container-high rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+              <i class="fas fa-crosshairs text-on-primary-container"></i>
+            </div>
+            <span class="font-medium text-on-surface">单次规则匹配</span>
+            <span v-if="activeTooltip.single_match.match_type" 
+              class="px-2 py-0.5 text-xs rounded-full"
+              :class="activeTooltip.single_match.match_type === 'WHITE' ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'">
+              {{ getAccessTypeLabel(activeTooltip.single_match.match_type) }}
+            </span>
+          </div>
+          <div class="text-sm text-on-surface-variant space-y-1">
+            <p v-if="activeTooltip.single_match.mid?.length">UP主：{{ formatArray(activeTooltip.single_match.mid) }}</p>
+            <p v-if="activeTooltip.single_match.tid?.length">分区：{{ formatArray(activeTooltip.single_match.tid) }}</p>
+            <p v-if="activeTooltip.single_match.title?.length">标题：{{ formatArray(activeTooltip.single_match.title) }}</p>
+            <p v-if="activeTooltip.single_match.desc?.length">描述：{{ formatArray(activeTooltip.single_match.desc) }}</p>
+            <p v-if="activeTooltip.single_match.tag?.length">标签：{{ formatArray(activeTooltip.single_match.tag) }}</p>
+            <p v-if="activeTooltip.single_match.cover?.length">封面：{{ formatArray(activeTooltip.single_match.cover) }}</p>
+          </div>
+        </div>
+        <!-- 复杂匹配结果 -->
+        <div v-if="activeTooltip?.complex_match" class="mb-4 p-4 bg-surface-container-high rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center">
+              <i class="fas fa-project-diagram text-on-secondary-container"></i>
+            </div>
+            <span class="font-medium text-on-surface">复杂规则匹配</span>
+            <span v-if="activeTooltip.complex_match.match_type"
+              class="px-2 py-0.5 text-xs rounded-full"
+              :class="activeTooltip.complex_match.match_type === 'WHITE' ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'">
+              {{ getAccessTypeLabel(activeTooltip.complex_match.match_type) }}
+            </span>
+          </div>
+          <div class="text-sm text-on-surface-variant space-y-1">
+            <p v-if="activeTooltip.complex_match.list_rule?.length">联合规则：{{ formatArray(activeTooltip.complex_match.list_rule) }}</p>
+            <p v-if="activeTooltip.complex_match.title_or_desc?.length">标题或描述：{{ formatArray(activeTooltip.complex_match.title_or_desc) }}</p>
+            <p v-if="activeTooltip.complex_match.tag_or_desc?.length">标签或描述：{{ formatArray(activeTooltip.complex_match.tag_or_desc) }}</p>
+          </div>
+        </div>
+        <!-- 用户处理原因 -->
+        <div v-if="activeTooltip?.user_handle_reason" class="p-4 bg-surface-container-high rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+              <i class="fas fa-user-edit text-on-primary-container"></i>
+            </div>
+            <span class="font-medium text-on-surface">处理原因</span>
+          </div>
+          <p class="text-sm text-on-surface-variant">{{ activeTooltip.user_handle_reason }}</p>
+        </div>
+        <!-- 无结果提示 -->
+        <div v-if="!activeTooltip?.ai_match && !activeTooltip?.single_match && !activeTooltip?.complex_match && !activeTooltip?.user_handle_reason" class="p-4 bg-surface-container-high rounded-xl text-center">
+          <i class="fas fa-info-circle text-on-surface-variant mb-2"></i>
+          <p class="text-on-surface-variant">未匹配任何规则</p>
         </div>
       </div>
-    </main>
-
-    <!-- 添加悬浮固定的一键处理按钮 -->
-    <button
-        @click="handleAllVideos"
-        :disabled="!videoList.length || isProcessing"
-        class="fixed-process-btn"
-    >
-      <i class="fas fa-magic mr-2"></i>
-      <span>一键处理</span>
-      <span v-if="isProcessing" class="ml-2">
-        <i class="fas fa-circle-notch fa-spin"></i>
-      </span>
-    </button>
+    </div>
   </div>
 </template>
 
@@ -475,7 +350,6 @@ export default {
   data() {
     return {
       handleTypes: [
-
         {value: 'WHITE', label: '已点赞'},
         {value: 'BLACK', label: '已点踩'},
         {value: '', label: '全部'},
@@ -486,11 +360,12 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      processedVideos: new Set(), // 新增：用于跟踪已处理的视频
+      processedVideos: new Set(),
       pendingCount: 0,
       confirmedCount: 0,
-      isProcessing: false, // 新增：用于跟踪是否正在处理
+      isProcessing: false,
       timer: null,
+      activeTooltip: null,
     }
   },
   computed: {
@@ -502,7 +377,6 @@ export default {
       const current = this.currentPage
       const total = this.totalPages
 
-      // 当总页数小于等于7时，显示所有页码
       if (total <= 7) {
         for (let i = 1; i <= total; i++) {
           result.push(i)
@@ -510,25 +384,20 @@ export default {
         return result
       }
 
-      // 添加第一页
       result.push(1)
 
-      // 处理中间页码
       if (current <= 3) {
-        // 当前页靠近开始
         for (let i = 2; i <= 5; i++) {
           result.push(i)
         }
         result.push('...')
         result.push(total)
       } else if (current >= total - 2) {
-        // 当前页靠近结束
         result.push('...')
         for (let i = total - 4; i <= total; i++) {
           result.push(i)
         }
       } else {
-        // 当前页在中间
         result.push('...')
         for (let i = current - 1; i <= current + 1; i++) {
           result.push(i)
@@ -549,16 +418,14 @@ export default {
         const params = {
           page: this.currentPage,
           limit: this.pageSize,
-          handleType:  this.currentType,
+          handleType: this.currentType,
           search: '',
           handle_step: 1,
         }
         const response = await api.getAlreadyHandleVideo(params)
-        console.log(response)
         if (response.data) {
           this.videoList = response.data.records
           this.total = response.data.total
-          // 初始化待处理数量
           this.pendingCount = response.data.total
         }
       } catch (error) {
@@ -582,10 +449,18 @@ export default {
       }
       return typeMap[type] || '待处理'
     },
-    /**
-     * 重新核验数据
-     * @param video
-     */
+    getHandleTypeClass(type) {
+      switch (type) {
+        case 'WHITE':
+          return 'bg-secondary-container text-on-secondary-container'
+        case 'BLACK':
+          return 'bg-error-container text-on-error-container'
+        case 'OTHER':
+          return 'bg-surface-container-highest text-on-surface-variant'
+        default:
+          return 'bg-surface-container-highest text-on-surface-variant'
+      }
+    },
     async recheck(video) {
       try {
         const resp = await api.testRule({
@@ -595,45 +470,32 @@ export default {
           complex_match_enable: true,
         });
         if (resp.code === 200) {
-          // 更新视频的检查结果
-          this.$set(video, 'recheckResult', true);
-          this.$set(video, 'matchResult', resp.data);
-
-          // 6秒后自动隐藏 tooltip
-          setTimeout(() => {
-            this.$set(video, 'recheckResult', null);
-            this.$set(video, 'matchResult', null);
-          }, 6000);
+          this.activeTooltip = resp.data;
         }
       } catch (error) {
         this.$message('核验失败：' + error.message, 'error');
       }
     },
-
+    closeTooltip() {
+      this.activeTooltip = null;
+    },
     async handleVideo(video, newHandleType) {
       try {
         const reason = video.handle_type !== newHandleType ? '用户修改为' + newHandleType : undefined;
         await api.processVideo(video.id, newHandleType, reason, false);
 
-
-        // 使用 Vue.set 确保响应式更新
         this.$set(video, 'processed', true);
-        // 同时记录到 Set 中确保状态持久
         this.processedVideos.add(video.id);
 
-        // 更新计数
         this.pendingCount = Math.max(0, this.pendingCount - 1);
         this.confirmedCount++;
 
-
-        //已处理的视频数量
         const processedCount = this.videoList.filter(video => video.processed === true).length;
         if (processedCount === this.videoList.length) {
           this.$message('即将刷新页面', 'success');
           setTimeout(() => {
             this.fetchVideoList();
           }, 500)
-
         } else {
           this.$message('处理成功', 'success');
         }
@@ -664,7 +526,6 @@ export default {
       return (video.handle_type === 'WHITE' && video.thumbUpReason) ||
           (video.handle_type === 'BLACK' && video.blackReason);
     },
-
     getReasonText(video) {
       if (video.handle_type === 'WHITE') {
         return video.thumbUpReason;
@@ -693,49 +554,18 @@ export default {
       return typeMap[type] || type;
     },
     showHandleReasonDetail(video) {
-      // 如果已经在显示，则隐藏
-      if (video.showingHandleReason) {
-        this.$set(video, 'showingHandleReason', false);
-        return;
-      }
-
-      // handle_reason 后端返回的已经是对象，不需要 JSON.parse
-      const handleReasonData = video.handle_reason;
-
-      // 设置显示状态和数据
-      this.$set(video, 'showingHandleReason', true);
-      this.$set(video, 'handleReasonData', handleReasonData);
-
-      // 6秒后自动隐藏
-      setTimeout(() => {
-        this.$set(video, 'showingHandleReason', false);
-        this.$set(video, 'handleReasonData', null);
-      }, 6000);
+      this.activeTooltip = video.handle_reason;
     }
   }
 }
 </script>
 
 <style scoped>
-.video-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-}
-
-.tag-white {
-  background-color: #10B981;
-  color: white;
-}
-
-.tag-black {
-  background-color: #EF4444;
-  color: white;
-}
-
-.tag-other {
-  background-color: #6B7280;
-  color: white;
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .blur-cover {
@@ -744,80 +574,26 @@ export default {
 
 .processed-card {
   position: relative;
-  pointer-events: none;
-  border: 2px solid #10B981 !important;
-  background-color: rgba(16, 185, 129, 0.1) !important;
-  opacity: 0.7 !important;
+  border: 2px solid #4A4458;
 }
 
-.processed-card button {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-}
-
-.processed-card::before {
+.processed-card::after {
   content: '已处理';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(16, 185, 129, 0.9);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 1.2em;
+  background: rgba(74, 68, 88, 0.95);
+  color: #E8DEF8;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 500;
   z-index: 10;
 }
 
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  pointer-events: none;
-  background: linear-gradient(to right, #4B5563, #6B7280);
-}
-
-/* 添加悬浮按钮样式 */
-.fixed-process-btn {
-  position: fixed;
-  right: 40px;
-  bottom: 40px;
-  padding: 16px 24px;
-  background: linear-gradient(to right, #3B82F6, #2563EB);
-  color: white;
-  font-weight: 500;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-  transition: all 0.3s ease;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fixed-process-btn:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(to right, #2563EB, #1D4ED8);
-  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.6);
-}
-
-.fixed-process-btn:disabled {
-  background: linear-gradient(to right, #4B5563, #6B7280);
-  transform: none;
-  box-shadow: none;
-}
-
-.tooltip {
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.tooltip-arrow {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 8px 8px 0;
-  border-style: solid;
-  border-color: rgb(31, 41, 55) transparent transparent transparent;
 }
 </style>
