@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen overflow-y-auto bg-gray-900" style="width: 100%">
-    <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-2rem)]">
+    <main class="w-full mx-auto px-6 py-8 flex flex-col min-h-[calc(100vh-2rem)]">
       <div class="mb-8 flex justify-between items-center">
         <div class="flex items-center space-x-4">
           <h1 class="text-2xl font-bold text-white">{{ pageTitle }}</h1>
@@ -54,7 +54,7 @@
       </div>
 
       <div class="flex-1 w-full flex flex-col">
-        <div v-if="videoList.length > 0" class="grid grid-cols-2 gap-6">
+        <div v-if="videoList.length > 0" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           <div
               v-for="video in videoList"
               :key="video.bvid"
@@ -63,11 +63,11 @@
               video.processed ? 'opacity-50 processed-card' : ''
             ]"
           >
-            <div class="relative" @click="goToBilibili(video)">
+            <div class="relative aspect-video" @click="goToBilibili(video)">
               <img
                   :src="$getPic(video.pic)"
                   :class="[
-                  'w-full h-48 object-cover rounded-lg',
+                  'w-full h-full object-cover rounded-lg',
                   video.handle_type === 'BLACK' ? 'blur-cover' : ''
                 ]"
                   :alt="video.title"
@@ -93,64 +93,71 @@
                 }" v-html="getReasonText(video)">
                 </span>
               </div>
-              <div class="mt-4 flex items-center justify-between">
-                <div class="flex space-x-2">
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap gap-2">
                   <button
                       :disabled="video.processed"
                       @click.stop="handleVideo(video, 'WHITE')"
                       :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
+                      'px-3 py-1.5 text-sm !rounded-button whitespace-nowrap',
                       video.handle_type === 'WHITE'
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : (isReviewMode ? 'border border-gray-600 text-gray-300 hover:bg-gray-700' : 'border border-gray-600 text-gray-800 bg-orange-200')
                     ]"
                   >
-                    <i class="fas fa-thumbs-up mr-2"></i>
+                    <i class="fas fa-thumbs-up mr-1"></i>
                     {{ getWhiteButtonText(video) }}
                   </button>
                   <button
                       :disabled="video.processed"
                       @click.stop="handleVideo(video, 'BLACK')"
                       :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
+                      'px-3 py-1.5 text-sm !rounded-button whitespace-nowrap',
                       video.handle_type === 'BLACK'
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : (isReviewMode ? 'border border-gray-600 text-gray-300 hover:bg-gray-700' : 'border border-gray-600 text-gray-800 bg-orange-200')
                     ]"
                   >
-                    <i class="fas fa-thumbs-down mr-2"></i>
+                    <i class="fas fa-thumbs-down mr-1"></i>
                     {{ getBlackButtonText(video) }}
                   </button>
                   <button
                       :disabled="video.processed"
                       @click.stop="handleVideo(video, 'OTHER')"
                       :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap',
+                      'px-3 py-1.5 text-sm !rounded-button whitespace-nowrap',
                       video.handle_type === 'OTHER'
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : (isReviewMode ? 'border border-gray-600 text-gray-300 hover:bg-gray-700' : 'border border-gray-600 text-gray-800 bg-orange-200')
                     ]"
                   >
-                    <i class="fas fa-question-circle mr-2"></i>
+                    <i class="fas fa-question-circle mr-1"></i>
                     {{ getOtherButtonText(video) }}
                   </button>
                   <button
                       @click.stop="recheck(video)"
                       :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap relative',
+                      'px-3 py-1.5 text-sm !rounded-button whitespace-nowrap relative',
                       'bg-purple-500 text-white hover:bg-purple-600'
                     ]"
                   >
-                    <i class="fas fa-sync-alt mr-2"></i>
+                    <i class="fas fa-sync-alt mr-1"></i>
                     重新核验
                     <!-- 添加 tooltip -->
                     <div v-if="video.recheckResult"
-                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96"
-                         style="pointer-events: auto;"
+                         class="fixed z-50 w-96"
+                         style="pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%);"
                     >
                       <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm border border-gray-700">
+                        <!-- 关闭按钮 -->
+                        <button
+                          @click.stop="$set(video, 'recheckResult', false)"
+                          class="absolute top-2 right-2 text-gray-400 hover:text-white"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
                         <!-- AI 匹配结果 -->
-                        <div v-if="video.matchResult.ai_match" class="mb-3 pb-3 border-b border-gray-700">
+                        <div v-if="video.matchResult?.ai_match" class="mb-3 pb-3 border-b border-gray-700">
                           <div class="flex items-center mb-2">
                             <i class="fas fa-robot mr-2" style="color: #8B5CF6;"></i>
                             <span class="font-medium">AI 识别结果</span>
@@ -166,7 +173,7 @@
                         </div>
 
                         <!-- 单次匹配结果 -->
-                        <div v-if="video.matchResult.single_match" class="mb-3 pb-3 border-b border-gray-700">
+                        <div v-if="video.matchResult?.single_match" class="mb-3 pb-3 border-b border-gray-700">
                           <div class="flex items-center mb-2">
                             <i class="fas fa-crosshairs mr-2" style="color: #3B82F6;"></i>
                             <span class="font-medium">单次规则匹配</span>
@@ -210,7 +217,7 @@
                         </div>
 
                         <!-- 复杂匹配结果 -->
-                        <div v-if="video.matchResult.complex_match" class="mb-3 pb-3 border-b border-gray-700">
+                        <div v-if="video.matchResult?.complex_match" class="mb-3 pb-3 border-b border-gray-700">
                           <div class="flex items-center mb-2">
                             <i class="fas fa-project-diagram mr-2" style="color: #10B981;"></i>
                             <span class="font-medium">复杂规则匹配</span>
@@ -242,7 +249,7 @@
                         </div>
 
                         <!-- 用户处理原因 -->
-                        <div v-if="video.matchResult.user_handle_reason" class="text-gray-300">
+                        <div v-if="video.matchResult?.user_handle_reason" class="text-gray-300">
                           <div class="flex items-start">
                             <i class="fas fa-user-edit mr-2 mt-0.5" style="color: #F59E0B;"></i>
                             <div>
@@ -253,7 +260,7 @@
                         </div>
 
                         <!-- 无匹配结果提示 -->
-                        <div v-if="!video.matchResult.ai_match && !video.matchResult.single_match && !video.matchResult.complex_match && !video.matchResult.user_handle_reason" class="text-gray-400">
+                        <div v-if="!video.matchResult?.ai_match && !video.matchResult?.single_match && !video.matchResult?.complex_match && !video.matchResult?.user_handle_reason" class="text-gray-400">
                           <i class="fas fa-info-circle mr-2"></i>未匹配任何规则
                         </div>
                       </div>
@@ -262,21 +269,27 @@
                   </button>
                   <!-- 查看处理原因按钮 -->
                   <button
-                      v-if="isReviewMode"
                       @click.stop="showHandleReasonDetail(video)"
                       :class="[
-                      'px-4 py-2 !rounded-button whitespace-nowrap relative',
+                      'px-3 py-1.5 text-sm !rounded-button whitespace-nowrap relative',
                       'bg-orange-500 text-white hover:bg-orange-600'
                     ]"
                   >
-                    <i class="fas fa-info-circle mr-2"></i>
+                    <i class="fas fa-info-circle mr-1"></i>
                     处理原因
                     <!-- 处理原因详情 tooltip -->
                     <div v-if="video.showingHandleReason"
-                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96"
-                         style="pointer-events: auto;"
+                         class="fixed z-50 w-96"
+                         style="pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%);"
                     >
                       <div class="bg-gray-800 text-white p-4 rounded-lg shadow-lg text-sm border border-gray-700">
+                        <!-- 关闭按钮 -->
+                        <button
+                          @click.stop="$set(video, 'showingHandleReason', false)"
+                          class="absolute top-2 right-2 text-gray-400 hover:text-white"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
                         <!-- AI 匹配结果 -->
                         <div v-if="video.handleReasonData?.ai_match" class="mb-3 pb-3 border-b border-gray-700">
                           <div class="flex items-center mb-2">
@@ -629,37 +642,20 @@ export default {
     },
     async recheck(video) {
       try {
-        let resp
-        if (this.isReviewMode) {
-          resp = await api.testRule({
-            bvid: video.bvid,
-            ai_chat_enable: true,
-            single_match_enable: true,
-            complex_match_enable: true,
-          })
-        } else {
-          resp = await api.checkVideo(video.bvid)
-        }
+        const resp = await api.testRule({
+          bvid: video.bvid,
+          ai_chat_enable: true,
+          single_match_enable: true,
+          complex_match_enable: true,
+        })
 
         if (resp.code === 200) {
           this.$set(video, 'recheckResult', true)
-          if (this.isReviewMode) {
-            this.$set(video, 'matchResult', resp.data)
-          } else {
-            this.$set(video, 'whiteResult', resp.data.whiteResult)
-            this.$set(video, 'blackResult', resp.data.blackResult)
-            this.$set(video, 'thumbUpReason', resp.data.thumbUpReason)
-            this.$set(video, 'blackReason', resp.data.blackReason)
-          }
+          this.$set(video, 'matchResult', resp.data)
 
           setTimeout(() => {
             this.$set(video, 'recheckResult', null)
-            if (this.isReviewMode) {
-              this.$set(video, 'matchResult', null)
-            } else {
-              this.$set(video, 'whiteResult', null)
-              this.$set(video, 'blackResult', null)
-            }
+            this.$set(video, 'matchResult', null)
           }, 6000)
         }
       } catch (error) {
