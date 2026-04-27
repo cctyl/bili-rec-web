@@ -149,18 +149,19 @@
             :trigger="BLACKUserVideo"
             img="fas fa-user-slash"
             desc="输入用户主页地址，对该用户的所有视频进行点踩">
-          <div class="space-y-4">
+          <div class="space-y-3">
             <div class="relative">
-              <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"></i>
+              <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm"></i>
               <input placeholder="https://space.bilibili.com/123456"
                      v-model="blackSpaceUrl"
-                     class="w-full bg-surface-container-highest text-on-surface pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:outline-none focus:border-primary text-sm">
+                     class="w-full bg-surface-container-highest text-on-surface pl-9 pr-3 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-sm">
             </div>
-            <div class="flex items-center justify-between p-3 bg-surface-container-high rounded-lg">
+            <div class="flex items-center justify-between py-2">
               <span class="text-sm text-on-surface-variant">加入黑名单规则训练</span>
               <button @click="blackSpaceTrain = !blackSpaceTrain"
                       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
                       :class="blackSpaceTrain ? 'bg-primary' : 'bg-surface-container-highest'">
+                <span class="sr-only">切换训练状态</span>
                 <span class="inline-block h-4 w-4 transform rounded-full bg-on-primary transition duration-200"
                       :class="blackSpaceTrain ? 'translate-x-6' : 'translate-x-1'"></span>
               </button>
@@ -187,10 +188,10 @@
             img="fas fa-thumbs-up"
             desc="输入用户主页地址，对该用户的所有视频进行点赞">
           <div class="relative">
-            <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"></i>
+            <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm"></i>
             <input placeholder="https://space.bilibili.com/123456"
                    v-model="whiteSpaceUrl"
-                   class="w-full bg-surface-container-highest text-on-surface pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:outline-none focus:border-primary text-sm">
+                   class="w-full bg-surface-container-highest text-on-surface pl-9 pr-3 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-sm">
           </div>
         </SimpleCard>
       </div>
