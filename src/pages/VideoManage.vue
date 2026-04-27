@@ -652,6 +652,8 @@ export default {
         if (resp.code === 200) {
           this.$set(video, 'recheckResult', true)
           this.$set(video, 'matchResult', resp.data)
+          // 将核验结果覆盖到 handle_reason 字段
+          this.$set(video, 'handle_reason', resp.data)
 
           setTimeout(() => {
             this.$set(video, 'recheckResult', null)
