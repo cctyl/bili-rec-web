@@ -173,9 +173,7 @@
           <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none"></i>
         </div>
       </div>
-      <div ref="chartCard" style="max-height: 800px; overflow-y: auto; overflow-x: hidden;" class="custom-scrollbar">
-        <div ref="chartContainer" style="height: 400px; min-height: 400px;"></div>
-      </div>
+      <div ref="chartContainer" style="height: 400px;"></div>
     </div>
 
     <!-- 任务信息卡片 - Material 3 Elevated Card -->
@@ -298,19 +296,14 @@ export default {
       const otherValueMap = createValueMap(otherData.dates, otherData.values)
 
       const allDatesSorted = [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort()
-      const allDates = [...allDatesSorted].reverse()
 
-      const getReversedValues = (valueMap, sortedDates) => {
-        return [...sortedDates].reverse().map(date => valueMap[date] || 0)
+      const getValues = (valueMap, sortedDates) => {
+        return sortedDates.map(date => valueMap[date] || 0)
       }
 
-      const whiteReversedValues = getReversedValues(whiteValueMap, allDatesSorted)
-      const blackReversedValues = getReversedValues(blackValueMap, allDatesSorted)
-      const otherReversedValues = getReversedValues(otherValueMap, allDatesSorted)
-
-      const chartHeight = Math.max(400, allDates.length * 22 + 100)
-      this.$refs.chartContainer.style.height = `${chartHeight}px`
-      this.chart.resize()
+      const whiteValues = getValues(whiteValueMap, allDatesSorted)
+      const blackValues = getValues(blackValueMap, allDatesSorted)
+      const otherValues = getValues(otherValueMap, allDatesSorted)
 
       const option = {
         backgroundColor: 'transparent',
@@ -318,86 +311,189 @@ export default {
           trigger: 'axis',
           axisPointer: {
             type: 'shadow'
+          },
+          backgroundColor: 'rgba(28, 27, 31, 0.95)',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          textStyle: {
+            color: '#E6E1E5'
+          },
+          formatter: function(params) {
+            let result = `<div style="font-weight: 500; margin-bottom: 8px;">${params[0].axisValue}</div>`
+            let total = 0
+            params.forEach(item => {
+              total += item.value
+              result += `<div style="display: flex; align-items: center; margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background: ${item.color}; border-radius: 2px; margin-right: 8px;"></span>
+                <span style="flex: 1;">${item.seriesName}:</span>
+                <span style="font-weight: 600; margin-left: 12px;">${item.value}</span>
+              </div>`
+            })
+            result += `<div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between;">
+              <span>总计:</span>
+              <span style="font-weight: 600;">${total}</span>
+            </div>`
+            return result
           }
         },
         legend: {
           data: ['点赞', '点踩', '其他'],
           textStyle: {
-            color: '#9CA3AF'
-          }
+            color: '#9CA3AF',
+            fontSize: 12
+          },
+          itemWidth: 12,
+          itemHeight: 12,
+          itemGap: 20,
+          top: 0
         },
         grid: {
-          left: '10%',
+          left: '3%',
           right: '4%',
-          top: '10%',
-          bottom: '3%',
+          top: '15%',
+          bottom: '15%',
           containLabel: true
         },
-        xAxis: {
-          type: 'value',
-          axisLine: {
-            lineStyle: {
-              color: '#4B5563'
-            }
+        dataZoom: [
+          {
+            type: 'inside',
+            start: Math.max(0, 100 - (30 / allDatesSorted.length * 100)),
+            end: 100,
+            zoomOnMouseWheel: true,
+            moveOnMouseMove: true
           },
-          axisLabel: {
-            color: '#9CA3AF'
-          },
-          splitLine: {
-            lineStyle: {
-              color: '#374151',
-              type: 'dashed'
-            }
+          {
+            type: 'slider',
+            start: Math.max(0, 100 - (30 / allDatesSorted.length * 100)),
+            end: 100,
+            height: 24,
+            bottom: 10,
+            borderColor: 'transparent',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            fillerColor: 'rgba(59, 130, 246, 0.3)',
+            handleStyle: {
+              color: '#3B82F6',
+              borderColor: '#3B82F6'
+            },
+            textStyle: {
+              color: '#9CA3AF'
+            },
+            brushSelect: false
           }
-        },
-        yAxis: {
+        ],
+        xAxis: {
           type: 'category',
-          data: allDates,
+          data: allDatesSorted,
           axisLine: {
             lineStyle: {
-              color: '#4B5563'
+              color: 'rgba(255, 255, 255, 0.1)'
             }
           },
           axisLabel: {
             color: '#9CA3AF',
-            interval: 0
+            interval: 'auto',
+            rotate: 45,
+            fontSize: 11
+          },
+          axisTick: {
+            show: false
+          }
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: {
+            show: false
+          },
+          axisLabel: {
+            color: '#9CA3AF',
+            fontSize: 11
           },
           splitLine: {
-            show: false
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.05)',
+              type: 'dashed'
+            }
           }
         },
         series: [
           {
             name: '点赞',
             type: 'bar',
-            barWidth: 15,
-            data: whiteReversedValues,
+            stack: 'total',
+            barWidth: '60%',
+            data: whiteValues,
             itemStyle: {
-              color: '#10B981',
-              borderRadius: [0, 4, 4, 0]
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#34D399' },
+                { offset: 1, color: '#10B981' }
+              ]),
+              borderRadius: [4, 4, 0, 0]
+            },
+            emphasis: {
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#6EE7B7' },
+                  { offset: 1, color: '#34D399' }
+                ])
+              }
+            },
+            animationDelay: function(idx) {
+              return idx * 10
             }
           },
           {
             name: '点踩',
             type: 'bar',
-            barWidth: 15,
-            data: blackReversedValues,
+            stack: 'total',
+            barWidth: '60%',
+            data: blackValues,
             itemStyle: {
-              color: '#EF4444',
-              borderRadius: [0, 4, 4, 0]
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#F87171' },
+                { offset: 1, color: '#EF4444' }
+              ]),
+              borderRadius: [0, 0, 0, 0]
+            },
+            emphasis: {
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#FCA5A5' },
+                  { offset: 1, color: '#F87171' }
+                ])
+              }
+            },
+            animationDelay: function(idx) {
+              return idx * 10 + 100
             }
           },
           {
             name: '其他',
             type: 'bar',
-            barWidth: 15,
-            data: otherReversedValues,
+            stack: 'total',
+            barWidth: '60%',
+            data: otherValues,
             itemStyle: {
-              color: '#F59E0B',
-              borderRadius: [0, 4, 4, 0]
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#FBBF24' },
+                { offset: 1, color: '#F59E0B' }
+              ]),
+              borderRadius: [0, 0, 4, 4]
+            },
+            emphasis: {
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#FCD34D' },
+                  { offset: 1, color: '#FBBF24' }
+                ])
+              }
+            },
+            animationDelay: function(idx) {
+              return idx * 10 + 200
             }
           }
-        ]
+        ],
+        animationEasing: 'cubicOut',
+        animationDuration: 800
       }
 
       this.chart.setOption(option)
