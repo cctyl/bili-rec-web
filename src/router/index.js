@@ -9,8 +9,7 @@ import OtherSetting from "@/pages/OtherSetting.vue";
 // import Analytics from "@/pages/Analytics.vue";
 // import Security from "@/pages/Security.vue";
 // import Logout from "@/pages/Logout.vue";
-import Review from "@/pages/Review.vue"
-import HistoryVideo from "@/pages/HistoryVideo.vue"
+import VideoManage from "@/pages/VideoManage.vue"
 import WatchUploaderList from  "@/pages/WatchUploaderList.vue"
 
 Vue.use(VueRouter)
@@ -55,11 +54,17 @@ const router = new VueRouter({
         },
         {
             path: '/review',
-            component: Review,
+            component: VideoManage,
+            props: {
+                mode: 'review'
+            }
         },
         {
             path: '/history-video',
-            component: HistoryVideo,
+            component: VideoManage,
+            props: {
+                mode: 'history'
+            }
         }, {
             path: '/watch-uploader-list',
             component: WatchUploaderList,
