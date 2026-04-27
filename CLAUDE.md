@@ -57,10 +57,9 @@ src/
 1. **总览 (Home)**: 显示系统运行状态和统计数据
 2. **任务管理 (Tasks)**: 管理自动化任务
 3. **黑白名单管理**: 配置视频过滤规则
-4. **视频审核 (Review)**: 手动审核待处理视频
-5. **历史记录 (HistoryVideo)**: 查看已处理视频记录
+4. **视频审核 (VideoManage)**: 手动审核待处理视频
+5. **历史记录 (VideoManage)**: 查看已处理视频记录
 6. **系统设置 (Settings)**: 系统配置和认证
-7. **UP主观察 (WatchUploaderList)**: 监控特定UP主
 
 ### API 接口结构
 所有 API 调用统一使用 `src/api/index.js` 中的方法：
@@ -112,16 +111,13 @@ src/
 3. **消息提示**：使用全局 `this.$message(message, type)` 方法显示提示消息
 
 ### 开发规范
-1. **API 调用**: 所有 API 调kt统一使用 `src/api/index.js` 中的方法
+1. **API 调用**: 所有 API 调用使用api-request-skill skill
 2. **状态更新**: 通过 Vuex actions 和 mutations 管理状态
 3. **组件复用**: 通用组件位于 `src/components/` 目录
 4. **错误处理**: API 调用错误统一在组件中处理
 5. **权限验证**: 在 App.vue 中进行登录状态检查
 
-### TODO
-根据 README.md，以下是待办事项：
-1. 视频审核界面，当前页数据都处理完毕后自动刷新
-2. 视频审核界面，历史审核界面，增加观看历史记录
+
 
 ## Skills 索引
 
@@ -133,17 +129,21 @@ src/
 | tailwindcss-styling | 样式、CSS、Tailwind、样式设计、UI、界面、布局、颜色、按钮、表单、卡片、美化、样式调整 | TailwindCSS 样式开发规范，包括颜色系统、布局系统、组件样式等 |
 | router-usage | 路由、router、导航、跳转、$router、$route、页面跳转、路由配置、路由守卫、router-link、router-view | Vue Router 路由使用规范，包括路由配置、声明式导航、编程式导航、路由参数、路由守卫等 |
 
+
+
+## ui风格与界面设计
+凡是设计ui相关修改，都要使用 material-design skill 进行设计，并遵循 UI_DESIGN_GUIDE.md 的要求
+
+
 ### 使用说明
 
 当你在开发中提到触发词时，对应的 Skill 会自动加载，提供详细的技术指导。例如：
 - "帮我添加一个 API 接口" → 自动激活 api-request Skill
 - "如何在组件中调用后端接口？" → 自动激活 api-request Skill
-- "帮我设计一个卡片组件的样式" → 自动激活 tailwindcss-styling Skill
-- "这个页面需要美化一下" → 自动激活 tailwindcss-styling Skill
+- "帮我设计一个卡片组件的样式" → 自动激活 material-design  Skill，以及遵循 UI_DESIGN_GUIDE.md
+- "这个页面需要美化一下" → 自动激活 material-design  Skill，以及遵循 UI_DESIGN_GUIDE.md
 - "帮我添加一个新的路由" → 自动激活 router-usage Skill
 - "如何从列表页跳转到详情页？" → 自动激活 router-usage Skill
 - "如何在导航时传递参数？" → 自动激活 router-usage Skill
 
-### Skill 目录
 
-所有 Skill 定义在 `.claude/skills/` 目录下，每个 Skill 是一个独立的文件夹，包含 `SKILL.md` 文件。
