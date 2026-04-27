@@ -1,200 +1,235 @@
 <template>
   <main class="flex-1 p-6 overflow-auto custom-scrollbar">
-    <header class="flex justify-between items-center mb-6">
+    <!-- Header Section -->
+    <header class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-2xl font-bold">总览</h1>
-        <p class="text-gray-400 mt-1">欢迎回来，管理员。这里是您的系统概览。</p>
+        <h1 class="text-3xl font-medium text-on-surface">总览</h1>
+        <p class="text-sm text-on-surface-variant mt-2">欢迎回来，管理员。这里是您的系统概览。</p>
       </div>
       <div class="flex items-center">
-
         <button
             @click="fetchOverviewData"
-            class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-2 !rounded-button whitespace-nowrap">
-          <i class="fas fa-sync-alt mr-2"></i>刷新数据
+            class="bg-primary text-on-primary px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all duration-200 elevation-1 hover:elevation-2 mr-2 !rounded-button whitespace-nowrap flex items-center gap-2">
+          <i class="fas fa-sync-alt"></i>
+          <span>刷新数据</span>
         </button>
-
       </div>
     </header>
 
-    <!-- 数据概览卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg">当前运行任务数</h3>
-          <i class="fas fa-tasks text-2xl text-primary"></i>
+    <!-- 数据概览卡片 - Material 3 Filled Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- 当前运行任务数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">当前运行任务数</h3>
+          <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+            <i class="fas fa-tasks text-lg text-on-primary-container"></i>
+          </div>
         </div>
-        <p class="text-3xl font-bold text-primary mb-1">{{ overview.running_task_count }}</p>
-        <p class="text-sm text-gray-400">活跃任务总数</p>
+        <p class="text-4xl font-medium text-on-surface mb-1">{{ overview.running_task_count }}</p>
+        <p class="text-xs text-on-surface-variant">活跃任务总数</p>
       </div>
 
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg">黑名单规则数</h3>
-          <i class="fas fa-ban text-2xl text-red-400"></i>
+      <!-- 黑名单规则数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">黑名单规则数</h3>
+          <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center">
+            <i class="fas fa-ban text-lg text-on-error-container"></i>
+          </div>
         </div>
-        <p class="text-3xl font-bold text-red-400 mb-1">{{ overview.black_rule_count }}</p>
-        <p class="text-sm text-gray-400">已设置的判断规则字典数（总计）</p>
-      </div>
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg">待筛选的黑名单关键词数</h3>
-          <i class="fas fa-ban text-2xl text-orange-300"></i>
-        </div>
-        <p class="text-3xl font-bold text-orange-300 mb-1">{{ overview.black_cache_count }}</p>
-        <p class="text-sm text-gray-400">需要用户在黑名单管理页面底部去筛选的关键词</p>
+        <p class="text-4xl font-medium text-error mb-1">{{ overview.black_rule_count }}</p>
+        <p class="text-xs text-on-surface-variant">已设置的判断规则字典数（总计）</p>
       </div>
 
-
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg">白名单规则数</h3>
-          <i class="fas fa-check-circle text-2xl text-green-400"></i>
+      <!-- 待筛选的黑名单关键词数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">待筛选关键词数</h3>
+          <div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center">
+            <i class="fas fa-filter text-lg text-on-tertiary-container"></i>
+          </div>
         </div>
-        <p class="text-3xl font-bold text-green-400">{{ overview.white_rule_count }}</p>
-        <p class="text-sm text-gray-400">已设置的判断规则字典数（总计）</p>
-      </div>
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg">搜索关键词数</h3>
-          <i class="fas fa-search text-2xl text-pink-400"></i>
-        </div>
-        <p class="text-3xl font-bold text-pink-400">{{ overview.search_keyword_count }}</p>
-        <p class="text-sm text-gray-400 mt-2">用于搜索的关键词</p>
-      </div>
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg">已运行天数</h3>
-          <i class="fas fa-calendar text-2xl text-yellow-400"></i>
-        </div>
-        <p class="text-3xl font-bold text-yellow-400">{{ overview.run_days }}</p>
-        <p class="text-sm text-gray-400 mt-2">稳定运行中</p>
+        <p class="text-4xl font-medium text-tertiary mb-1">{{ overview.black_cache_count }}</p>
+        <p class="text-xs text-on-surface-variant">需在黑名单管理页面筛选</p>
       </div>
 
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg">历史点赞数</h3>
-          <i class="fas fa-thumbs-up text-2xl text-blue-400"></i>
+      <!-- 白名单规则数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">白名单规则数</h3>
+          <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+            <i class="fas fa-check-circle text-lg text-on-secondary-container"></i>
+          </div>
         </div>
-        <p class="text-3xl font-bold text-blue-400">{{ overview.like_video_count }}</p>
-        <p class="text-sm text-gray-400 mt-2">历史点赞的视频总数</p>
+        <p class="text-4xl font-medium text-secondary mb-1">{{ overview.white_rule_count }}</p>
+        <p class="text-xs text-on-surface-variant">已设置的判断规则字典数（总计）</p>
       </div>
 
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg">历史点踩数</h3>
-          <i class="fas fa-thumbs-down text-2xl text-purple-400"></i>
+      <!-- 搜索关键词数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">搜索关键词数</h3>
+          <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+            <i class="fas fa-search text-lg text-on-primary-container"></i>
+          </div>
         </div>
-        <p class="text-3xl font-bold text-purple-400">{{ overview.hate_video_count }}</p>
-        <p class="text-sm text-gray-400 mt-2">历史点踩的视频总数</p>
+        <p class="text-4xl font-medium text-primary mb-1">{{ overview.search_keyword_count }}</p>
+        <p class="text-xs text-on-surface-variant">用于搜索的关键词</p>
+      </div>
+
+      <!-- 已运行天数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">已运行天数</h3>
+          <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+            <i class="fas fa-calendar text-lg text-on-secondary-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-secondary mb-1">{{ overview.run_days }}</p>
+        <p class="text-xs text-on-surface-variant">稳定运行中</p>
+      </div>
+
+      <!-- 历史点赞数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">历史点赞数</h3>
+          <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+            <i class="fas fa-thumbs-up text-lg text-on-primary-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-primary mb-1">{{ overview.like_video_count }}</p>
+        <p class="text-xs text-on-surface-variant">历史点赞的视频总数</p>
+      </div>
+
+      <!-- 历史点踩数 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">历史点踩数</h3>
+          <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center">
+            <i class="fas fa-thumbs-down text-lg text-on-error-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-error mb-1">{{ overview.hate_video_count }}</p>
+        <p class="text-xs text-on-surface-variant">历史点踩的视频总数</p>
       </div>
     </div>
 
-    <!-- 待处理数据卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <!-- 待处理数据卡片 - Material 3 Outlined Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <!-- 待二次处理数据卡片 -->
-      <div class="bg-gray-700 rounded-lg p-6">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium">待二次处理(审核)</h3>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </div>
-        <div class="mt-4">
-          <div class="flex items-baseline">
-            <span class="text-3xl font-bold">{{ overview.second_handle_count }}</span>
-            <span class="ml-2 text-sm text-gray-400">条</span>
+      <div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center">
+              <i class="fas fa-clipboard-check text-xl text-on-primary-container"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-medium text-on-surface">待二次处理(审核)</h3>
+              <p class="text-xs text-on-surface-variant">等待二次处理的数据</p>
+            </div>
           </div>
-          <p class="mt-2 text-sm text-gray-400">等待二次处理的数据，即左侧的视频审核菜单</p>
+          <span class="text-3xl font-medium text-primary">{{ overview.second_handle_count }}</span>
+        </div>
+        <div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+          <div class="h-full bg-primary rounded-full" :style="{ width: Math.min(100, (overview.second_handle_count / 100) * 100) + '%' }"></div>
         </div>
       </div>
 
       <!-- 待三次处理数据卡片 -->
-      <div class="bg-gray-700 rounded-lg p-6">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium">待三次处理</h3>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </div>
-        <div class="mt-4">
-          <div class="flex items-baseline">
-            <span class="text-3xl font-bold">{{ overview.third_handle_count }}</span>
-            <span class="ml-2 text-sm text-gray-400">条</span>
+      <div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center">
+              <i class="fas fa-layer-group text-xl text-on-tertiary-container"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-medium text-on-surface">待三次处理</h3>
+              <p class="text-xs text-on-surface-variant">等待三次处理的数据</p>
+            </div>
           </div>
-          <p class="mt-2 text-sm text-gray-400">等待三次处理的数据</p>
+          <span class="text-3xl font-medium text-tertiary">{{ overview.third_handle_count }}</span>
+        </div>
+        <div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+          <div class="h-full bg-tertiary rounded-full" :style="{ width: Math.min(100, (overview.third_handle_count / 100) * 100) + '%' }"></div>
         </div>
       </div>
-      <!-- ...其他卡片... -->
     </div>
-    <!-- 历史数据图表 -->
-    <div class="grid grid-cols-1 gap-6 mb-6">
-      <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-        <h3 class="text-lg mb-4">历史处理数据统计</h3>
-        <div class="relative mb-4">
+
+    <!-- 历史数据图表 - Material 3 Elevated Card -->
+    <div class="bg-surface-container p-5 rounded-xl elevation-1 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-on-surface">历史处理数据统计</h3>
+        <div class="relative">
           <select
               @change="handleYearChange"
               v-model="selectedYear"
-              class="bg-gray-700 text-white px-4 py-2 rounded-md appearance-none cursor-pointer pr-8"
+              class="bg-surface-container-highest text-on-surface px-4 py-2 pr-10 rounded-lg appearance-none cursor-pointer border border-outline-variant text-sm focus:outline-none focus:border-primary"
           >
             <option v-for="year in range(2020,2050)" :key="year" :value="year">
               {{ year }}年
             </option>
           </select>
+          <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none"></i>
         </div>
-        <div ref="chartCard" style="max-height: 800px; overflow-y: auto; overflow-x: hidden;" class="custom-scrollbar">
-          <div ref="chartContainer" style="height: 400px; min-height: 400px;"></div>
-        </div>
+      </div>
+      <div ref="chartCard" style="max-height: 800px; overflow-y: auto; overflow-x: hidden;" class="custom-scrollbar">
+        <div ref="chartContainer" style="height: 400px; min-height: 400px;"></div>
       </div>
     </div>
 
-
-    <!-- 任务信息卡片 -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 class="text-xl font-bold mb-4">任务信息</h2>
+    <!-- 任务信息卡片 - Material 3 Elevated Card -->
+    <div class="bg-surface-container p-5 rounded-xl elevation-1">
+      <h2 class="text-xl font-medium text-on-surface mb-5">任务信息</h2>
 
       <!-- 任务列表为空时的提示 -->
       <div v-if="!overview.task_list || overview.task_list.length === 0"
-           class="flex flex-col items-center justify-center py-8">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-12 w-12 text-gray-500 mb-4"
-             fill="none"
-             viewBox="0 0 24 24"
-             stroke="currentColor">
-          <path stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <p class="text-gray-400 text-lg">暂无任务信息</p>
-        <p class="text-gray-500 text-sm mt-2">当前没有正在运行或等待的任务</p>
+           class="flex flex-col items-center justify-center py-12 bg-surface-container-low rounded-xl">
+        <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-4">
+          <i class="fas fa-clipboard-list text-2xl text-on-surface-variant"></i>
+        </div>
+        <p class="text-on-surface-variant text-base font-medium">暂无任务信息</p>
+        <p class="text-on-surface-variant/70 text-sm mt-1">当前没有正在运行或等待的任务</p>
       </div>
 
       <!-- 任务列表内容 -->
-      <div v-else class="space-y-4">
+      <div v-else class="space-y-3">
         <div v-for="(task, index) in overview.task_list"
              :key="task.id"
-             class="bg-gray-700 p-4 rounded-lg"
+             class="bg-surface-container-high p-4 rounded-xl border-l-4 transition-all duration-200 hover:elevation-1"
              :class="{
-            'border-l-4 border-green-500 bg-gray-600': task.current_run_status === 'RUNNING',
-            'border-l-4 border-yellow-400': task.current_run_status === 'WAITING'
+            'border-primary': task.current_run_status === 'RUNNING',
+            'border-tertiary': task.current_run_status === 'WAITING',
+            'border-outline-variant': task.current_run_status !== 'RUNNING' && task.current_run_status !== 'WAITING'
         }">
           <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center">
-              <span class="font-semibold">{{ task.task_name }}</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-on-surface">{{ task.task_name }}</span>
               <span v-if="task.current_run_status === 'RUNNING'"
-                    class="ml-2 px-2 py-1 text-xs bg-green-500 text-white rounded">运行中</span>
-              <span v-if="index === 1"
-                    class="ml-2 px-2 py-1 text-xs bg-yellow-400 text-black rounded">下一个</span>
+                    class="px-2.5 py-0.5 text-xs font-medium bg-primary text-on-primary rounded-full">运行中</span>
+              <span v-if="task.current_run_status === 'WAITING'"
+                    class="px-2.5 py-0.5 text-xs font-medium bg-tertiary text-on-tertiary rounded-full">排队中</span>
+              <span v-if="index === 1 && task.current_run_status !== 'RUNNING'"
+                    class="px-2.5 py-0.5 text-xs font-medium bg-secondary text-on-secondary rounded-full">下一个</span>
             </div>
-            <span class="text-sm text-gray-400">上次运行: {{ formatTime(task.last_run_time) }}</span>
+            <span class="text-xs text-on-surface-variant">上次运行: {{ formatTime(task.last_run_time) }}</span>
           </div>
 
-          <p class="text-sm text-gray-400 mb-2">{{ task.class_method_name }}</p>
+          <p class="text-sm text-on-surface-variant mb-3">{{ task.class_method_name }}</p>
 
-          <div class="flex flex-wrap gap-4 text-sm text-gray-300">
-            <span>状态: {{ getStatus(task.current_run_status) }}</span>
-            <span>总运行次数: {{ task.total_run_count }}</span>
-            <span>上次运行时长: {{ formatDuration(task.last_run_duration) }}</span>
+          <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant">
+            <span class="flex items-center gap-1">
+              <i class="fas fa-circle text-[8px]" :class="getStatusColor(task.current_run_status)"></i>
+              {{ getStatus(task.current_run_status) }}
+            </span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-redo text-[10px]"></i>
+              总运行: {{ task.total_run_count }}次
+            </span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-clock text-[10px]"></i>
+              上次时长: {{ formatDuration(task.last_run_duration) }}
+            </span>
           </div>
         </div>
       </div>
@@ -227,16 +262,12 @@ export default {
         "hate_video_count": 0,
         "task_list": []
       },
-      selectedYear: new Date().getFullYear(), // 默认当前年份
-
+      selectedYear: new Date().getFullYear(),
     }
   },
   methods: {
     range(start,end){
-
-      //生成start 到 end 这两个值中间的数组
       return Array.from({length: end - start + 1}, (_, i) => start + i);
-
     },
     handleYearChange(){
       this.fetchOverviewData();
@@ -254,7 +285,6 @@ export default {
       const blackData = processData(this.overview.black_history)
       const otherData = processData(this.overview.other_history)
 
-      // 创建日期到值的映射
       const createValueMap = (dates, values) => {
         const map = {}
         dates.forEach((date, index) => {
@@ -267,13 +297,9 @@ export default {
       const blackValueMap = createValueMap(blackData.dates, blackData.values)
       const otherValueMap = createValueMap(otherData.dates, otherData.values)
 
-      // 获取所有日期并排序（从小到大）
       const allDatesSorted = [...new Set([...whiteData.dates, ...blackData.dates, ...otherData.dates])].sort()
-
-      // 反转日期数组，让最新的日期显示在顶部
       const allDates = [...allDatesSorted].reverse()
 
-      // 根数据值也按照反转后的日期顺序重新排列
       const getReversedValues = (valueMap, sortedDates) => {
         return [...sortedDates].reverse().map(date => valueMap[date] || 0)
       }
@@ -282,10 +308,7 @@ export default {
       const blackReversedValues = getReversedValues(blackValueMap, allDatesSorted)
       const otherReversedValues = getReversedValues(otherValueMap, allDatesSorted)
 
-      // 动态计算图表高度：每天 22px + 边距
       const chartHeight = Math.max(400, allDates.length * 22 + 100)
-
-      // 更新图表容器高度
       this.$refs.chartContainer.style.height = `${chartHeight}px`
       this.chart.resize()
 
@@ -382,7 +405,6 @@ export default {
 
     async fetchOverviewData() {
       try {
-        // 这里替换为实际的API调用
         const response = await api.getOverviewData(this.selectedYear);
         this.overview = response.data
         this.initChart()
@@ -406,6 +428,18 @@ export default {
           return str;
       }
     },
+    getStatusColor(str) {
+      switch (str) {
+        case "RUNNING":
+          return 'text-primary';
+        case "STOPPED":
+          return 'text-on-surface-variant';
+        case "WAITING":
+          return 'text-tertiary';
+        default:
+          return 'text-on-surface-variant';
+      }
+    },
     formatTime(timeStr) {
       if (!timeStr) return '无';
       const date = new Date(timeStr);
@@ -419,9 +453,7 @@ export default {
     }
   },
   mounted() {
-    // this. initChart()
     this.fetchOverviewData();
-
     window.addEventListener('resize', this.handleResize)
   },
   beforeDestroy() {
@@ -432,5 +464,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
