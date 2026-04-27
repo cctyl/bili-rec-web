@@ -470,7 +470,6 @@ export default {
     goToBilibili(video) {
       const url = 'https://www.bilibili.com/video/' + video.bvid;
       window.open(url, '_blank');
-      api.watchVideo(video.aid)
     },
     handleSearch() {
       this.currentPage = 1; // 重置页码

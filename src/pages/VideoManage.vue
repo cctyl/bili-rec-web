@@ -597,7 +597,6 @@ export default {
     goToBilibili(video) {
       const url = 'https://www.bilibili.com/video/' + video.bvid
       window.open(url, '_blank')
-      api.watchVideo(video.aid)
     },
     formatArray(arr) {
       if (!arr || !Array.isArray(arr) || arr.length === 0) {

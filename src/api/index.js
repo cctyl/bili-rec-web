@@ -348,14 +348,7 @@ export default {
         }, 'POST');
     },
 
-    /**
-     * 记录观看视频
-     * @param aid
-     * @returns {Promise | Promise<unknown> | *}
-     */
-    watchVideo(aid){
-        return ajax(`/video-detail/watch/${aid}`,null, 'POST');
-    },
+
     /**
      * 黑白名单检测
      * @param bvid
