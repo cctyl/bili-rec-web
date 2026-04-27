@@ -1,242 +1,207 @@
 <template>
-
   <!-- 主内容区 -->
-  <div class="flex-1 p-8 overflow-y-auto">
-    <!-- 定时任务管理   -->
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl font-bold">定时任务管理</h2>
-    </div>
-    <!-- 任务瀑布流布局 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
-      <div v-for="task in filterTaskList" :key="task.id"
-           class="break-inside-avoid mb-6 rounded-lg p-6 bg-gray-800 shadow-md hover:shadow-lg transform hover:-translate-y-1  active:shadow-inner transition-all duration-200">
-        <div
-            class="w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <div class="flex items-center justify-center mb-4">
-            <!-- 将 img 标签替换为 FontAwesome 图标 -->
-            <i :class="task.img" class="w-16 h-16 rounded-full text-4xl"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-center mb-2">{{ task.task_name }}</h3>
-          <p class="text-sm text-gray-400 text-center mb-4">{{ task.description }}</p>
-        </div>
+  <div class="flex-1 p-6 overflow-y-auto custom-scrollbar">
+    <!-- Header Section -->
+    <header class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-medium text-on-surface">任务管理</h1>
+        <p class="text-sm text-on-surface-variant mt-2">管理和监控所有定时任务</p>
+      </div>
+    </header>
 
-        <div class="task-details">
-          <div class="flex justify-center mb-2">
-            <span :class="statusClass(task.current_run_status)" class="px-2 py-1 text-xs font-semibold rounded-full">
+    <!-- 定时任务管理 -->
+    <section class="mb-10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+          <i class="fas fa-clock text-on-primary-container"></i>
+        </div>
+        <h2 class="text-xl font-medium text-on-surface">定时任务</h2>
+      </div>
+
+      <!-- 任务卡片网格 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div v-for="task in filterTaskList" :key="task.id"
+             class="bg-surface-container p-5 rounded-xl elevation-1 hover:elevation-2 transition-all duration-200">
+          <!-- 任务头部 -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
+                <i :class="task.img" class="text-2xl text-on-secondary-container"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-medium text-on-surface">{{ task.task_name }}</h3>
+                <p class="text-xs text-on-surface-variant line-clamp-1">{{ task.description }}</p>
+              </div>
+            </div>
+            <span :class="statusClass(task.current_run_status)" class="px-3 py-1 text-xs font-medium rounded-full">
               {{ getStatus(task.current_run_status) }}
             </span>
-
           </div>
-          <div class="task-info-grid">
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-tasks"></i>
+
+          <!-- 任务信息网格 -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-surface-container-high rounded-lg p-3">
+              <div class="flex items-center gap-2 text-on-surface-variant text-xs mb-1">
+                <i class="fas fa-redo text-primary"></i>
                 <span>总运行次数</span>
               </div>
-              <div class="task-info-value">{{ task.total_run_count }}</div>
+              <p class="text-lg font-medium text-on-surface">{{ task.total_run_count }}</p>
             </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-stopwatch"></i>
-                <span>上次运行耗时</span>
+            <div class="bg-surface-container-high rounded-lg p-3">
+              <div class="flex items-center gap-2 text-on-surface-variant text-xs mb-1">
+                <i class="fas fa-stopwatch text-secondary"></i>
+                <span>上次耗时</span>
               </div>
-              <div class="task-info-value">{{ task.last_run_duration }}秒</div>
+              <p class="text-lg font-medium text-on-surface">{{ task.last_run_duration }}秒</p>
             </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-clock"></i>
-                <span>上次运行时间</span>
+            <div class="bg-surface-container-high rounded-lg p-3">
+              <div class="flex items-center gap-2 text-on-surface-variant text-xs mb-1">
+                <i class="fas fa-history text-tertiary"></i>
+                <span>上次运行</span>
               </div>
-              <div class="task-info-value">{{ $parseIsoDateStr( task.last_run_time )}}</div>
+              <p class="text-sm font-medium text-on-surface truncate">{{ $parseIsoDateStr(task.last_run_time) }}</p>
             </div>
-            <div class="task-info-item">
-              <div class="task-info-label">
-                <i class="fas fa-toggle-on"></i>
-                <span>定时任务状态</span>
+            <div class="bg-surface-container-high rounded-lg p-3">
+              <div class="flex items-center gap-2 text-on-surface-variant text-xs mb-1">
+                <i class="fas fa-power-off text-primary"></i>
+                <span>启用状态</span>
               </div>
-              <div class="task-info-value">
-                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                  <input type="checkbox" :id="'task-status-toggle'+task.id" v-model="task.is_enabled"
-                         @click="handleTaskStatusChange(task)"
-                         class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                  <label :for="'task-status-toggle'+task.id"
-                         class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+              <button @click="handleTaskStatusChange(task)"
+                      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
+                      :class="task.is_enabled ? 'bg-primary' : 'bg-surface-container-highest'">
+                <span class="sr-only">切换任务状态</span>
+                <span class="inline-block h-4 w-4 transform rounded-full bg-on-primary transition duration-200"
+                      :class="task.is_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 定时设置 -->
+          <div v-if="task.is_enabled" class="mb-4 p-3 bg-surface-container-high rounded-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-calendar-clock text-on-surface-variant text-sm"></i>
+                  <template v-if="task.editScheduledHour">
+                    <select v-model="task.scheduled_hour"
+                            class="bg-surface-container-highest text-on-surface rounded-lg px-3 py-1.5 text-sm border border-outline-variant focus:outline-none focus:border-primary"
+                            @change="changeScheduledTime(task)"
+                            @blur="task.editScheduledHour=false">
+                      <option v-for="hour in 24" :key="hour-1" :value="hour-1">{{ hour - 1 }}:00</option>
+                    </select>
+                    <button @click="task.editScheduledHour=false"
+                            class="text-on-surface-variant hover:text-error transition-colors">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <span @click="task.editScheduledHour=true" class="cursor-pointer hover:text-primary transition-colors text-sm font-medium">
+                      每天 {{ task.scheduled_hour }}:00
+                    </span>
+                  </template>
                 </div>
               </div>
-            </div>
-            <div class="task-info-item" v-if="task.is_enabled">
-              <div class="task-info-label">
-                <i class="fas fa-clock"></i>
-                <span>定时运行时间</span>
-              </div>
-
-              <template v-if="task.editScheduledHour">
-                <select
-                    v-model="task.scheduled_hour"
-                    class="bg-gray-700 text-white rounded px-2 py-1 text-sm"
-                    @change="changeScheduledTime(task)"
-                    @blur="task.editScheduledHour=false"
-                >
-                  <option v-for="hour in 24" :key="hour-1" :value="hour-1">{{ hour - 1 }}:00</option>
-                </select>
-                <button
-                    @click="task.editScheduledHour=false"
-                    class="ml-2 text-gray-400 hover:text-white"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </template>
-              <template v-else>
-                <span @click="task.editScheduledHour=true" class="cursor-pointer hover:text-blue-400">
-                  {{ task.scheduled_hour }}:00
-                </span>
-              </template>
-
-              <!--              <div class="task-info-value">{{ task.scheduled_hour }}:00</div>-->
-            </div>
-            <div class="task-info-item" v-if="task.is_enabled">
-              <div class="task-info-label">
-                <i class="fas fa-hourglass-half"></i>
-                <span>预计下次运行</span>
-              </div>
-              <div class="task-info-value">{{ getNextRunTime(task.scheduled_hour) }}小时后</div>
+              <span class="text-xs text-on-surface-variant">
+                预计 {{ getNextRunTime(task.scheduled_hour) }} 小时后运行
+              </span>
             </div>
           </div>
-          <!-- 在 task-info-grid div 下方添加以下代码 -->
-          <div class="mt-4 flex justify-center">
-            <button
-                @click.stop="triggerTask(task)"
-                :disabled="! (task.current_run_status ==='STOPPED')"
-                class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i class="fas fa-play mr-2"></i>
-              <span>{{ task.current_run_status === 'STOPPED' ? '手动触发' : '执行中...' }}</span>
-            </button>
-          </div>
+
+          <!-- 触发按钮 -->
+          <button @click.stop="triggerTask(task)"
+                  :disabled="!(task.current_run_status ==='STOPPED')"
+                  class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
+                  :class="task.current_run_status === 'STOPPED' 
+                    ? 'bg-primary text-on-primary hover:bg-primary/90' 
+                    : 'bg-surface-container-highest text-on-surface-variant cursor-not-allowed'">
+            <i class="fas" :class="task.current_run_status === 'STOPPED' ? 'fa-play' : 'fa-spinner fa-spin'"></i>
+            <span>{{ task.current_run_status === 'STOPPED' ? '手动触发' : '执行中...' }}</span>
+          </button>
         </div>
-
       </div>
-    </div>
-
-
-<!--
-    &lt;!&ndash; 其他可触发操作 &ndash;&gt;
-    <div class="flex justify-between items-center mb-8 mt-8">
-      <h2 class="text-2xl font-bold">其他可触发操作</h2>
-    </div>
-    &lt;!&ndash; 任务瀑布流布局 &ndash;&gt;
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
-
-
-      <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.ReplyController.saveVideoReplay')"
-          title="保存某个视频下的所有评论"
-          :trigger="saveVideoComment"
-          img="fas fa-comments"
-          desc="保存某个视频下的所有评论，方便后续cha shui biao"
-      >
-        <input placeholder="https://www.bilibili.com/video/BV1HcfsYxEFA/"
-               v-model="saveVideoCommentUrl"
-               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-      </SimpleCard>
-    </div>
-
--->
+    </section>
 
     <!-- 黑名单操作 -->
-    <div class="flex justify-between items-center mb-8 mt-8">
-      <h2 class="text-2xl font-bold">黑名单操作</h2>
-    </div>
-    <!-- 任务瀑布流布局 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 items-start">
-
-      <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByTid')"
-          title="对指定分区的 排行榜、热门视频进行点踩"
-          :trigger="thumbDown"
-          img="fas fa-ban"
-          desc="选择一个分区，对该分区的 排行榜、热门视频进行点踩"
-      >
-
-        <RegionComponent
-            :partitions="partitions"
-            :handle-partition="handlePartitionCheck"
-        >
-        </RegionComponent>
-
-      </SimpleCard>
-
-
-
-
-      <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByUserId')"
-          title="对指定用户的视频进行点踩"
-          :trigger="BLACKUserVideo"
-          img="fas fa-thumbs-down"
-          desc="输入对方的主页地址，对指定用户的视频进行点踩"
-      >
-
-        <input placeholder="https://space.bilibili.com/123456"
-               v-model="blackSpaceUrl"
-               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <div slot="other" class="task-info-item"
-             style="display: flex; flex-direction: row;justify-content: space-between;">
-          <div class="task-info-label">
-            <span>将这些视频加入黑名单规则训练</span>
-
-          </div>
-
-          <div class=" relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-            <input type="checkbox" :id="'task-status-toggleblackSpaceUrl'" v-model="blackSpaceTrain"
-                   class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-            <label :for="'task-status-toggleblackSpaceUrl'"
-                   class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-          </div>
-
+    <section class="mb-10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-error-container flex items-center justify-center">
+          <i class="fas fa-ban text-on-error-container"></i>
         </div>
+        <h2 class="text-xl font-medium text-on-surface">黑名单操作</h2>
+      </div>
 
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SimpleCard
+            :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByTid')"
+            title="分区排行榜点踩"
+            :trigger="thumbDown"
+            img="fas fa-chart-bar"
+            desc="选择分区，对该分区的排行榜、热门视频进行点踩">
+          <RegionComponent
+              :partitions="partitions"
+              :handle-partition="handlePartitionCheck">
+          </RegionComponent>
+        </SimpleCard>
 
-      </SimpleCard>
-    </div>
-
+        <SimpleCard
+            :status="getTaskStatus('io.github.cctyl.controller.BlackRuleController.BLACKByUserId')"
+            title="指定用户视频点踩"
+            :trigger="BLACKUserVideo"
+            img="fas fa-user-slash"
+            desc="输入用户主页地址，对该用户的所有视频进行点踩">
+          <div class="space-y-4">
+            <div class="relative">
+              <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"></i>
+              <input placeholder="https://space.bilibili.com/123456"
+                     v-model="blackSpaceUrl"
+                     class="w-full bg-surface-container-highest text-on-surface pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:outline-none focus:border-primary text-sm">
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-container-high rounded-lg">
+              <span class="text-sm text-on-surface-variant">加入黑名单规则训练</span>
+              <button @click="blackSpaceTrain = !blackSpaceTrain"
+                      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
+                      :class="blackSpaceTrain ? 'bg-primary' : 'bg-surface-container-highest'">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-on-primary transition duration-200"
+                      :class="blackSpaceTrain ? 'translate-x-6' : 'translate-x-1'"></span>
+              </button>
+            </div>
+          </div>
+        </SimpleCard>
+      </div>
+    </section>
 
     <!-- 白名单操作 -->
-    <div class="flex justify-between items-center mb-8 mt-8">
-      <h2 class="text-2xl font-bold">白名单操作</h2>
-    </div>
-    <!-- 任务瀑布流布局 -->
-    <div class="flex flex-wrap gap-6">
+    <section class="mb-10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center">
+          <i class="fas fa-check-circle text-on-secondary-container"></i>
+        </div>
+        <h2 class="text-xl font-medium text-on-surface">白名单操作</h2>
+      </div>
 
-
-      <SimpleCard
-          :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.thumbUpUserAllVideo')"
-          class="flex-grow basis-[300px]"
-          title="对指定用户的视频进行点赞"
-          :trigger="thumbUpUserVideo"
-          img="fas fa-thumbs-up"
-          desc="输入对方的主页地址，对该用户的所有视频均进行点赞"
-      >
-        <input placeholder="https://space.bilibili.com/123456"
-               v-model="whiteSpaceUrl"
-               class="flex-grow mr-4 bg-gray-700 text-white px-4 py-2 rounded-l-md !rounded-button focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </SimpleCard>
-
-
-
-    </div>
-
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SimpleCard
+            :status="getTaskStatus('io.github.cctyl.controller.WhiteRuleController.thumbUpUserAllVideo')"
+            title="指定用户视频点赞"
+            :trigger="thumbUpUserVideo"
+            img="fas fa-thumbs-up"
+            desc="输入用户主页地址，对该用户的所有视频进行点赞">
+          <div class="relative">
+            <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"></i>
+            <input placeholder="https://space.bilibili.com/123456"
+                   v-model="whiteSpaceUrl"
+                   class="w-full bg-surface-container-highest text-on-surface pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:outline-none focus:border-primary text-sm">
+          </div>
+        </SimpleCard>
+      </div>
+    </section>
   </div>
-
 </template>
 
 <script>
 import api from "@/api";
 import SimpleCard from "@/components/SimpleCard.vue";
 import RegionComponent from "@/components/Region.vue";
-
 
 export default {
   name: "home-view",
@@ -284,7 +249,6 @@ export default {
     };
   },
   mounted() {
-
     this.fetchTaskData();
     this.fetchRegionList();
   },
@@ -293,17 +257,16 @@ export default {
       const query = this.searchQuery.toLowerCase();
       console.log(this.rulelist);
       return this.rulelist.filter(item => {
-            try {
-              return (item.info && item.info.toLowerCase().includes(query)) ||
-                  (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
-                  (item.titleKeyWordList && item.titleKeyWordList.some(keyword => keyword.toLowerCase().includes(query))) ||
-                  (item.coverKeyword && item.coverKeyword.some(keyword => keyword.toLowerCase().includes(query))) ||
-                  (item.descKeyWordList && item.descKeyWordList.some(keyword => keyword.toLowerCase().includes(query)));
-            } catch (err) {
-              console.log(err);
-            }
-          }
-      );
+        try {
+          return (item.info && item.info.toLowerCase().includes(query)) ||
+              (item.tagNameList && item.tagNameList.some(keyword => keyword.toLowerCase().includes(query))) ||
+              (item.titleKeyWordList && item.titleKeyWordList.some(keyword => keyword.toLowerCase().includes(query))) ||
+              (item.coverKeyword && item.coverKeyword.some(keyword => keyword.toLowerCase().includes(query))) ||
+              (item.descKeyWordList && item.descKeyWordList.some(keyword => keyword.toLowerCase().includes(query)));
+        } catch (err) {
+          console.log(err);
+        }
+      });
     },
     filterTaskList() {
       return this.tasks.filter(task => {
@@ -312,7 +275,6 @@ export default {
     },
   },
   methods: {
-
     async trainWhiteRule() {
       let flag = false;
       if (this.selectRuleId) {
@@ -328,19 +290,15 @@ export default {
         try {
           const params = {};
 
-          // 如果选择了规则ID，添加到参数中
           if (this.selectRuleId) {
             params.id = this.selectRuleId;
           }
-          params.trainedBvidList =[];
-          // 根据输入方式选择参数
+          params.trainedBvidList = [];
           if (this.useTagInput) {
-            // 使用视频列表进行训练
             params.trainedBvidList = this.tagObj.bvTag;
           } else {
-            // 使用UP主ID进行训练
             const mid = this.$getMid(this.whiteSpaceTrainUrl);
-            console.log('mid='+mid);
+            console.log('mid=' + mid);
             if (!mid) {
               this.$message('无法解析UP主ID', 'error');
               return;
@@ -376,10 +334,6 @@ export default {
     removeTag(type, index) {
       this.tagObj[type].splice(index, 1);
     },
-    /**
-     * 点踩用户视频
-     * @returns {Promise<void>}
-     */
     async BLACKUserVideo() {
       const mid = this.$getMid(this.blackSpaceUrl);
       if (mid) {
@@ -395,19 +349,13 @@ export default {
         console.log(mid)
         this.$message('mid 提取失败', 'error');
       }
-
-
     },
 
-    /**
-     * 点赞用户视频
-     * @returns {Promise<void>}
-     */
     async thumbUpUserVideo() {
       const mid = this.$getMid(this.whiteSpaceUrl);
       if (mid) {
         try {
-          const response = await api.thumbUpUserVideo(mid*1);
+          const response = await api.thumbUpUserVideo(mid * 1);
           if (response.success) {
             this.$message(response.message, 'success');
           }
@@ -418,8 +366,6 @@ export default {
         console.log(mid)
         this.$message('mid 提取失败', 'error');
       }
-
-
     },
 
     async isWhite() {
@@ -446,7 +392,6 @@ export default {
         } else {
           this.$message('bvid 提取失败', 'error')
         }
-
       } catch (error) {
         console.error('Failed to  fetchRegionList:', error);
       }
@@ -462,9 +407,6 @@ export default {
     },
     handlePartitionCheck() {
     },
-    /**
-     * 对分区进行点踩
-     */
     async thumbDown() {
       const filterArr = this.partitions.filter((item) => {
         return item.checked
@@ -476,42 +418,27 @@ export default {
 
       const nameStr = filterArr.map((item) => {
         return item.name;
-      })
-          .join(",");
+      }).join(",");
       if (confirm("确定对 " + nameStr + " 等分区进行点踩吗")) {
-
-        const tidArr = filterArr
-            .map((item) => {
-              return item.tid
-            });
+        const tidArr = filterArr.map((item) => {
+          return item.tid
+        });
 
         try {
           const response = await api.disklikeByTid(tidArr);
           if (response.success) {
             this.$message(response.message, '任务已开始');
-
           }
-
           this.fetchRegionList()
-
         } catch (error) {
           console.error('Failed to  thumbDown', error);
         }
       }
-
-
     },
 
-    /**
-     * 保存视频下评论
-     */
     async saveVideoComment() {
-
-
       const bvId = this.$getBvid(this.saveVideoCommentUrl);
-
       if (bvId) {
-
         try {
           const response = await api.saveVideoComment(bvId);
           if (response.success) {
@@ -520,12 +447,10 @@ export default {
         } catch (error) {
           console.error('Failed to  saveVideoComment', error);
         }
-
       } else {
         this.$message('格式错误，未提取到BV号', 'error');
         this.saveVideoCommentUrl = '';
       }
-
     },
 
     changeScheduledTime(task) {
@@ -533,27 +458,26 @@ export default {
       task.editScheduledHour = false
     },
     getNextRunTime(hour) {
-      const now =   new Date().getHours();
-      if (now<hour){
-        return hour-now;
+      const now = new Date().getHours();
+      if (now < hour) {
+        return hour - now;
       }
       return 24 + hour - now;
     },
     handleTaskStatusChange(task) {
       task.is_enabled = !task.is_enabled;
       api.updateTaskEnabled(task);
-
     },
     statusClass(status) {
       switch (status) {
         case 'RUNNING':
-          return 'bg-green-500 text-white';
+          return 'bg-primary-container text-on-primary-container';
         case 'STOPPED':
-          return 'bg-blue-500 text-white';
+          return 'bg-secondary-container text-on-secondary-container';
         case 'WAITING':
-          return 'bg-gray-500 text-white';
+          return 'bg-tertiary-container text-on-tertiary-container';
         default:
-          return 'bg-gray-500 text-white';
+          return 'bg-surface-container-highest text-on-surface-variant';
       }
     },
     async triggerTask(task) {
@@ -565,30 +489,24 @@ export default {
         } else {
           this.$message(response.message, 'success');
         }
-
         await this.fetchTaskData();
-
       } catch (error) {
         console.error('Failed to  triggerTask', error);
       }
-
     },
     createNewTask() {
-      // 实现创建新任务的逻辑
       console.log('创建新任务', this.newTask);
       this.showNewTaskModal = false;
-      this.newTask = {name: '', description: ''};
+      this.newTask = { name: '', description: '' };
     },
     async fetchTaskData() {
       try {
         const response = await api.getTaskList();
-        console.log(  response)
+        console.log(response)
         response.data.forEach(task => {
           task.editScheduledHour = false
         })
         this.tasks = response.data;
-
-
         console.log(this.tasks)
       } catch (error) {
         console.error('Failed to  fetchTaskData:', error);
@@ -606,12 +524,7 @@ export default {
           return str;
       }
     },
-    /**
-     * 查找指定任务的运行状态
-     * @param classMethodName
-     */
     getTaskStatus(classMethodName) {
-
       const arr = this.tasks.filter((item) => {
         return item.class_method_name === classMethodName
       })
@@ -619,21 +532,17 @@ export default {
         return arr[0].currentRunStatus
       } else {
         return '无状态';
-
       }
-
     },
   }
 };
 </script>
 
 <style scoped>
-
 body {
   font-family: 'Roboto', sans-serif;
 }
 
-/* 移除number input的默认箭头 */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -644,71 +553,10 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-/* 自定义滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #2d3748;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4a5568;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #718096;
-}
-
-.task-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.task-info-item {
-  background-color: rgba(45, 55, 72, 0.5);
-  border: 1px solid rgba(74, 85, 104, 0.2);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  transition: all 0.2s ease;
-}
-
-.task-info-label {
-  display: flex;
-  align-items: center;
-  color: #9CA3AF;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.task-info-value {
-  white-space: nowrap;
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.task-info-item:hover {
-  background-color: rgba(45, 55, 72, 0.8);
-  transform: translateY(-2px);
-}
-
-.task-info-label i {
-  margin-right: 0.5rem;
-  font-size: 1rem;
-  color: #60A5FA;
-}
-
-/* 开关样式 */
-.toggle-checkbox:checked {
-  right: 0;
-  border-color: #68D391;
-}
-
-.toggle-checkbox:checked + .toggle-label {
-  background-color: #68D391;
 }
 </style>
