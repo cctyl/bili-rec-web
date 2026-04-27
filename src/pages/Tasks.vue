@@ -277,17 +277,27 @@ export default {
   },
   methods: {
     async trainWhiteRule() {
-      let flag = false;
+      let confirmed = false;
       if (this.selectRuleId) {
         const ruleItem = this.rulelist.filter(item => {
           return item.id == this.selectRuleId
         });
-        flag = confirm(`你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`);
+        confirmed = await this.$confirm(
+          `你选择的规则是：${ruleItem[0].info} ，接下来将根据你输入的视频对该规则进行训练`,
+          '确认训练',
+          '确定',
+          '取消'
+        );
       } else {
-        flag = confirm("你没有选择规则哦，将创建一个全新的规则");
+        confirmed = await this.$confirm(
+          '你没有选择规则哦，将创建一个全新的规则',
+          '确认创建',
+          '确定',
+          '取消'
+        );
       }
 
-      if (flag) {
+      if (confirmed) {
         try {
           const params = {};
 
@@ -420,7 +430,13 @@ export default {
       const nameStr = filterArr.map((item) => {
         return item.name;
       }).join(",");
-      if (confirm("确定对 " + nameStr + " 等分区进行点踩吗")) {
+      const confirmed = await this.$confirm(
+        `确定对 ${nameStr} 等分区进行点踩吗？`,
+        '确认操作',
+        '确定',
+        '取消'
+      );
+      if (confirmed) {
         const tidArr = filterArr.map((item) => {
           return item.tid
         });

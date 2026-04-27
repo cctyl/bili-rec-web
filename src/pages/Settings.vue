@@ -770,11 +770,11 @@ export default {
           this.showAddCookieModal = false;
           this.newCookie = {url: null, ckey: '', cvalue: '', classify: '', media_type: ''};
         } else {
-          alert('新增Cookie失败，请重试');
+          this.$error('新增Cookie失败，请重试');
         }
       } catch (error) {
         console.error('新增Cookie失败:', error);
-        alert('新增Cookie失败，请重试');
+        this.$error('新增Cookie失败，请重试');
       }
     },
     async updateCookie(index) {
@@ -784,11 +784,11 @@ export default {
         if (response.code === 200) {
           cookie.editable = false;
         } else {
-          alert('修改Cookie失败，请重试');
+          this.$error('修改Cookie失败，请重试');
         }
       } catch (error) {
         console.error('修改Cookie失败:', error);
-        alert('修改Cookie失败，请重试');
+        this.$error('修改Cookie失败，请重试');
       }
     },
     async deleteCookie(index) {
@@ -798,11 +798,11 @@ export default {
         if (response.code === 200) {
           this.cookieList.splice(index, 1);
         } else {
-          alert('删除Cookie失败，请重试');
+          this.$error('删除Cookie失败，请重试');
         }
       } catch (error) {
         console.error('删除Cookie失败:', error);
-        alert('删除Cookie失败，请重试');
+        this.$error('删除Cookie失败，请重试');
       }
     },
     toggleCookieEdit(index) {
@@ -854,15 +854,15 @@ export default {
         const response = await api.checkTvScanResult();
         console.log(response);
         if (response.code === 200 && response.data.indexOf("登陆成功") !== -1) {
-          alert('登录成功');
+          this.$success('登录成功');
           this.showModal = false;
           this.fetchUserData();
         } else {
-          alert(response.data);
+          this.$info(response.data);
         }
       } catch (error) {
         console.error('检查扫码结果失败:', error);
-        alert('检查扫码结果失败，请重试');
+        this.$error('检查扫码结果失败，请重试');
       }
     },
     async fetchCookieList(page, limit) {

@@ -410,8 +410,13 @@ export default {
         if (video.handle_type == newHandleType) {
           return;
         }
-        const flag = confirm("确定要纠正之前的处理结果吗？");
-        if (!flag) {
+        const confirmed = await this.$confirm(
+          '确定要纠正之前的处理结果吗？',
+          '确认纠正',
+          '确定',
+          '取消'
+        );
+        if (!confirmed) {
           return;
         }
         const reason = video.handle_type !== newHandleType ? '用户修改为' + newHandleType : undefined;

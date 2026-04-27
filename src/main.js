@@ -3,9 +3,11 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import MessagePlugin from './plugins/message'
+import DialogPlugin from './plugins/dialog'
 import './assets/styles.css'
 import Util from './plugins/utils'
 Vue.use(MessagePlugin);
+Vue.use(DialogPlugin);
 Vue.use(Util);
 Vue.config.productionTip = false;
 

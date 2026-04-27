@@ -633,7 +633,7 @@ export default {
           console.error('Failed to fetch user name:', error);
         });
       } else {
-        alert("请输入正确的url,如:https://space.bilibili.com/123456")
+        this.$warning("请输入正确的url,如:https://space.bilibili.com/123456")
       }
     },
     submitKeyword(type, keywordList) {

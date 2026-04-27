@@ -296,7 +296,13 @@ export default {
     },
 
     async deleteItem(item) {
-      if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
+      const confirmed = await this.$confirm(
+        `确定要删除名为"${item.info}"的规则吗？`,
+        '确认删除',
+        '确定',
+        '取消'
+      );
+      if (confirmed) {
         const response = await api.delAssociateRule(item.id);
         if (response.code === 200) {
           this.$message('删除成功', 'success');

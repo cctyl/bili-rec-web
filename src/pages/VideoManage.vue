@@ -506,8 +506,13 @@ export default {
         }
 
         if (!this.isReviewMode) {
-          const flag = confirm("确定要纠正之前的处理结果吗？")
-          if (!flag) {
+          const confirmed = await this.$confirm(
+            '确定要纠正之前的处理结果吗？',
+            '确认纠正',
+            '确定',
+            '取消'
+          );
+          if (!confirmed) {
             return
           }
         }

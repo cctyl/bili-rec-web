@@ -304,7 +304,7 @@ export default {
 
 
       } else {
-        alert("请输入正确的url,如:https://space.bilibili.com/123456")
+        this.$warning("请输入正确的url,如:https://space.bilibili.com/123456")
       }
     },
     /**
@@ -397,8 +397,13 @@ export default {
       this.showEditModal = true;
     },
     async deleteWhitelistItem(item) {
-      if (confirm(`确定要删除名为"${item.info}"的白名单规则吗？`)) {
-
+      const confirmed = await this.$confirm(
+        `确定要删除名为"${item.info}"的白名单规则吗？`,
+        '确认删除',
+        '确定',
+        '取消'
+      );
+      if (confirmed) {
         const response = await api.delWhiteRuleById(item.id);
         if (response.success) {
           this.$message('删除成功',
@@ -410,7 +415,6 @@ export default {
               'error'
           );
         }
-
       }
     },
     addTag(type, input) {
