@@ -447,10 +447,35 @@ export default {
           this.videoList = response.data.records
           this.total = response.data.total
           this.pendingCount = response.data.total
+          // 异步加载缺失的 UP 主信息
+          this.loadMissingOwnerInfo()
         }
       } catch (error) {
         console.error('获取视频列表失败:', error)
       }
+    },
+    /**
+     * 异步加载缺失的 UP 主信息
+     */
+    loadMissingOwnerInfo() {
+      this.videoList.forEach(async (video) => {
+        // 如果已经有 owner 信息，则跳过
+        if (video.owner?.name && video.owner.name !== '-') {
+          return
+        }
+        // 使用视频的 id 字段作为 aid 调用接口获取 UP 主信息
+        const aid = video.aid || video.id
+        if (aid) {
+          try {
+            const response = await api.getOwnerByAid(aid)
+            if (response.code === 200 && response.data) {
+              this.$set(video, 'owner', response.data)
+            }
+          } catch (error) {
+            console.error(`获取视频 ${aid} 的 UP 主信息失败:`, error)
+          }
+        }
+      })
     },
     handleTypeChange(type) {
       this.currentType = type

@@ -423,5 +423,23 @@ export default {
      */
     testRule(data){
         return ajax(`/rule/testRule`,data,'POST')
+    },
+
+    /**
+     * 根据 mid 查询用户信息
+     * @param {number} mid 用户B站mid
+     * @returns {Promise<unknown>}
+     */
+    getUserInfoByMid(mid) {
+        return ajax(`/bili/getUserInfoByMid/${mid}`);
+    },
+
+    /**
+     * 根据视频 aid 查询视频 UP 主信息
+     * @param {number} aid 视频aid
+     * @returns {Promise<unknown>}
+     */
+    getOwnerByAid(aid) {
+        return ajax(`/bili/getOwnerByAid/${aid}`);
     }
 };
