@@ -767,6 +767,12 @@ export default {
         }
 
         this.$message('批量处理完成', 'success')
+
+        // 批量处理完成后，回到第1页刷新数据
+        setTimeout(() => {
+          this.currentPage = 1
+          this.fetchVideoList()
+        }, 500)
       } catch (error) {
         this.$message('批量处理失败：' + error.message, 'error')
       } finally {
