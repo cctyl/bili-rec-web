@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 p-6 overflow-y-auto custom-scrollbar">
+  <div ref="scrollContainer" class="flex-1 p-6 overflow-y-auto custom-scrollbar">
     <!-- Header Section -->
     <header class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
       <div class="flex items-center gap-4">
@@ -66,13 +66,24 @@
     <div class="flex-1 w-full flex flex-col">
       <div v-if="videoList.length > 0" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
         <div v-for="video in videoList" :key="video.bvid"
+          :data-video-id="video.id"
+          :data-bvid="video.bvid"
           class="bg-surface-container rounded-2xl overflow-hidden elevation-1 transition-all duration-300 border border-outline-variant/30 cursor-pointer"
           :class="video.processed ? 'opacity-60 processed-card' : 'hover:elevation-2 hover:-translate-y-1'">
           <!-- 视频封面区域 -->
           <div class="relative overflow-hidden group" @click="goToBilibili(video)">
-            <img :src="$getPic(video.pic)"
+            <img
+              v-if="loadedImages.has(video.bvid)"
+              :src="$getPic(video.pic)"
+              @load="onCoverLoaded(video)"
               class="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-105"
               :class="video.handle_type === 'BLACK' ? 'blur-cover' : ''" :alt="video.title">
+            <div
+              v-else
+              class="w-full aspect-video bg-surface-container-high flex items-center justify-center"
+              :class="video.handle_type === 'BLACK' ? 'blur-cover' : ''">
+              <i class="fas fa-image text-3xl text-on-surface-variant/30"></i>
+            </div>
             <!-- 渐变遮罩 -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
@@ -101,7 +112,8 @@
             <div class="flex items-center gap-3 mb-4 p-3 bg-surface-container-high rounded-xl">
               <div
                 class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-outline-variant/50">
-                <template v-if="video.owner?.face">
+                <!-- 封面加载完成后再加载头像 -->
+                <template v-if="coverLoaded.has(video.bvid) && video.owner?.face">
                   <img :src="$getPic(video.owner.face)" class="w-full h-full object-cover" :alt="video.owner?.name || 'UP主'">
                 </template>
                 <template v-else>
@@ -195,9 +207,9 @@
         <p class="text-on-surface-variant/70 text-sm mt-1">请稍后再来查看或切换其他分类</p>
       </div>
 
-      <!-- 分页 -->
-      <div v-if="totalPages > 1" class="w-full mt-8">
-        <nav class="flex justify-center items-center gap-2">
+      <!-- 分页 - 悬浮固定底部 -->
+      <div v-if="totalPages > 1" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+        <nav class="flex justify-center items-center gap-2 px-4 py-3 rounded-full bg-surface-container elevation-2 border border-outline-variant/30">
           <button
             class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
             :class="currentPage === 1
@@ -227,11 +239,14 @@
           </button>
         </nav>
       </div>
+
+      <!-- 分页占位符，避免内容被悬浮分页遮挡 -->
+      <div v-if="totalPages > 1" class="h-24"></div>
     </div>
 
     <!-- 一键处理悬浮按钮 -->
     <button v-if="isReviewMode" @click="handleAllVideos" :disabled="!videoList.length || isProcessing"
-      class="fixed right-6 bottom-6 px-6 py-3 rounded-full bg-primary text-on-primary font-medium elevation-2 hover:elevation-3 transition-all duration-300 flex items-center gap-2 z-50"
+      class="fixed right-6 bottom-24 px-6 py-3 rounded-full bg-primary text-on-primary font-medium elevation-2 hover:elevation-3 transition-all duration-300 flex items-center gap-2 z-50"
       :class="(!videoList.length || isProcessing) ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'">
       <i class="fas" :class="isProcessing ? 'fa-circle-notch fa-spin' : 'fa-magic'"></i>
       <span>{{ isProcessing ? '处理中...' : '一键处理' }}</span>
@@ -355,6 +370,18 @@ export default {
       search: '',
       timer: null,
       activeTooltip: null,
+      // UP主信息加载队列
+      ownerInfoQueue: [],
+      maxConcurrentRequests: 5,
+      currentConcurrentRequests: 0,
+      isProcessingQueue: false,
+      // Intersection Observer
+      videoObserver: null,
+      visibleVideoIds: new Set(),
+      // 已加载图片的 bvid 集合
+      loadedImages: new Set(),
+      // 封面已加载完成的 bvid 集合
+      coverLoaded: new Set(),
     }
   },
   computed: {
@@ -410,6 +437,12 @@ export default {
   created() {
     this.initPageData()
   },
+  beforeDestroy() {
+    // 清理 Intersection Observer
+    if (this.videoObserver) {
+      this.videoObserver.disconnect()
+    }
+  },
   watch: {
     '$route.path'(newPath, oldPath) {
       // 当在 /review 和 /history-video 之间切换时，重新初始化页面数据
@@ -430,6 +463,10 @@ export default {
       this.confirmedCount = 0
       this.videoList = []
       this.total = 0
+      // 清空已加载图片集合
+      this.loadedImages = new Set()
+      // 清空封面加载完成集合
+      this.coverLoaded = new Set()
       this.fetchVideoList()
     },
     async fetchVideoList() {
@@ -455,27 +492,149 @@ export default {
       }
     },
     /**
-     * 异步加载缺失的 UP 主信息
+     * 初始化 Intersection Observer 监听视频卡片可见性
+     */
+    initIntersectionObserver() {
+      // 先断开旧的 observer
+      if (this.videoObserver) {
+        this.videoObserver.disconnect()
+      }
+
+      this.videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const bvid = entry.target.dataset.bvid
+          if (entry.isIntersecting) {
+            // 加载图片
+            if (!this.loadedImages.has(bvid)) {
+              this.loadedImages.add(bvid)
+              // 强制 Vue 响应式更新
+              this.loadedImages = new Set(this.loadedImages)
+            }
+
+            const videoId = entry.target.dataset.videoId
+            this.visibleVideoIds.add(videoId)
+            // 优先处理可见视频
+            this.prioritizeVisibleVideos()
+          } else {
+            const videoId = entry.target.dataset.videoId
+            this.visibleVideoIds.delete(videoId)
+          }
+        })
+      }, {
+        root: null,
+        rootMargin: '200px', // 提前 200px 开始加载
+        threshold: 0.1
+      })
+
+      // 观察所有视频卡片
+      this.$nextTick(() => {
+        const cards = this.$el.querySelectorAll('[data-video-id]')
+        cards.forEach(card => this.videoObserver.observe(card))
+      })
+    },
+    
+    /**
+     * 将可见视频移到队列前面优先处理
+     */
+    prioritizeVisibleVideos() {
+      if (this.ownerInfoQueue.length === 0) return
+      
+      // 将可见的视频移到队列前面
+      this.ownerInfoQueue.sort((a, b) => {
+        const aVisible = this.visibleVideoIds.has(String(a.id))
+        const bVisible = this.visibleVideoIds.has(String(b.id))
+        if (aVisible && !bVisible) return -1
+        if (!aVisible && bVisible) return 1
+        return 0
+      })
+    },
+    
+    /**
+     * 异步加载缺失的 UP 主信息（使用队列）
      */
     loadMissingOwnerInfo() {
-      this.videoList.forEach(async (video) => {
+      // 清空队列
+      this.ownerInfoQueue = []
+      
+      // 将需要获取 owner 信息的视频加入队列
+      this.videoList.forEach((video) => {
         // 如果已经有 owner 信息，则跳过
         if (video.owner?.name && video.owner.name !== '-') {
           return
         }
-        // 使用视频的 id 字段作为 aid 调用接口获取 UP 主信息
+        // 使用视频的 id 字段作为 aid
         const aid = video.aid || video.id
         if (aid) {
-          try {
-            const response = await api.getOwnerByAid(aid)
-            if (response.code === 200 && response.data) {
-              this.$set(video, 'owner', response.data)
-            }
-          } catch (error) {
-            console.error(`获取视频 ${aid} 的 UP 主信息失败:`, error)
-          }
+          this.ownerInfoQueue.push({
+            id: video.id,
+            aid: aid,
+            video: video
+          })
         }
       })
+      
+      // 初始化 Intersection Observer
+      this.initIntersectionObserver()
+      
+      // 启动队列处理
+      this.processQueue()
+    },
+    
+    /**
+     * 处理队列（带并发控制）
+     */
+    async processQueue() {
+      if (this.isProcessingQueue) return
+      this.isProcessingQueue = true
+      
+      // 使用 Promise 池控制并发
+      const executing = new Set()
+      
+      for (const task of this.ownerInfoQueue) {
+        // 创建请求 Promise
+        const promise = this.fetchOwnerInfo(task).then(() => {
+          executing.delete(promise)
+        })
+        
+        executing.add(promise)
+        
+        // 当并发数达到上限时，等待任意一个请求完成
+        if (executing.size >= this.maxConcurrentRequests) {
+          await Promise.race(executing)
+        }
+      }
+      
+      // 等待所有剩余请求完成
+      await Promise.all(executing)
+      
+      this.isProcessingQueue = false
+      // 清空队列
+      this.ownerInfoQueue = []
+    },
+    
+    /**
+     * 获取单个视频的 UP 主信息
+     */
+    async fetchOwnerInfo(task) {
+      try {
+        const response = await api.getOwnerByAid(task.aid)
+        if (response.code === 200 && response.data) {
+          this.$set(task.video, 'owner', response.data)
+        }
+      } catch (error) {
+        console.error(`获取视频 ${task.aid} 的 UP 主信息失败:`, error)
+      }
+    },
+
+    /**
+     * 封面加载完成后触发，开始加载头像
+     */
+    onCoverLoaded(video) {
+      if (!this.coverLoaded.has(video.bvid)) {
+        this.coverLoaded.add(video.bvid)
+        // 强制 Vue 响应式更新
+        this.coverLoaded = new Set(this.coverLoaded)
+      }
     },
     handleTypeChange(type) {
       this.currentType = type
@@ -485,6 +644,13 @@ export default {
     changePage(page) {
       this.currentPage = page
       this.fetchVideoList()
+      // 回到页面顶部
+      this.$nextTick(() => {
+        const container = this.$refs.scrollContainer
+        if (container) {
+          container.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      })
     },
     getHandleTypeLabel(type) {
       const typeMap = {
