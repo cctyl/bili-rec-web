@@ -16,15 +16,13 @@
 
 
       <KeywordListComponent
-          hint="添加新关键词"
-          title="搜索关键词"
-          :keyword-list-prop="keywordListPropObj"
+          hint="添加新关键词" title="" :keyword-list-prop="keywordListPropObj"
+
           access-type="OTHER"
           status="NORMAL"
           dict-type="SEARCH_KEYWORD"
-          desc="搜索任务的数据源,  下列关键词将会被搜索任务使用.  也就是说这部分关键词会被拿去搜索视频,  被搜索的视频会根据规则决定点踩或点赞"
-          :add="addKeyword"
-          :remove="removeKeyword"
+          desc=""
+          :add="addKeyword" :remove="removeKeyword" ref="SEARCH_KEYWORDComponent"
       >
 
     </KeywordListComponent>
@@ -44,7 +42,27 @@ export default {
   components: {KeywordListComponent},
   data() {
     return {
-
+      // dictTypeEnum: [
+      //   'TITLE',
+      //   'MID',
+      //   'TAG',
+      //   'TID',
+      //   'DESC',
+      //   'COVER',
+      // ],
+      // dictStatus: ['NORMAL'],
+      // dictTypeDesc: {
+      //   TAG: '视频标签',
+      //   DESC: '视频简介',
+      //   TITLE: '标题',
+      //   COVER: '封面',
+      //   MID: 'up主id',
+      //   TID: '分区id',
+      //   SEARCH_KEYWORD: '搜索词',
+      //   KEYWORD: '通用关键词',
+      //   STOP_WORDS: '停顿词',
+      //   AI_JUDGMENT_PROMPT: 'AI判断提示词'
+      // },
       keywordListPropObj:{
         SEARCH_KEYWORD: {
           NORMAL:[]
@@ -61,40 +79,27 @@ export default {
   computed: {
   },
   methods: {
-    /**
-     * 添加关键词
-     * @param accessType
-     * @param dictType
-     * @param keywordItem
-     * @returns {Promise<void>}
-     */
-    async addKeyword(accessType, dictType, keywordItem) {
+    async addKeyword(accessType, dictType, status, keywordItem) {
+      keywordItem.access_type = accessType;
+      keywordItem.dict_type = dictType;
       try {
         const response = await api.addDict(keywordItem);
-        if (response.code ===200) {
-          this.$message(response.message || '添加成功', 'success');
+        if (response.code !== 200) {
+          this.$message(response.message, 'error');
         } else {
-          this.$message(response.message || '添加失败', 'error');
+          keywordItem.id = response.data;
+          this.keywordListPropObj[dictType][status].push(keywordItem)
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
       }
     },
-    /**
-     * 删除关键词
-     * @param accessType
-     * @param dictType
-     * @param keywordItem
-     * @returns {Promise<void>}
-     */
-    async removeKeyword(accessType, dictType, keywordItem) {
-
+    async removeKeyword(accessType, dictType, status, keywordItem) {
       try {
+        this.keywordListPropObj[dictType][status] = this.keywordListPropObj[dictType][status].filter(k => k !== keywordItem)
         const response = await api.delDictById(keywordItem.id);
-        if (response.code ===200) {
-          this.$message(response.message || '删除成功', 'success');
-        } else {
-          this.$message(response.message || '删除失败', 'error');
+        if (response.code !== 200) {
+          this.$message(response.message, 'error');
         }
       } catch (error) {
         console.error('Failed to  addKeyword', error);
