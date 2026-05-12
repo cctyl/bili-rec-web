@@ -16,6 +16,45 @@
       </div>
     </header>
 
+    <!-- 系统状态卡片 - Material 3 Filled Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- CPU 使用率 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">CPU 占用</h3>
+          <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+            <i class="fas fa-microchip text-lg text-on-primary-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-on-surface mb-1">{{ overview.cpu_usage_percent != null ? overview.cpu_usage_percent + '%' : '--' }}</p>
+        <p class="text-xs text-on-surface-variant">本程序占用的 CPU</p>
+      </div>
+
+      <!-- 内存占用 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">内存占用</h3>
+          <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+            <i class="fas fa-memory text-lg text-on-secondary-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-on-surface mb-1">{{ overview.memory_usage_mb != null ? overview.memory_usage_mb + ' MB' : '--' }}</p>
+        <p class="text-xs text-on-surface-variant">本程序占用的内存</p>
+      </div>
+
+      <!-- 运行时间 -->
+      <div class="bg-surface-container p-5 rounded-xl elevation-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-sm font-medium text-on-surface-variant">运行时间</h3>
+          <div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center">
+            <i class="fas fa-clock text-lg text-on-tertiary-container"></i>
+          </div>
+        </div>
+        <p class="text-4xl font-medium text-on-surface mb-1">{{ formatUptime(overview.uptime_secs) }}</p>
+        <p class="text-xs text-on-surface-variant">程序已持续运行</p>
+      </div>
+    </div>
+
     <!-- 数据概览卡片 - Material 3 Filled Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <!-- 当前运行任务数 -->
@@ -546,6 +585,20 @@ export default {
       if (ms < 1000) return `${ms}ms`;
       if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
       return `${(ms / 60000).toFixed(2)}min`;
+    },
+    formatUptime(secs) {
+      if (secs == null) return '--';
+      const totalSeconds = Math.floor(secs);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      if (hours > 0) {
+        return `${hours}时${minutes}分${seconds}秒`;
+      }
+      if (minutes > 0) {
+        return `${minutes}分${seconds}秒`;
+      }
+      return `${seconds}秒`;
     }
   },
   mounted() {
