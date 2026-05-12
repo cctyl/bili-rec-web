@@ -580,11 +580,19 @@ export default {
       const date = new Date(timeStr);
       return date.toLocaleString('zh-CN');
     },
-    formatDuration(ms) {
-      if (!ms) return '无';
-      if (ms < 1000) return `${ms}ms`;
-      if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
-      return `${(ms / 60000).toFixed(2)}min`;
+    formatDuration(secs) {
+      if (!secs) return '无';
+      const totalSeconds = Math.floor(secs);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      if (hours > 0) {
+        return `${hours}时${minutes}分${seconds}秒`;
+      }
+      if (minutes > 0) {
+        return `${minutes}分${seconds}秒`;
+      }
+      return `${seconds}秒`;
     },
     formatUptime(secs) {
       if (secs == null) return '--';
