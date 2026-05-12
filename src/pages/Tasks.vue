@@ -52,7 +52,7 @@
                 <i class="fas fa-stopwatch text-secondary"></i>
                 <span>上次耗时</span>
               </div>
-              <p class="text-lg font-medium text-on-surface">{{ task.last_run_duration }}秒</p>
+              <p class="text-lg font-medium text-on-surface">{{ formatDuration(task.last_run_duration) }}</p>
             </div>
             <div class="bg-surface-container-high rounded-lg p-3">
               <div class="flex items-center gap-2 text-on-surface-variant text-xs mb-1">
@@ -536,6 +536,20 @@ export default {
       } catch (error) {
         console.error('Failed to  fetchTaskData:', error);
       }
+    },
+    formatDuration(secs) {
+      if (!secs) return '无';
+      const totalSeconds = Math.floor(secs);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      if (hours > 0) {
+        return `${hours}时${minutes}分${seconds}秒`;
+      }
+      if (minutes > 0) {
+        return `${minutes}分${seconds}秒`;
+      }
+      return `${seconds}秒`;
     },
     getStatus(str) {
       switch (str) {
