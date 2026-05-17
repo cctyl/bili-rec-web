@@ -64,7 +64,8 @@ export default {
          * @returns {string}
          */
         Vue.prototype.$getPic = function (url) {
-            return process.env.VUE_APP_URL + "/config/getPic?url=" + url;
+            // return process.env.VUE_APP_URL + "/config/getPic?url=" + url;
+            return url;
         };
 
 
